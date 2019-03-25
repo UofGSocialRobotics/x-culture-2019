@@ -30,6 +30,13 @@ uf <- read.csv('uf-pilot-noprime.csv')
 ```{r}
 load_and_clean <- function(filepath) {
   df <- read.csv(filepath) %>%
-    # select answer columns here
+    select(Answer.buttheads, Andrew.disagreement, 
+           Answer.getalong, Answer.goal,
+           Answer.tension, Answer.unified,
+           Answer.worktogether)
 }
+```
+
+```{r}
+uo <- load_and_clean('uo-pilot-noprime.csv')
 ```
