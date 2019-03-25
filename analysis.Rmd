@@ -28,15 +28,41 @@ uf <- read.csv('uf-pilot-noprime.csv')
 
 
 ```{r}
-load_and_clean <- function(filepath) {
+load_and_clean <- function(filepath, condition_name) {
   df <- read.csv(filepath) %>%
-    select(Answer.buttheads, Andrew.disagreement, 
+    mutate(ID=row_number()) %>%
+    mutate(condition=condition_name) %>%
+    select(ID, condition,
+           Answer.buttheads, Answer.disagreement, 
            Answer.getalong, Answer.goal,
            Answer.tension, Answer.unified,
-           Answer.worktogether)
+           Answer.worktogether) %>%
+    gather("statement_measure", score, Answer.disagreement,
+            Answer.getalong, Answer.buttheads, Answer.worktogether,
+            Answer.tension, Answer.goal, Answer.unified)
+  return(df)
 }
 ```
 
 ```{r}
-uo <- load_and_clean('uo-pilot-noprime.csv')
+uo <- load_and_clean('uo-pilot-noprime.csv', 'original')
+uf <- load_and_clean('uf-pilot-noprime.csv', 'force')
+ut <- load_and_clean('ut-pilot-noprime.csv', 'together')
+
+total_unpolite <- rbind(uo, uf, ut)
+```
+
+
+#### Quick n dirty plotting
+```{r}
+## bar, but not working -- need to avg
+unpolite_plot <- ggplot(total_unpolite, aes(x=statement_measure, y=score, fill=condition)) + 
+    geom_bar(stat="identity", position="dodge") + 
+    facet_wrap(~statement_measure, scale="free")
+
+## density of distributions
+unpolite_density <- ggplot(total_unpolite, aes(x=score, fill=condition)) + 
+  geom_density(alpha=0.3, stat="density", adjust=0.85) +
+  facet_wrap(~statement_measure, scale="free") + 
+  ggtitle("Unpolite Example distribution of statement ratings")
 ```
