@@ -90,7 +90,24 @@
 }
 </style>
 <script type='text/javascript'>
-window.onload = function() {document.getElementById('add').setAttribute('onclick', 'return validateForm()'); }
+window.onload = function() {
+  document.getElementById('add').setAttribute('onclick', 'return validateForm()');
+  video_id = getRandomVideo();
+  document.getElementById('video1').setAttribute('src', video_id)
+}
+
+
+function getRandomVideo() {
+  // THE BELOW RANDOMIZES INTO A TREATMENT CONDITION
+  // DEPENDING ON THE EXPERIMENT THE "rtext[i]" RANDOMIZATION COULD BE USED TO DO MULTIPLE THINGS
+  var vid_link = new Array ();
+  vid_link[0] = "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/uf_nosound.mov"; // THE NUMBER OF VALUES HERE DEPENDS ON NUMBER OF CONDITIONS
+  vid_link[1] = "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/uo_nosound.mov";
+  vid_link[2] = "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/ut_nosound.mov";
+  var i = Math.floor(3*Math.random());  // THE MULTIPLIER WILL DEPEND ON THE NUMBER OF CONDITIONS
+  video_link = vid_link[i]; // RECORDS THE RANDOMIZATION IN A HIDDEN FORM FIELD
+  return(video_link)
+}
 
 var params = [
   "tension",
@@ -164,7 +181,7 @@ else
 <div id="instructionBox" style="">
 <p id="instructions"><b>IMPORTANT: If you already completed a similar study in the past, please do not accept the HIT. It is crucial for our research that each separate batch of videos is rated by different workers. If you rate videos in different batches, we are afraid we will need to reject your HITs.</b></p>
 
-<p class="label2">Please read the description of the scene, watch the video (there is no sound), and answer the questions below.  Feel free to watch the video as many times as you like. 
+<p class="label2">Please read the description of the scene, watch the video (there is no sound), and answer the questions below.  Feel free to watch the video as many times as you like.
 
 Please <b>do not</b> pay attention to the speaker's face -- pay attention only to the gestures. </p>
 
@@ -173,7 +190,9 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 
 
 <div id="movieArea1">
-<video controls="" height="400" id="video1" tabindex="0" width="400"><!--<source src="C:\NIIStudyVideos\pre-post source\J01-pre.mp4"/>--><source src="${URL_VIDEO}" /> <!--source src="C:/Users/Juggling Jack/D Drive/Public Speaking/previewConverted.mp4" type="video/mp4"--><!--source src="rtmp://s2j00tovztwg6f.cloudfront.net/cfx/st/mp4:73jzhE8R1TQ_x264.mp4" type="video/mp4"--><!--source src="file:///C:\Users\park\Desktop\web_annotation_tool\experiments\youtube_movie_reviews\selected_videos\mp4\73jzhE8R1TQ_x264.mp4" type="video/mp4"--><!--source src="file:///C:\Users\park\Desktop\web_annotation_tool\experiments\youtube_movie_reviews\selected_videos\mp4_1min\yMQ9WeIZTNU_x264_1min.mp4" type="video/mp4"--><!--source src="file:///C:/Users/park/Desktop/Af8D0E4ZXaw_libtheora.ogv" type="video/ogg"--><!--source src="file:///C:/Users/park/Desktop/Af8D0E4ZXaw_libtheora.ogv" type="video/ogg"--><!--<source src="file:///C:\Users\park\Desktop\colour_3.26.2012_10.56_pt1_VP8.webm" type="video/webm"--><!--source src="https://s3.amazonaws.com/webtool_experiment/videos_webm_inhouse/yMQ9WeIZTNU_VP8.webm" type="video/webm"--></video>
+<video controls="" height="400" id="video1" tabindex="0" width="400">
+  <!-- <source src="https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/ut_nosound.mov" /> -->
+</video>
 &nbsp;
 &nbsp;
 </div>
@@ -499,7 +518,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 		</tr>
 	</tbody>
 </table>
-<input name="vid_id" type="hidden" value="${URL_VIDEO}" /> <input name="number_clicks" type="hidden" value="0" /></div>
+<input name="vid_id" type="hidden" value=video_id /></div>
 </div>
 
 </div>
