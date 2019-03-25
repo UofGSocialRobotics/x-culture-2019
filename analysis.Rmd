@@ -1,0 +1,35 @@
+---
+title: "IVA2019 Analysis"
+author: "--"
+date: "2/21/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(pwr)
+library(ordinal)
+```
+
+U = unpolite
+O = original
+UT = U together
+UF = U force
+
+## Load
+
+```{r}
+uo <- read.csv('uo-pilot-noprime.csv')
+ut <- read.csv('ut-pilot-noprime.csv')
+uf <- read.csv('uf-pilot-noprime.csv')
+```
+
+
+```{r}
+load_and_clean <- function(filepath) {
+  df <- read.csv(filepath) %>%
+    # select answer columns here
+}
+```
