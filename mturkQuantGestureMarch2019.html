@@ -93,6 +93,7 @@
 window.onload = function() {
   document.getElementById('add').setAttribute('onclick', 'return validateForm()');
   video_id = getRandomVideo();
+  document.getElementById('vid_id').setAttribute('value', video_id)
   document.getElementById('video1').setAttribute('src', video_id)
 }
 
@@ -518,7 +519,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 		</tr>
 	</tbody>
 </table>
-<input name="vid_id" type="hidden" value=video_id /></div>
+<input id="vid_id" name="vid_id" type="hidden" /></div>
 </div>
 
 </div>
