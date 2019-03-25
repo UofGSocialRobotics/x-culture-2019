@@ -1,7 +1,7 @@
 ---
-title: "IVA2019 Analysis"
-author: "--"
-date: "2/21/2019"
+title: "X-Culture Pilot Analysis"
+author: "csaund"
+date: "3/25/2019"
 output: html_document
 ---
 
@@ -19,13 +19,6 @@ UT = U together
 UF = U force
 
 ## Load
-
-```{r}
-uo <- read.csv('uo-pilot-noprime.csv')
-ut <- read.csv('ut-pilot-noprime.csv')
-uf <- read.csv('uf-pilot-noprime.csv')
-```
-
 
 ```{r}
 load_and_clean <- function(filepath, condition_name) {
@@ -65,4 +58,13 @@ unpolite_density <- ggplot(total_unpolite, aes(x=score, fill=condition)) +
   geom_density(alpha=0.3, stat="density", adjust=0.85) +
   facet_wrap(~statement_measure, scale="free") + 
   ggtitle("Unpolite Example distribution of statement ratings")
+
+## get dat violin data
+unpolite_violin <- ggplot(total_unpolite, aes(condition, score)) + 
+  geom_violin(aes(fill=condition, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
+  facet_wrap(~statement_measure) + 
+  labs(
+    title = "Violin plot (density) of ranked responses per condition by statement"   ,
+    caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
+  )
 ```
