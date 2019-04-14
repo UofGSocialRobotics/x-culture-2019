@@ -1,7 +1,7 @@
 ---
 title: "X-Culture Pilot Analysis"
 author: "csaund"
-date: "3/25/2019"
+date: "13/4/2019"
 output: html_document
 ---
 
@@ -13,58 +13,134 @@ library(pwr)
 library(ordinal)
 ```
 
-U = unpolite
-O = original
-UT = U together
-UF = U force
-
-## Load
-
+### Load and clean data 
 ```{r}
-load_and_clean <- function(filepath, condition_name) {
-  df <- read.csv(filepath) %>%
-    mutate(ID=row_number()) %>%
-    mutate(condition=condition_name) %>%
-    select(ID, condition,
-           Answer.buttheads, Answer.disagreement, 
-           Answer.getalong, Answer.goal,
-           Answer.tension, Answer.unified,
-           Answer.worktogether) %>%
-    gather("statement_measure", score, Answer.disagreement,
-            Answer.getalong, Answer.buttheads, Answer.worktogether,
-            Answer.tension, Answer.goal, Answer.unified)
+data <- read.csv("pilot_3_gest_each.csv") %>% 
+  dplyr::select(Answer.buttheads,
+                Answer.close,
+                Answer.cometogether,
+                Answer.communicate,
+                Answer.control,
+                Answer.disagreement,
+                Answer.worktogether,
+                Answer.goal,
+                Answer.getalong,
+                Answer.overlap,
+                Answer.protected,
+                Answer.tension,
+                Answer.unified,
+                Answer.vid_id) 
+
+data$Answer.vid_id <- gsub("https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/*", "\\1", data$Answer.vid_id)
+
+eastern <- data %>%
+  filter(grepl("eastern", Answer.vid_id))
+
+western <- data %>%
+  filter(grepl("western", Answer.vid_id))
+
+# need to get condition
+load_and_clean <- function(data, condition_name) {
+  df <- data %>%
+    mutate(condition=Answer.vid_id) %>%
+    select(condition, Answer.buttheads,
+                Answer.close,
+                Answer.cometogether,
+                Answer.communicate,
+                Answer.control,
+                Answer.disagreement,
+                Answer.goal,
+                Answer.getalong,
+                Answer.overlap,
+                Answer.protected,
+                Answer.tension,
+                Answer.unified,
+                Answer.worktogether) %>%
+    gather("statement_measure", score, 
+                Answer.buttheads,
+                Answer.close,
+                Answer.cometogether,
+                Answer.communicate,
+                Answer.control,
+                Answer.disagreement,
+                Answer.goal,
+                Answer.getalong,
+                Answer.overlap,
+                Answer.protected,
+                Answer.tension,
+                Answer.unified,
+                Answer.worktogether)
   return(df)
+}
+
+
+west_cleaned <- load_and_clean(western, "western")
+east_cleaned <- load_and_clean(eastern, "eastern")
+```
+
+
+Clean that shit up
+```{r}
+## TODO figure out a better way to do this.
+## need to filter this additionally by what gesture it is
+west_gest_3_clean <- west_cleaned %>%
+  mutate(ID=row_number()) %>%
+  filter(grepl("3", condition))
+
+west_gest_4_clean <- west_cleaned %>%
+  mutate(ID=row_number()) %>%
+  filter(grepl("4", condition))
+
+east_gest_3_clean <- east_cleaned %>%
+  mutate(ID=row_number()) %>%
+  filter(grepl("3", condition))
+```
+
+Let's just blindly plot things and see what happens
+```{r}
+create_bar <- function(data) {
+  bar_plot <- ggplot(data, aes(x=statement_measure, y=score, fill=condition)) + 
+      geom_bar(stat="identity", position="dodge") + 
+      facet_wrap(~statement_measure, scale="free")  
+  return(bar_plot)
+}
+
+create_density <- function(data) {
+  ## density of distributions
+  density_plot <- ggplot(data, aes(x=score, fill=condition)) + 
+    geom_density(alpha=0.3, stat="density", adjust=0.85) +
+    facet_wrap(~statement_measure, scale="free") + 
+    ggtitle("Unpolite Example distribution of statement ratings") 
+  return(density_plot)
+}
+
+## get dat violin data
+
+create_violin <- function(data) {
+  violin_plot <- ggplot(data, aes(condition, score)) + 
+    geom_violin(aes(fill=condition, alpha=0.5), scale="area", draw_quantiles = c(0.25, 0.5, 0.75)) +
+    facet_wrap(~statement_measure) + 
+    labs(
+      title = "Violin plot (density) of ranked responses per condition by statement"   ,
+      caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
+    )
+  return(violin_plot)
 }
 ```
 
+
 ```{r}
-uo <- load_and_clean('uo-pilot-noprime.csv', 'original')
-uf <- load_and_clean('uf-pilot-noprime.csv', 'force')
-ut <- load_and_clean('ut-pilot-noprime.csv', 'together')
-
-total_unpolite <- rbind(uo, uf, ut)
-```
+west_3_bar <- create_bar(west_gest_3_clean)
+west_3_dense <- create_density(west_gest_3_clean)
+west_3_violin <- create_violin(west_gest_3_clean)
 
 
-#### Quick n dirty plotting
-```{r}
-## bar, but not working -- need to avg
-unpolite_plot <- ggplot(total_unpolite, aes(x=statement_measure, y=score, fill=condition)) + 
-    geom_bar(stat="identity", position="dodge") + 
-    facet_wrap(~statement_measure, scale="free")
+west_4_bar <- create_bar(west_gest_4_clean)
+west_4_dense <- create_density(west_gest_4_clean)
+west_4_violin <- create_violin(west_gest_4_clean)
 
-## density of distributions
-unpolite_density <- ggplot(total_unpolite, aes(x=score, fill=condition)) + 
-  geom_density(alpha=0.3, stat="density", adjust=0.85) +
-  facet_wrap(~statement_measure, scale="free") + 
-  ggtitle("Unpolite Example distribution of statement ratings")
 
-## get dat violin data
-unpolite_violin <- ggplot(total_unpolite, aes(condition, score)) + 
-  geom_violin(aes(fill=condition, alpha=0.5), scale="area", draw_quantiles = c(0.25, 0.5, 0.75)) +
-  facet_wrap(~statement_measure) + 
-  labs(
-    title = "Violin plot (density) of ranked responses per condition by statement"   ,
-    caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
-  )
+east_3_bar <- create_bar(east_gest_3_clean)
+east_3_dense <- create_density(east_gest_3_clean)
+east_3_violin <- create_violin(east_gest_3_clean)
 ```
