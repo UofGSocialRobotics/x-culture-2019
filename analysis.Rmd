@@ -83,17 +83,29 @@ Clean that shit up
 ```{r}
 ## TODO figure out a better way to do this.
 ## need to filter this additionally by what gesture it is
+west_gest_1_clean <- west_cleaned %>%
+  mutate(ID=row_number()) %>%
+  filter(grepl("1-", condition))
+
 west_gest_3_clean <- west_cleaned %>%
   mutate(ID=row_number()) %>%
-  filter(grepl("3", condition))
+  filter(grepl("3-", condition))
 
 west_gest_4_clean <- west_cleaned %>%
   mutate(ID=row_number()) %>%
-  filter(grepl("4", condition))
+  filter(grepl("4-", condition))
+
+east_gest_1_clean <- east_cleaned %>%
+  mutate(ID=row_number()) %>%
+  filter(grepl("1-", condition))
+
+east_gest_2_clean <- east_cleaned %>%
+  mutate(ID=row_number()) %>%
+  filter(grepl("2-", condition))
 
 east_gest_3_clean <- east_cleaned %>%
   mutate(ID=row_number()) %>%
-  filter(grepl("3", condition))
+  filter(grepl("3-", condition))
 ```
 
 Let's just blindly plot things and see what happens
@@ -139,6 +151,13 @@ west_4_bar <- create_bar(west_gest_4_clean)
 west_4_dense <- create_density(west_gest_4_clean)
 west_4_violin <- create_violin(west_gest_4_clean)
 
+east_1_bar <- create_bar(east_gest_1_clean)
+east_1_dense <- create_density(east_gest_1_clean)
+east_1_violin <- create_violin(east_gest_1_clean)
+
+east_2_bar <- create_bar(east_gest_2_clean)
+east_2_dense <- create_density(east_gest_2_clean)
+east_2_violin <- create_violin(east_gest_2_clean)
 
 east_3_bar <- create_bar(east_gest_3_clean)
 east_3_dense <- create_density(east_gest_3_clean)
