@@ -28,7 +28,9 @@ library(ordinal)
 
 ### Load and clean data 
 ```{r}
-data <- read.csv("western_pilot_within_subj.csv") %>% 
+
+load_clean_data <- function(filepath) {
+  data <- read.csv(filepath) %>% 
   dplyr::select(Answer.buttheads,
                 Answer.close,
                 Answer.cometogether,
@@ -44,7 +46,18 @@ data <- read.csv("western_pilot_within_subj.csv") %>%
                 Answer.unified,
                 Answer.vid_id) 
 
-data$Answer.vid_id <- gsub("https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/*", "\\1", data$Answer.vid_id)
+  data$Answer.vid_id <- gsub("https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/*", 
+                             "\\1", 
+                             data$Answer.vid_id)
+  return(data)
+}
+
+d1 <- load_clean_data("./data/XC_5_western_gest_western_participants.csv")
+d2 <- load_clean_data("./data/XC_gest_full_western_participants_5.csv")
+d3 <- load_clean_data("./data/XC_gest_full_western_participants_4.csv")
+d4 <- load_clean_data("./data/XC_pilot_gest_2.csv")
+
+data <- rbind(d1, d2, d3, d4)
 
 eastern <- data %>%
   filter(grepl("eastern", Answer.vid_id))
@@ -53,7 +66,7 @@ western <- data %>%
   filter(grepl("western", Answer.vid_id))
 
 # need to get condition
-load_and_clean <- function(data, condition_name) {
+make_it_pretty <- function(data, condition_name) {
   df <- data %>%
     mutate(condition=Answer.vid_id) %>%
     select(condition, Answer.buttheads,
@@ -87,26 +100,36 @@ load_and_clean <- function(data, condition_name) {
 }
 
 
-west_cleaned <- load_and_clean(western, "western")
-east_cleaned <- load_and_clean(eastern, "eastern")
+west_cleaned <- make_it_pretty(western, "western")
+east_cleaned <- make_it_pretty(eastern, "eastern")
 ```
 
 
 Clean that shit up
 ```{r}
-## TODO figure out a better way to do this.
-## need to filter this additionally by what gesture it is
-west_gest_1_clean <- west_cleaned %>%
-  mutate(ID=row_number()) %>%
-  filter(grepl("1-", condition))
+format_indiv_gesture <- function (gesture_num, condition1, condition2) {
+  cleaned <- west_cleaned %>%
+    mutate(ID=row_number()) %>%
+    filter(grepl(gesture_num, condition)) %>%
+    mutate(condition=(ifelse(grepl("-0", condition), "original", condition))) %>%
+    mutate(condition=(ifelse(grepl("-1", condition), condition1, condition))) %>%
+    mutate(condition=(ifelse(grepl("-2", condition), condition2, condition)))   
+  return(cleaned)
+}
 
-west_gest_3_clean <- west_cleaned %>%
-  mutate(ID=row_number()) %>%
-  filter(grepl("3-", condition))
+west_gest_1_clean <- format_indiv_gesture("1-", "intertwine", "collide")
+# all good
 
-west_gest_4_clean <- west_cleaned %>%
-  mutate(ID=row_number()) %>%
-  filter(grepl("4-", condition))
+west_gest_2_clean <- format_indiv_gesture("2-", "open_palm", "in_chest")
+# need more original
+
+west_gest_3_clean <- format_indiv_gesture("3-", "no_circle", "palm_up")
+
+west_gest_4_clean <- format_indiv_gesture("4-", "frame", "cover")
+# need more cover
+
+west_gest_5_clean <- format_indiv_gesture("5-", "bowl", "forward")
+# need more original and forward
 
 east_gest_1_clean <- east_cleaned %>%
   mutate(ID=row_number()) %>%
@@ -155,19 +178,25 @@ create_violin <- function(data) {
 
 
 ```{r}
-
 west_1_bar <- create_bar(west_gest_1_clean)
 west_1_dense <- create_density(west_gest_1_clean)
 west_1_violin <- create_violin(west_gest_1_clean)
+
+west_1_west_2_bar <- create_bar(west_gest_2_clean)
+west_2_dense <- create_density(west_gest_2_clean)
+west_2_violin <- create_violin(west_gest_2_clean)
 
 west_3_bar <- create_bar(west_gest_3_clean)
 west_3_dense <- create_density(west_gest_3_clean)
 west_3_violin <- create_violin(west_gest_3_clean)
 
-
 west_4_bar <- create_bar(west_gest_4_clean)
 west_4_dense <- create_density(west_gest_4_clean)
 west_4_violin <- create_violin(west_gest_4_clean)
+
+west_5_bar <- create_bar(west_gest_5_clean)
+west_5_dense <- create_density(west_gest_5_clean)
+west_5_violin <- create_violin(west_gest_5_clean)
 
 east_1_bar <- create_bar(east_gest_1_clean)
 east_1_dense <- create_density(east_gest_1_clean)
@@ -177,7 +206,7 @@ east_2_bar <- create_bar(east_gest_2_clean)
 east_2_dense <- create_density(east_gest_2_clean)
 east_2_violin <- create_violin(east_gest_2_clean)
 
-east_3_bar <- create_bar(east_gest_3_clean)
+easteast_3_bar <- create_bar(east_gest_3_clean)
 east_3_dense <- create_density(east_gest_3_clean)
 east_3_violin <- create_violin(east_gest_3_clean)
 ```
