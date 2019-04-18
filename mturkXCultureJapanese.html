@@ -4,10 +4,13 @@
   margin-left: 60px;
   margin-top: 10px;
 }
+
+
 #dataContainer {
   display: flex;
   justify-content: center;
 }
+
 #movieArea1 {
   width: 400px;
   height: 400px;
@@ -20,17 +23,21 @@
 	margin:0px;
 	float:left;
 }
+
 #ratingArea{
     width: 405px;
     padding-left: 10px;
     padding-right: 10px;
 }
+
+
 .sliderBar{
 	clear: both;
 	width: 200px;
 	padding-top: 3px;
 	padding-bottom: 2px;
 }
+
 .triangle{
 	width:0;
 	height: 0;
@@ -38,6 +45,7 @@
 	border-bottom: 13px solid #FFA6A6;
 	opacity: 0.7;
 }
+
 .invertedTriangle{
 	width:0;
 	height: 0;
@@ -45,20 +53,24 @@
 	border-top: 13px solid #99D6AD;
 	opacity: 0.7;
 }
+
 .attributeDiv{
 	font-size:16px;
 	height:10px;
 	color: black;
 }
+
 .sliderDiv{
 	font-size:4;
 	height:40px;
 }
+
 #instructionBox{
 	clear: both;
 	font-size: 17px;
 	color: red;
 }
+
 #labelDescriptions{
 	clear: both;
 	font-size: 16px;
@@ -73,17 +85,21 @@
 .label2{
 	color: #993300;
 }
+
 }
 </style>
 
 <script type='text/javascript'>
 var talking_about_people = false
+
 window.onload = function() {
   document.getElementById('add').setAttribute('onclick', 'return validateForm()');
   video_link = getRandomVideo();
   document.getElementById('vid_id').setAttribute('value', video_link)
   document.getElementById('video1').setAttribute('src', video_link)
 }
+
+
 function getRandomVideo() {
   // THE BELOW RANDOMIZES INTO A TREATMENT CONDITION
   // DEPENDING ON THE EXPERIMENT THE "rtext[i]" RANDOMIZATION COULD BE USED TO DO MULTIPLE THINGS
@@ -131,6 +147,7 @@ function getRandomVideo() {
   }
   return(video_link)
 }
+
 var params = [
   "tension",
   "getalong",
@@ -146,6 +163,7 @@ var params = [
   "protected",
   "control"
 ];
+
 function validateForm() {
   // check free response area has enough words.
   var free_response_area = document.getElementsByName('freeResponseArea');
@@ -173,8 +191,10 @@ function validateForm() {
     }
   }
   quant_checks = true;
+
   return quant_checks;
 }
+
 function hideShowInstructions(){
 var instructBox = document.getElementById('instructionBox');
 if(instructBox.style.display == 'none')
@@ -194,26 +214,30 @@ else
 	<tbody>
 		<tr>
 			<td>
-			<h2>Interpret Gestures</h2>
+			<h2>ジェスチャー解釈</h2>
 			</td>
-			<td><input id="hideShow" name="hideShow" onclick="hideShowInstructions();" type="button" value="Hide/Show instructions" /></td>
+			<td><input id="hideShow" name="hideShow" onclick="hideShowInstructions();" type="button" value="説明を表示" /></td>
 		</tr>
 	</tbody>
 </table>
 
 <div id="instructionBox" style="">
-<p id="instructions"><b>IMPORTANT: If you already completed a similar study in the past, please do not accept the HIT. It is crucial for our research that each separate batch of videos is rated by different workers. If you rate videos in different batches, we are afraid we will need to reject your HITs.</b></p>
+<p id="instructions"><b>重要：もし過去に似たような研究に参加されたことがある方はご
+参加をご遠慮ください。研究の有効性のために、これからお見せするビデオが様々
+な方々により解釈いただけることが大変重要です。もし、同じ方がご参加になった
+場合には、HIT
+を拒否しなくてはならない場合もありますのでご了承ください。</b></p>
 
-<p class="label2">Please read the description of the scene, watch the video (there is no sound), and answer the questions below.  Feel free to watch the video as many times as you like.
-
-Please <b>do not</b> pay attention to the speaker's face -- pay attention only to the gestures. </p>
+<p class="label2">これからお見せするビデオの背景説明を読んでください。ビデオをご覧になってい
+ただき質問に答えてください。ビデオは何度見ても構いません。　でも、ビデオの
+俳優の顔ではなく、ジェスチャーにのみ注意を払ってください。 </p>
 
 <div>&nbsp;</div>
 </div>
 
 
 <div id="movieArea1">
-<video controls="" height="400" id="video1" tabindex="0" width="400">
+<video controls="" height=400px id="video1" tabindex="0" width="400">
   <!-- <source src="https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/ut_nosound.mov" /> -->
 </video>
 &nbsp;
@@ -225,7 +249,9 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 	<tbody>
 		<tr>
 			<td>
-			<div align="center" style="padding:15px" class="label2">She is talking about a group of people. What do you think she is saying about them? Please write 2-3 sentences (at least 10 words).</div>
+			<div align="center" style="padding:15px" class="label2">ビデオの俳優は人々の集まり、グループについて話しています。あなたの見るとこ
+ろでは、何について話していると思いますか？　思いつくことを２−３文　（１０
+語以上）書いてください。</div>
 			</td>
 			<br>
 			<td><input name="freeResponseArea" style="width:400px; height:200px" type="text" value="" /></td>
@@ -235,7 +261,8 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 
 
 <div align="center" id="dataContainer">
-<b>The speaker is talking about a group of people. Please make the following inferences based on her gesture.</b>
+<b>ビデオの俳優は人々の集まり、グループについて話しています。あなたのジェスチ
+ャーの解釈に基づき下記の文について当てはまる選択肢を選んでください。</b>
 
 
 <!-- TODO RANDOMIZE THIS ORDER!!!!!!! -->
@@ -243,12 +270,13 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Work Together -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how much do you think this group of people is <b>working together</b>?
+    このジェスチャーから見て、集まっている人たちはどれほどの程度で　一緒に何か
+していると思いますか？?
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全く一緒にしていない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -256,7 +284,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">大変よく一緒にしている。</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -271,17 +299,17 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   		</tr>
   	</tbody>
   </table>
-  </div>
+</div>
 
 <!-- Common Goal -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how much do you think this group of people has <b>a common goal</b>?
+    このグループの人たちには、共通の目標やゴールがあると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全くそうでない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -289,7 +317,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">共通のゴールがあることがよくわかる</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -304,17 +332,17 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   		</tr>
   	</tbody>
   </table>
-  </div>
+</div>
 
 <!-- Tension -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how much do you think there is <b>tension</b> within this group of people?
+    集まっている人たちの間には衝突する点があると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -322,7 +350,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">大変衝突している</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -342,12 +370,12 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Get Along -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how much do you think this group of people <b>gets along</b>?
+    集まっている人たちはよく気があっていると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全くあっていない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -355,7 +383,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">大変よく合っている</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -375,12 +403,12 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Unified -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how <b>unified</b> do you think this group of people is?
+    集まっている人たちはどれほど団結していると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全くしていない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -388,7 +416,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">大変よくしている</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -408,12 +436,12 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Disagree -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how much <b>disagreement</b> do you think there is within this group of people?
+    集まっている人たちの間にどれほどの不合意があると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">None at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -421,7 +449,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">A lot</td>
+  			<td align="center" class="attributeDiv">大変不合意がある</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -441,12 +469,12 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Butt Heads -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how much do you think this group of people <b>butts heads</b>?
+    集まっている人たちの間ではどれほどのぶつかり合いがあると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -454,7 +482,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">大変ぶつかっている</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -474,12 +502,12 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Communicate -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how well do you think this group of people is <b>communicating</b>?
+    集まっている人たちの間に、どれほどのコミュニケーションがあると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">Not at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -487,7 +515,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very much</td>
+  			<td align="center" class="attributeDiv">大変よくある</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -504,16 +532,15 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   </table>
 </div>
 
-
   <!-- Come Together -->
   <div id="ratingArea" width="400">
       <div align="center" class="label2">
-        On a scale from 1 to 7, how much do you think this group of people is <b>coming together</b>?
+        集まっている人たちはどれほど一緒に集まっているようですか？
       </div>
       <table>
       	<tbody>
       		<tr>
-      			<td align="center" class="attributeDiv">Not at all</td>
+      			<td align="center" class="attributeDiv">全くそうでない</td>
       			<td align="center" class="attributeDiv">1</td>
       			<td align="center" class="attributeDiv">2</td>
       			<td align="center" class="attributeDiv">3</td>
@@ -521,7 +548,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
       			<td align="center" class="attributeDiv">5</td>
       			<td align="center" class="attributeDiv">6</td>
       			<td align="center" class="attributeDiv">7</td>
-      			<td align="center" class="attributeDiv">Very much</td>
+      			<td align="center" class="attributeDiv">大変よく集まっている</td>
       		</tr>
       		<tr>
       			<td>&nbsp;</td>
@@ -541,12 +568,12 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 <!-- Overlap -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how many <b>overlapping traits</b> do you think people in this group have?
+    このグループにはどれほどの似通った性格が見られると思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">None at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -554,7 +581,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very many</td>
+  			<td align="center" class="attributeDiv">大変よくある</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -571,16 +598,16 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   </table>
 </div>
 
-
 <!-- Control -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how <b>controlled</b> do you think this group of people is?
+    このグループにはどれほどの制御、コントロールがグループとしてあると思います
+か？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">None at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -588,7 +615,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very many</td>
+  			<td align="center" class="attributeDiv">大変よくある</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -603,7 +630,6 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   		</tr>
   	</tbody>
   </table>
-</div>
 
 
 <!-- Close knit -->
@@ -637,17 +663,16 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   		</tr>
   	</tbody>
   </table>
-</div>
 
 <!-- Protected -->
 <div id="ratingArea" width="400">
   <div align="center" class="label2">
-    On a scale from 1 to 7, how <b>protected</b> do you think this group of people is?
+    このグループは、どれほど守られている、安全と思いますか？
   </div>
   <table>
   	<tbody>
   		<tr>
-  			<td align="center" class="attributeDiv">None at all</td>
+  			<td align="center" class="attributeDiv">全くない</td>
   			<td align="center" class="attributeDiv">1</td>
   			<td align="center" class="attributeDiv">2</td>
   			<td align="center" class="attributeDiv">3</td>
@@ -655,7 +680,7 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
   			<td align="center" class="attributeDiv">5</td>
   			<td align="center" class="attributeDiv">6</td>
   			<td align="center" class="attributeDiv">7</td>
-  			<td align="center" class="attributeDiv">Very many</td>
+  			<td align="center" class="attributeDiv">大変よくある</td>
   		</tr>
   		<tr>
   			<td>&nbsp;</td>
@@ -677,15 +702,15 @@ Please <b>do not</b> pay attention to the speaker's face -- pay attention only t
 	<tbody>
 		<tr>
 			<td>
-			<div align="center" style="padding:15px" class="label2">Write any meta-comments here (<i>ex</i> broken video)</div>
+			<div align="center" style="padding:15px" class="label2">その他参加に際し、お気づきになった点やコメントなどあればお願いします　（ビ
+デオの不備など）。</div>
 			</td>
 			<td><input name="commentsArea" style="width:200px" type="text" value="" /></td>
-			<td><input id="add" name="add" type="submit" value="Submit" /></td>
+			<td><input id="add" name="add" type="submit" value="確認 " /></td>
 		</tr>
 	</tbody>
 </table>
 <input id="vid_id" name="vid_id" type="hidden" /></div>
-</div>
 </div>
 
 </div>

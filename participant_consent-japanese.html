@@ -1,0 +1,264 @@
+<style type="text/css">#pageContainer {
+  width: 1200px;
+  height: 800px;
+  margin-left: 60px;
+  margin-top: 10px;
+}
+
+
+#dataContainer {
+  display: flex;
+  justify-content: center;
+}
+
+#movieArea1 {
+  width: 400px;
+  height: 400px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: black;
+	border-style: solid;
+	border-width: 10px;
+	border-color: #AAAAAA;
+	margin:0px;
+	float:left;
+}
+
+#ratingArea{
+    width: 405px;
+    height: 400px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+.sliderBar{
+	clear: both;
+	width: 200px;
+	padding-top: 3px;
+	padding-bottom: 2px;
+}
+
+#submissionButton{
+	padding: 50px;
+	margin-left:45%
+}
+
+.triangle{
+	width:0;
+	height: 0;
+	border-right: 200px solid transparent;
+	border-bottom: 13px solid #FFA6A6;
+	opacity: 0.7;
+}
+
+.invertedTriangle{
+	width:0;
+	height: 0;
+	border-left: 200px solid transparent;
+	border-top: 13px solid #99D6AD;
+	opacity: 0.7;
+}
+
+.attributeDiv{
+	font-size:16px;
+	height:10px;
+	color: black;
+}
+
+.sliderDiv{
+	font-size:4;
+	height:40px;
+}
+
+#instructionBox{
+	clear: both;
+	font-size: 17px;
+	color: black;
+}
+
+#labelDescriptions{
+	clear: both;
+	font-size: 16px;
+	color: #000000;
+}
+.label{
+	clear: both;
+	font-size: 16px;
+	color: #993300;
+	padding-left: 130px;
+}
+.label2{
+	color: black;
+}
+
+}
+</style>
+<script type='text/javascript'>
+window.onload = function() {document.getElementById('add').setAttribute('onclick', 'return validateForm()'); }
+
+var participation_vals = [
+  "understood",
+  "voluntary",
+  "archived",
+  "future",
+  "anonymous"
+];
+
+function validateForm() {
+  // UNCOMMENT for checking quant variables are filled out.
+  var checks = [];
+  // iterate through params
+  var quant_checks = false;
+  for (var i = 0; i < participation_vals.length; i++) {
+    var element = document.getElementsByName(participation_vals[i]);
+    // iterate through param choices
+    for (var j = 0; j < element.length; j++) {
+      if (element[j].checked) {
+        checks[i] = true;
+      }
+    }
+    if (!checks[i]) {
+      alert("You have not checked all boxes necessary for participating in this research. " +
+            "If you do not agree to the terms, please reject this HIT.");
+      return false;
+    }
+  }
+  quant_checks = true;
+
+  return quant_checks;
+}
+
+function hideShowInstructions(){
+var instructBox = document.getElementById('instructionBox');
+if(instructBox.style.display == 'none')
+{
+	instructBox.style.display = 'block';
+	instructBox.hidden = false;
+}
+else
+{
+	instructBox.style.display = 'none';
+	instructBox.hidden = true;
+}
+}
+</script>
+<div id="pageContainer">
+
+<img src="uglogoandname.png" alt="University of Glasgow">
+
+
+<div id="instructionBox" style="">
+<p id="instructions">グラスゴー大学（英国）研究参加同意：　人の思考における比喩的ジェスチャー</p>
+<p> あなたはこれからグラスゴー大学の脳科学および心理学部にて行われている
+ジェスチャーをテーマとする研究に参加しようとしています。下記の文をよく読み
+、理解、合意いただけるようでしたら、各ボックスをチェックしてください。記入
+漏れやすべてのボックスに合意のない場合には参加同意が得られなかったこととし
+ます。もし、研究に参加いただいても、この合意書の各文のボックスにチェックが
+ないと研究データは使用されず謝礼もお支払いできませんのでご注意ください。</p>
+
+<div>&nbsp;</div>
+</div>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">私は、この研究における説明を読み、理解しました。質問、問い合わせをする機会 も受けました。</div>
+			</td>
+			<br>
+			<td><input name="understood" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+</div>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">私はこの研究にボランティアとして参加します。私には理由にかかわらずいつでも
+参加を中止する権利があり、私の意思による参加中止により私の法的権利や医療ケ
+ア、謝礼の支払いが影響されることもなく、今合意し、後日参加をキャンセルして
+も、私が研究参加に割いた時間は謝礼として支払われます。</div>
+			</td>
+			<br>
+			<td><input name="voluntary" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">この研究のデータは完全に個人情報を除いて処理され、オンライン上のデータベー
+スまたは学術専門誌の追加データとして保管されます。このデータは学術界のみな
+らず、一般にも公開されることがあることがあります。</div>
+			</td>
+			<br>
+			<td><input name="archived" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">この研究で収集されたデータは個人情報は一切含まれておらず、よってその他の研
+究目的でも将来使われたり、出版、発表されたりすることがあります。いずれの場
+合でも、私の個人情報は守秘され、データ保護ガイドに則って保管されます。</div>
+			</td>
+			<br>
+			<td><input name="future" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">私の提供するデータは個人情報を含まないので、私はこのチェックボックスにチェ
+ックをすることにより、私の電子的参加合意とし、以上の文すべてに合意すること
+とします。私は以上すべての文にチェックをし、この研究に参加することに合意し
+ます。</div>
+			</td>
+			<br>
+			<td><input name="anonymous" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+<div id="instructionBox" style="">
+<p id="instructions">お問い合わせ：</p>
+<p> 研究ご参加またはデータに関して、ご質問やお問い合わせがあれば研究者までご連
+絡ください：　
+名前：　キャロリン　サウンド (Carolyn Saund)
+電子メール：2402321S ＠　student ドット　gla ドット ac ドット uk</p>
+
+<div>&nbsp;</div>
+</div>
+
+<div align="center" style="text-align:center">
+<table name="submissionButton">
+	<tbody>
+		<tr>
+			<td><input id="add" name="add" type="submit" value="確認 " /></td>
+		</tr>
+	</tbody>
+</table>
+
+</div>
+</div>

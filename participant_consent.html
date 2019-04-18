@@ -1,0 +1,250 @@
+<style type="text/css">#pageContainer {
+  width: 1200px;
+  height: 800px;
+  margin-left: 60px;
+  margin-top: 10px;
+}
+
+
+#dataContainer {
+  display: flex;
+  justify-content: center;
+}
+
+#movieArea1 {
+  width: 400px;
+  height: 400px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: black;
+	border-style: solid;
+	border-width: 10px;
+	border-color: #AAAAAA;
+	margin:0px;
+	float:left;
+}
+
+#ratingArea{
+    width: 405px;
+    height: 400px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+.sliderBar{
+	clear: both;
+	width: 200px;
+	padding-top: 3px;
+	padding-bottom: 2px;
+}
+
+#submissionButton{
+	padding: 50px;
+	margin-left:45%
+}
+
+.triangle{
+	width:0;
+	height: 0;
+	border-right: 200px solid transparent;
+	border-bottom: 13px solid #FFA6A6;
+	opacity: 0.7;
+}
+
+.invertedTriangle{
+	width:0;
+	height: 0;
+	border-left: 200px solid transparent;
+	border-top: 13px solid #99D6AD;
+	opacity: 0.7;
+}
+
+.attributeDiv{
+	font-size:16px;
+	height:10px;
+	color: black;
+}
+
+.sliderDiv{
+	font-size:4;
+	height:40px;
+}
+
+#instructionBox{
+	clear: both;
+	font-size: 17px;
+	color: black;
+}
+
+#labelDescriptions{
+	clear: both;
+	font-size: 16px;
+	color: #000000;
+}
+.label{
+	clear: both;
+	font-size: 16px;
+	color: #993300;
+	padding-left: 130px;
+}
+.label2{
+	color: black;
+}
+
+}
+</style>
+<script type='text/javascript'>
+window.onload = function() {document.getElementById('add').setAttribute('onclick', 'return validateForm()'); }
+
+var participation_vals = [
+  "understood",
+  "voluntary",
+  "archived",
+  "future",
+  "anonymous"
+];
+
+function validateForm() {
+  // UNCOMMENT for checking quant variables are filled out.
+  var checks = [];
+  // iterate through params
+  var quant_checks = false;
+  for (var i = 0; i < participation_vals.length; i++) {
+    var element = document.getElementsByName(participation_vals[i]);
+    // iterate through param choices
+    for (var j = 0; j < element.length; j++) {
+      if (element[j].checked) {
+        checks[i] = true;
+      }
+    }
+    if (!checks[i]) {
+      alert("You have not checked all boxes necessary for participating in this research. " +
+            "If you do not agree to the terms, please reject this HIT.");
+      return false;
+    }
+  }
+  quant_checks = true;
+
+  return quant_checks;
+}
+
+function hideShowInstructions(){
+var instructBox = document.getElementById('instructionBox');
+if(instructBox.style.display == 'none')
+{
+	instructBox.style.display = 'block';
+	instructBox.hidden = false;
+}
+else
+{
+	instructBox.style.display = 'none';
+	instructBox.hidden = true;
+}
+}
+</script>
+<div id="pageContainer">
+
+<img src="uglogoandname.png" alt="University of Glasgow">
+
+
+<div id="instructionBox" style="">
+<p id="instructions">Study Informed Consent: Metaphoric Gestures in Human Thought</p>
+<p> You are about to participate in a study on interpretation of gestures hosted by University of Glasgow Department of
+  Neuroscience and Psychology. Please read
+and check the boxes below. If you do not consent to any of the below statements, please withdraw from this HIT. <b>If you participate in
+the study but do not check any of the boxes below, we will not use your data in this study and you will not be paid for this HIT.</b></p>
+
+<div>&nbsp;</div>
+</div>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">I confirm that I have read and understood the Study Information that is provided to me above for this study and have had the opportunity to ask questions.</div>
+			</td>
+			<br>
+			<td><input name="understood" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+</div>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">I understand that my participation is voluntary and that I am free to withdraw at any time, without giving a reason, without my medical care or legal rights being affected, while being entitled to my per/hour payment If I agree to these terms and later decide to withdraw, I will still be paid for my time.</div>
+			</td>
+			<br>
+			<td><input name="voluntary" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">I understand that the research data will be archived in a completely anonymous way in an online database and/or data repository and/or published as supplementary material to a scientific article and may be accessed by other researchers as well as the general public</div>
+			</td>
+			<br>
+			<td><input name="archived" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">I understand that the anonymised research data can be used in future projects on similar or different topics to this study and potential results can be published in other scientific publications. At all times, my personal data will be kept anonymised in accordance with data protection guidelines..</div>
+			</td>
+			<br>
+			<td><input name="future" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">Because I am fully anonymized, I recognize this checkbox as my e-signature as affirmation of consent to all of the above statements. I have checked all of the above boxes myself and agree to take part in this study.</div>
+			</td>
+			<br>
+			<td><input name="anonymous" style="width:400px; height:200px" type="checkbox" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+<div id="instructionBox" style="">
+<p id="instructions">Further Questions</p>
+<p> If you have any further questions about this research including questions about your participation and the data
+  we have gathered, please contact <br> Carolyn Saund <br> 2402321S at student dot gla dot ac dot uk. </p>
+
+<div>&nbsp;</div>
+</div>
+
+<div align="center" style="text-align:center">
+<table name="submissionButton">
+	<tbody>
+		<tr>
+			<td><input id="add" name="add" type="submit" value="Submit" /></td>
+		</tr>
+	</tbody>
+</table>
+
+</div>
+</div>

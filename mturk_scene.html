@@ -1,0 +1,249 @@
+<style type="text/css">#pageContainer {
+  width: 1200px;
+  height: 800px;
+  margin-left: 60px;
+  margin-top: 10px;
+}
+#dataContainer {
+  display: flex;
+  justify-content: center;
+}
+#movieArea1 {
+  width: 400px;
+  height: 400px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: black;
+	border-style: solid;
+	border-width: 10px;
+	border-color: #AAAAAA;
+	margin:0px;
+	float:left;
+}
+#ratingArea{
+    width: 405px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.sliderBar{
+	clear: both;
+	width: 200px;
+	padding-top: 3px;
+	padding-bottom: 2px;
+}
+.triangle{
+	width:0;
+	height: 0;
+	border-right: 200px solid transparent;
+	border-bottom: 13px solid #FFA6A6;
+	opacity: 0.7;
+}
+.invertedTriangle{
+	width:0;
+	height: 0;
+	border-left: 200px solid transparent;
+	border-top: 13px solid #99D6AD;
+	opacity: 0.7;
+}
+.attributeDiv{
+	font-size:16px;
+	height:10px;
+	color: black;
+}
+.sliderDiv{
+	font-size:4;
+	height:40px;
+}
+#instructionBox{
+	clear: both;
+	font-size: 17px;
+	color: red;
+}
+#labelDescriptions{
+	clear: both;
+	font-size: 16px;
+	color: #000000;
+}
+.label{
+	clear: both;
+	font-size: 16px;
+	color: #993300;
+	padding-left: 130px;
+}
+.label2{
+	color: #993300;
+}
+}
+</style>
+
+<script type='text/javascript'>
+questions = []
+var talking_about_people = false
+window.onload = function() {
+  intro_text = "This is the last video you saw. ";
+  document.getElementById('add').setAttribute('onclick', 'return validateForm()');
+  video_link = getRandomVideo();
+  document.getElementById('vid_id').setAttribute('value', video_link[0])
+  document.getElementById('video1').setAttribute('src', video_link[0])
+
+  document.getElementById('last_vid').setAttribute('value', video_link[1])
+  document.getElementById('video2').setAttribute('src', video_link[1])
+  document.getElementById('freeResponsePrompt').innerHTML = "This is the next gesture she makes immediately following the last video (above). What do you think she is saying now? Please write 2-3 sentences (at least 10 words)."
+
+  if(video_link[1] == "None") {
+    document.getElementById("section2").innerHTML = "";
+    document.getElementById("movieArea2").style.display = "none"
+    document.getElementById('freeResponsePrompt').innerHTML = "She is talking about a group of people. What do you think she is saying about them? Please write 2-3 sentences (at least 10 words)."
+  }
+
+  else if (video_link[1] == "https://s3.us-east-2.amazonaws.com/metaphor-scenes/available_audience.mov") {
+    document.getElementById("section2").innerHTML = intro_text +
+      "In this video, she was describing an audience of people with different ideologies.";
+
+  }
+  else if (video_link[1] == "https://s3.us-east-2.amazonaws.com/metaphor-scenes/rep_ind_demo.mov") {
+    document.getElementById("section2").innerHTML = intro_text +
+      "In this video, she was differentiating three subgroups who have different ideologies";
+
+  }
+  else if (video_link[1] == "https://s3.us-east-2.amazonaws.com/metaphor-scenes/open_minded.mov") {
+    document.getElementById("section2").innerHTML = intro_text +
+      "In this video, she was talking about how the final subgroup was open-minded.";
+  }
+  else if (video_link[1] == "https://s3.us-east-2.amazonaws.com/metaphor-scenes/there_for.mov") {
+    document.getElementById("section2").innerHTML = intro_text +
+      "In this video, she was gathering the subgroups.";
+  }
+}
+
+
+function getRandomVideo() {
+  // THE BELOW RANDOMIZES INTO A TREATMENT CONDITION
+  // DEPENDING ON THE EXPERIMENT THE "rtext[i]" RANDOMIZATION COULD BE USED TO DO MULTIPLE THINGS
+  var vid_link;
+  vid_section = ${URL_VIDEO}
+
+  if (vid_section == "available_audience") {
+    vid_link = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/available_audience.mov";
+    last_vid = "None"
+  } else if (vid_section == "rep_ind_demo") {
+    vid_link = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/rep_ind_demo.mov";
+    last_vid = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/available_audience.mov"
+  } else if (vid_section == "open_minded") {
+    vid_link = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/open_minded.mov";
+    last_vid = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/rep_ind_demo.mov"
+  } else if (vid_section == "there_for") {
+    vid_link = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/there_for.mov";
+    last_vid = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/open_minded.mov"
+  } else if (vid_section == "persuading") {
+    vid_link = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/persuading.mov";
+    last_vid = "https://s3.us-east-2.amazonaws.com/metaphor-scenes/there_for.mov"
+  }
+  return([vid_link, last_vid])
+}
+function validateForm() {
+  // check free response area has enough words.
+  var free_response_area = document.getElementsByName('freeResponseArea');
+  if(free_response_area[0].value.split(' ').length < 10) {
+      alert("Please write more than 10 words about what you think she is saying.")
+      return false;
+  }
+
+  return true;
+}
+
+function hideShowInstructions(){
+var instructBox = document.getElementById('instructionBox');
+if(instructBox.style.display == 'none')
+{
+	instructBox.style.display = 'block';
+	instructBox.hidden = false;
+}
+else
+{
+	instructBox.style.display = 'none';
+	instructBox.hidden = true;
+}
+}
+</script>
+<div id="pageContainer">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<h2>Interpret Gestures</h2>
+			</td>
+			<td><input id="hideShow" name="hideShow" onclick="hideShowInstructions();" type="button" value="Hide/Show instructions" /></td>
+		</tr>
+	</tbody>
+</table>
+
+<div id="instructionBox" style="">
+<p id="instructions"><b>IMPORTANT: If you already completed a similar study in the past, please do not accept the HIT. It is crucial for our research that each separate batch of videos is rated by different workers. If you rate videos in different batches, we are afraid we will need to reject your HITs.</b></p>
+
+<div>&nbsp;</div>
+</div>
+
+
+<p id="section2"></p>
+<div>
+<div id="movieArea2">
+<video controls="" height="400" id="video2" tabindex="0" width="400">
+  <!-- <source src="https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/ut_nosound.mov" /> -->
+</video>
+&nbsp;
+&nbsp;
+</div>
+
+
+<div id="movieArea1">
+<video controls="" height="400" id="video1" tabindex="0" width="400">
+  <!-- <source src="https://s3.us-east-2.amazonaws.com/metaphoric-gestures-1/ut_nosound.mov" /> -->
+</video>
+&nbsp;
+&nbsp;
+</div>
+
+</div>
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div id="freeResponsePrompt" align="center" style="padding:15px, color:black"></div>
+			</td>
+			<br>
+			<td><input name="freeResponseArea" style="width:400px; height:200px" type="text" value="" /></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div align="center" id="dataContainer">
+
+
+<div style="text-align:center">
+<input id="last_vid" name="last_vid" type="hidden" /></div>
+</div>
+</div>
+
+<div style="text-align:center">
+<table>
+	<tbody>
+		<tr>
+			<td>
+			<div align="center" style="padding:15px" class="label2">Write any meta-comments here (<i>ex</i> broken video)</div>
+			</td>
+			<td><input name="commentsArea" style="width:200px" type="text" value="" /></td>
+			<td><input id="add" name="add" type="submit" value="Submit" /></td>
+		</tr>
+	</tbody>
+</table>
+<input id="vid_id" name="vid_id" type="hidden" /></div>
+</div>
+</div>
+
+
+</div>
+</div>

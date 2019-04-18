@@ -13,9 +13,22 @@ library(pwr)
 library(ordinal)
 ```
 
+### Gesture Map
+* West 1 - Unpolite
+* West 2 - Entity
+* West 3 - Audience
+* West 4 - Anything
+* West 5 - Specific
+
+* East 1 - Color Fists
+* East 2 - Battle
+* East 3 - Arm Cross
+* East 4 - Rainbow
+
+
 ### Load and clean data 
 ```{r}
-data <- read.csv("pilot_3_gest_each.csv") %>% 
+data <- read.csv("western_pilot_within_subj.csv") %>% 
   dplyr::select(Answer.buttheads,
                 Answer.close,
                 Answer.cometogether,
@@ -142,6 +155,11 @@ create_violin <- function(data) {
 
 
 ```{r}
+
+west_1_bar <- create_bar(west_gest_1_clean)
+west_1_dense <- create_density(west_gest_1_clean)
+west_1_violin <- create_violin(west_gest_1_clean)
+
 west_3_bar <- create_bar(west_gest_3_clean)
 west_3_dense <- create_density(west_gest_3_clean)
 west_3_violin <- create_violin(west_gest_3_clean)
