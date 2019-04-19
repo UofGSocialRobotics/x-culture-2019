@@ -117,7 +117,13 @@ format_indiv_gesture <- function (gesture_num, condition1, condition2) {
   return(cleaned)
 }
 
-west_gest_1_clean <- format_indiv_gesture("1-", "intertwine", "collide")
+gest_1_condition_names <- c("intertwine", "collide")
+gest_2_condition_names <- c("open_palm", "in_chest")
+gest_3_condition_names <- c("no_circle", "palm_up")
+gest_4_condition_names <- c("frame", "cover")
+gest_5_condition_names <- c("bowl", "forward")
+
+west_gest_1_clean <- format_indiv_gesture("1-", gest_1_condition_names[1], gest_1_condition_names[2])
 # all good
 
 west_gest_2_clean <- format_indiv_gesture("2-", "open_palm", "in_chest")
@@ -215,55 +221,37 @@ east_3_violin <- create_violin(east_gest_3_clean)
 ## Stats on Stats on Stats
 ```{r}
 # t.tests to determine statistical differences between statement responses
-get_vals <- function(data, condition_name, statement) {
-  print(condition_name)
-  print(statement)
-  ret <- data %>%
+get_vals <- function(condition_name, statement, dat) {
+  if(dat == "1") {
+    dat <- west_gest_1_clean
+  } 
+  if(dat == "2") {
+    dat <- west_gest_2_clean
+  }   
+  if(dat == "3") {
+    dat <- west_gest_3_clean
+  } 
+  if(dat == "4") {
+    dat <- west_gest_4_clean
+  } 
+  if(dat == "5") {
+    dat <- west_gest_5_clean
+  }   
+  
+  ret <- dat %>%
     filter(condition==condition_name) %>%
     filter(statement_measure==statement)
   ret <- ret$score  
   return(ret)
 }
 
-## Butt heads
-west_1_0_butthead <- get_vals(west_gest_1_clean, "original", "Answer.buttheads")
-west_1_1_butthead <- get_vals(west_gest_1_clean, "intertwine", "Answer.buttheads")
-west_1_2_butthead <- get_vals(west_gest_1_clean, "collide", "Answer.buttheads")
-
-# t.tests to determine statistical differences?
-# They are different/same as original
-p_butt_1_0_1 <- t.test(west_1_0_butthead, west_1_1_butthead)[3]
-p_butt_1_0_2 <- t.test(west_1_0_butthead, west_1_2_butthead)[3]
-# They are different from each other
-p_butt_1_1_2 <- t.test(west_1_1_butthead, west_1_2_butthead)[3]
-
-## Tension
-west_1_0_tension <- get_vals(west_gest_1_clean, "original", "Answer.tension")
-west_1_1_tension <- get_vals(west_gest_1_clean, "intertwine", "Answer.tension")
-west_1_2_tension <- get_vals(west_gest_1_clean, "collide", "Answer.tension")
-
-# t.tests to determine statistical differences?
-# They are different/same as original
-p_tense_1_0_1 <- t.test(west_1_0_tension, west_1_1_tension)[3]
-p_tense_1_0_2 <- t.test(west_1_0_tension, west_1_2_tension)[3]
-# They are different from each other
-p_tense_1_1_2 <- t.test(west_1_1_tension, west_1_2_tension)[3]
-
-statement <- rep(c("Answer.buttheads", "Answer.tension"), each=9)
-cond1 <- rep(rep(c("original", "intertwine", "collide"), 3), 2)
-cond2 <- rep(rep(c("original", "intertwine", "collide"), each=3), 2)
-df <- data.frame(statement, cond1, cond2) 
-  #transform(p=as.numeric(t.test(
-  #          get_vals(west_gest_1_clean, cond1, statement),
-  #          get_vals(west_gest_1_clean, cond2, statement))[3]))
-
-do_t_test <- function(cond1, cond2, statement) {
+do_t_test <- function(cond1, cond2, statement, dat) {
   return(as.numeric(t.test(
-            get_vals(west_gest_1_clean, cond1, statement),
-            get_vals(west_gest_1_clean, cond2, statement))[3]))
+            get_vals(cond1, statement, dat),
+            get_vals(cond2, statement, dat))[3]))
 }
 
-# Gross but oh well
+
 sig <- function(p) {
   if(p < 0.0005) {
     return("***")
@@ -277,17 +265,33 @@ sig <- function(p) {
   return ("")
 }
 
-df$p <- mapply(do_t_test, df$cond1, df$cond2, df$statement)
-df$sig <- mapply(sig, df$p)
+# For some reason can't generalize this to all gestures?
+make_table_per_gesture <- function(cond1name, cond2name, gest_num) {
+  statements <- c("Answer.buttheads", "Answer.close", "Answer.cometogether", "Answer.communicate",
+               "Answer.control", "Answer.disagreement", "Answer.getalong", "Answer.goal",
+               "Answer.overlap", "Answer.protected", "Answer.tension", "Answer.unified",
+               "Answer.worktogether")
 
-df$p <- with(df, as.numeric(t.test(
-            get_vals(west_gest_1_clean, cond1, statement),
-            get_vals(west_gest_1_clean, cond2, statement))[3]))
+  statement <- rep(statements, each=9)
+  cond1 <- rep(rep(c("original", cond1name, cond2name), 3), 13)
+  cond2 <- rep(rep(c("original", cond1name, cond2name), each=3), 13)
+  df <- data.frame(statement, cond1, cond2)   
+  
+  df$p <- mapply(do_t_test, 
+                 as.character(df$cond1), 
+                 as.character(df$cond2), 
+                 as.character(df$statement),
+                 gest_num)
+  df$sig <- mapply(sig, df$p)
+  return(df)
+}
 
+gest_1_sig_table <- make_table_per_gesture(gest_1_condition_names[1], gest_1_condition_names[2], "1")
+gest_2_sig_table <- make_table_per_gesture(gest_2_condition_names[1], gest_2_condition_names[2], "2")
+gest_3_sig_table <- make_table_per_gesture(gest_3_condition_names[1], gest_3_condition_names[2], "3")
+gest_4_sig_table <- make_table_per_gesture(gest_4_condition_names[1], gest_4_condition_names[2], "4")
+gest_5_sig_table <- make_table_per_gesture(gest_5_condition_names[1], gest_5_condition_names[2], "5")
 
-t.test(get_vals(west_gest_1_clean, "original", "Answer.buttheads"),
-       get_vals(west_gest_1_clean, "intertwine", "Answer.buttheads"))[3]
-## statement  cond1  cond2   p  sig(**)
 ```
 
 
