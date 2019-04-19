@@ -210,3 +210,120 @@ easteast_3_bar <- create_bar(east_gest_3_clean)
 east_3_dense <- create_density(east_gest_3_clean)
 east_3_violin <- create_violin(east_gest_3_clean)
 ```
+
+
+## Stats on Stats on Stats
+```{r}
+# t.tests to determine statistical differences between statement responses
+get_vals <- function(data, condition_name, statement) {
+  print(condition_name)
+  print(statement)
+  ret <- data %>%
+    filter(condition==condition_name) %>%
+    filter(statement_measure==statement)
+  ret <- ret$score  
+  return(ret)
+}
+
+## Butt heads
+west_1_0_butthead <- get_vals(west_gest_1_clean, "original", "Answer.buttheads")
+west_1_1_butthead <- get_vals(west_gest_1_clean, "intertwine", "Answer.buttheads")
+west_1_2_butthead <- get_vals(west_gest_1_clean, "collide", "Answer.buttheads")
+
+# t.tests to determine statistical differences?
+# They are different/same as original
+p_butt_1_0_1 <- t.test(west_1_0_butthead, west_1_1_butthead)[3]
+p_butt_1_0_2 <- t.test(west_1_0_butthead, west_1_2_butthead)[3]
+# They are different from each other
+p_butt_1_1_2 <- t.test(west_1_1_butthead, west_1_2_butthead)[3]
+
+## Tension
+west_1_0_tension <- get_vals(west_gest_1_clean, "original", "Answer.tension")
+west_1_1_tension <- get_vals(west_gest_1_clean, "intertwine", "Answer.tension")
+west_1_2_tension <- get_vals(west_gest_1_clean, "collide", "Answer.tension")
+
+# t.tests to determine statistical differences?
+# They are different/same as original
+p_tense_1_0_1 <- t.test(west_1_0_tension, west_1_1_tension)[3]
+p_tense_1_0_2 <- t.test(west_1_0_tension, west_1_2_tension)[3]
+# They are different from each other
+p_tense_1_1_2 <- t.test(west_1_1_tension, west_1_2_tension)[3]
+
+statement <- rep(c("Answer.buttheads", "Answer.tension"), each=9)
+cond1 <- rep(rep(c("original", "intertwine", "collide"), 3), 2)
+cond2 <- rep(rep(c("original", "intertwine", "collide"), each=3), 2)
+df <- data.frame(statement, cond1, cond2) 
+  #transform(p=as.numeric(t.test(
+  #          get_vals(west_gest_1_clean, cond1, statement),
+  #          get_vals(west_gest_1_clean, cond2, statement))[3]))
+
+do_t_test <- function(cond1, cond2, statement) {
+  return(as.numeric(t.test(
+            get_vals(west_gest_1_clean, cond1, statement),
+            get_vals(west_gest_1_clean, cond2, statement))[3]))
+}
+
+# Gross but oh well
+sig <- function(p) {
+  if(p < 0.0005) {
+    return("***")
+  }
+  if(p < 0.005) {
+    return("**")
+    }
+  if(p < 0.05) {
+    return("*")
+  }
+  return ("")
+}
+
+df$p <- mapply(do_t_test, df$cond1, df$cond2, df$statement)
+df$sig <- mapply(sig, df$p)
+
+df$p <- with(df, as.numeric(t.test(
+            get_vals(west_gest_1_clean, cond1, statement),
+            get_vals(west_gest_1_clean, cond2, statement))[3]))
+
+
+t.test(get_vals(west_gest_1_clean, "original", "Answer.buttheads"),
+       get_vals(west_gest_1_clean, "intertwine", "Answer.buttheads"))[3]
+## statement  cond1  cond2   p  sig(**)
+```
+
+
+Visualize these significant differences with a difference matrix. 
+We will see that sometimes, one metaphor dominates and we see non-significant
+differences between the original and one of the manipulations, but a significant
+difference between the original and the other manipulation. However, when we
+observe these responses in conjunction with the other data, we see that while 
+peoples explicit rankings of the gesture change, they are able to decode
+nuances in the gesture.
+```{r}
+## for buttheads
+##  c1  c2   p
+## 1-0  1-0  1
+## 1-1  1-0  0.9394285
+## 1-2  1-0  0.001962781
+## 1-0  1-1  0.9394285
+## 1-1  1-1  1
+## 1-2  1-1  0.006549727
+## 1-0  1-2  0.001962781
+## 1-1  1-2  0.006549727
+## 1-2  1-2  1
+##   Var1 Var2 value
+## 1  mpg  mpg  1.00
+## 2 disp  mpg -0.85
+## 3   hp  mpg -0.78
+## 4 drat  mpg  0.68
+## 5   wt  mpg -0.87
+## 6 qsec  mpg  0.42
+
+c1 <- rep(c("1-0", "1-1", "1-2"), 3)
+c2 <- rep(c("1-0", "1-1", "1-2"), each=3)
+p <- c(1, 0.9394285, 0.001962781, 0.9394285, 1, 0.006549727, 0.001962781, 0.006549727, 1)
+df <- data.frame(c1, c2, p)
+
+library(ggplot2)
+ggplot(data = df, aes(x=c1, y=c2, fill=p)) + 
+  geom_tile()
+```
