@@ -1,6 +1,6 @@
 ---
-title: "X-Culture Pilot Analysis"
-author: "csaund"
+title: "ACII19 Analysis -- Experiment 2"
+author: "--"
 date: "13/4/2019"
 output: html_document
 ---
@@ -11,6 +11,9 @@ library(tidyverse)
 library(ggplot2)
 library(pwr)
 library(ordinal)
+library(gridExtra)
+library(rlist)
+library(xtable)
 ```
 
 ### Gesture Map
@@ -19,11 +22,6 @@ library(ordinal)
 * West 3 - Audience
 * West 4 - Anything
 * West 5 - Specific
-
-* East 1 - Color Fists
-* East 2 - Battle
-* East 3 - Arm Cross
-* East 4 - Rainbow
 
 
 ### Load and clean data 
@@ -105,20 +103,21 @@ east_cleaned <- make_it_pretty(eastern, "eastern")
 ```
 
 
-Clean that shit up
+Clean up
 ```{r}
 format_indiv_gesture <- function (gesture_num, condition1, condition2) {
   cleaned <- west_cleaned %>%
     mutate(ID=row_number()) %>%
     filter(grepl(gesture_num, condition)) %>%
-    mutate(condition=(ifelse(grepl("-0", condition), "original", condition))) %>%
     mutate(condition=(ifelse(grepl("-1", condition), condition1, condition))) %>%
-    mutate(condition=(ifelse(grepl("-2", condition), condition2, condition)))   
+    mutate(condition=(ifelse(grepl("-0", condition), "original", condition))) %>%
+    mutate(condition=(ifelse(grepl("-2", condition), condition2, condition))) 
+  
   return(cleaned)
 }
 
-gest_1_condition_names <- c("intertwine", "collide")
-gest_2_condition_names <- c("open_palm", "in_chest")
+gest_1_condition_names <- c("together", "collide")
+gest_2_condition_names <- c("separated", "chest")
 gest_3_condition_names <- c("no_circle", "palm_up")
 gest_4_condition_names <- c("frame", "cover")
 gest_5_condition_names <- c("bowl", "forward")
@@ -126,7 +125,7 @@ gest_5_condition_names <- c("bowl", "forward")
 west_gest_1_clean <- format_indiv_gesture("1-", gest_1_condition_names[1], gest_1_condition_names[2])
 # all good
 
-west_gest_2_clean <- format_indiv_gesture("2-", "open_palm", "in_chest")
+west_gest_2_clean <- format_indiv_gesture("2-", gest_2_condition_names[1], gest_2_condition_names[2])
 # need more original
 
 west_gest_3_clean <- format_indiv_gesture("3-", "no_circle", "palm_up")
@@ -150,7 +149,7 @@ east_gest_3_clean <- east_cleaned %>%
   filter(grepl("3-", condition))
 ```
 
-Let's just blindly plot things and see what happens
+## Visualize results
 ```{r}
 create_bar <- function(data) {
   bar_plot <- ggplot(data, aes(x=statement_measure, y=score, fill=condition)) + 
@@ -175,7 +174,7 @@ create_violin <- function(data) {
     geom_violin(aes(fill=condition, alpha=0.5), scale="area", draw_quantiles = c(0.25, 0.5, 0.75)) +
     facet_wrap(~statement_measure) + 
     labs(
-      title = "Violin plot (density) of ranked responses per condition by statement"   ,
+      title = "Violin plot (density) of response scores per condition by statement"   ,
       caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
     )
   return(violin_plot)
@@ -186,11 +185,34 @@ create_violin <- function(data) {
 ```{r}
 west_1_bar <- create_bar(west_gest_1_clean)
 west_1_dense <- create_density(west_gest_1_clean)
-west_1_violin <- create_violin(west_gest_1_clean)
+west_1_violin <- create_violin(west_gest_1_clean) 
+
+#ggsave("unpolite_violin.png", plot=west_1_violin)
+
+
+### Get plots just for these ones
+test_d_1 <- west_gest_1_clean %>%
+  filter(statement_measure == "Answer.tension")
+test_d_2 <- west_gest_1_clean %>%
+  filter(statement_measure == "Answer.worktogether")
+test_d <- rbind(test_d_1, test_d_2)
+
+test_plot <- ggplot(test_d, aes(condition, score)) + 
+    geom_violin(aes(fill=condition, alpha=0.5), scale="area", draw_quantiles = c(0.25, 0.5, 0.75)) +
+    facet_wrap(~statement_measure) + 
+  scale_fill_discrete(name = "Gesture Condition", labels = c("Collide", "Original", "Intertwine")) +
+  theme(
+    legend.key.size = unit(1.5, "cm"),
+    legend.key.width = unit(0.5,"cm"),
+    legend.text = element_text(size = 10)
+  )
+ggsave("unpolite_violin_tens_work.png", plot=test_plot)
+
 
 west_1_west_2_bar <- create_bar(west_gest_2_clean)
 west_2_dense <- create_density(west_gest_2_clean)
-west_2_violin <- create_violin(west_gest_2_clean)
+west_2_violin <- create_violin(west_gest_2_clean)  
+#ggsave("entity_violin.png", plot=west_2_violin)
 
 west_3_bar <- create_bar(west_gest_3_clean)
 west_3_dense <- create_density(west_gest_3_clean)
@@ -217,9 +239,65 @@ east_3_dense <- create_density(east_gest_3_clean)
 east_3_violin <- create_violin(east_gest_3_clean)
 ```
 
-
-## Stats on Stats on Stats
+### Violin plots for each condition
 ```{r}
+west_1_violin
+west_2_violin
+west_3_violin
+west_4_violin
+west_5_violin
+```
+
+## Stats
+
+
+### ANOVA
+
+Quickly go through these and see that they match ours...
+```{r}
+do_anova_per_statement <- function(data, statement) {
+  statement_data <- data %>%
+    filter(statement_measure==statement)
+  res.aov <- aov(score ~ condition, data=statement_data)
+  print(statement)
+  print(summary(res.aov))
+  return(res.aov)
+}
+
+do_anova_per_data <- function(data) {
+  statements <- c("Answer.buttheads", "Answer.close", "Answer.cometogether", "Answer.communicate",
+             "Answer.control", "Answer.disagreement", "Answer.getalong", "Answer.goal",
+             "Answer.overlap", "Answer.protected", "Answer.tension", "Answer.unified",
+             "Answer.worktogether")
+  for (s in statements) {
+    print(s)
+    a <- do_anova_per_statement(data, s)
+    print(summary(a))
+    print("========================")
+  }
+}
+
+do_anova_per_data(west_gest_1_clean)
+
+do_anova_per_data(west_gest_2_clean)
+
+do_anova_per_data(west_gest_3_clean)
+
+do_anova_per_data(west_gest_4_clean)
+
+do_anova_per_data(west_gest_5_clean)
+
+w1 <- do_anova_per_statement(west_gest_1_clean, "Answer.buttheads")
+summary(w1)
+
+
+# pairwise.t.test(w1$score, w1$condition,
+#                p.adjust.method = "BH")
+
+```
+
+### T-Tests
+```{r include=FALSE}
 # t.tests to determine statistical differences between statement responses
 get_vals <- function(condition_name, statement, dat) {
   if(dat == "1") {
@@ -246,9 +324,18 @@ get_vals <- function(condition_name, statement, dat) {
 }
 
 do_t_test <- function(cond1, cond2, statement, dat) {
-  return(as.numeric(t.test(
+  p <- round(as.numeric(t.test(
             get_vals(cond1, statement, dat),
-            get_vals(cond2, statement, dat))[3]))
+            get_vals(cond2, statement, dat))[3]), digits=5)
+  return(p)
+}
+
+do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
+  p <- as.numeric(t.test(
+            get_vals(cond1, statement, dat),
+            get_vals(cond2, statement, dat))[3])
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=13), digits=5)
+  return(p_adjusted)
 }
 
 
@@ -266,68 +353,82 @@ sig <- function(p) {
 }
 
 # For some reason can't generalize this to all gestures?
-make_table_per_gesture <- function(cond1name, cond2name, gest_num) {
+make_table_per_gesture <- function(gest_name, cond1name, cond2name, gest_num) {
   statements <- c("Answer.buttheads", "Answer.close", "Answer.cometogether", "Answer.communicate",
                "Answer.control", "Answer.disagreement", "Answer.getalong", "Answer.goal",
                "Answer.overlap", "Answer.protected", "Answer.tension", "Answer.unified",
                "Answer.worktogether")
 
-  statement <- rep(statements, each=9)
-  cond1 <- rep(rep(c("original", cond1name, cond2name), 3), 13)
-  cond2 <- rep(rep(c("original", cond1name, cond2name), each=3), 13)
-  df <- data.frame(statement, cond1, cond2)   
+  statement <- rep(statements, each=3)
+  condition1 <- rep(c(cond1name, cond2name, "original"), 13)
+  condition2 <- rep(c("original", cond1name, cond2name), 13)
+  # condition1 <- rep(rep(c("original", cond1name, cond2name), 3), 13)
+  # condition2 <- rep(rep(c("original", cond1name, cond2name), each=3), 13)
+  df <- data.frame(statement, condition1, condition2)   
   
   df$p <- mapply(do_t_test, 
-                 as.character(df$cond1), 
-                 as.character(df$cond2), 
+                 as.character(df$condition1), 
+                 as.character(df$condition2), 
                  as.character(df$statement),
                  gest_num)
+  df$p_adjusted <- mapply(do_t_test_adjusted, 
+                 as.character(df$condition1), 
+                 as.character(df$condition2), 
+                 as.character(df$statement),
+                 gest_num)  
   df$sig <- mapply(sig, df$p)
+  df$gest_name <- gest_name
+  df$statement <- gsub('\\Answer.', '', df$statement)
   return(df)
 }
 
-gest_1_sig_table <- make_table_per_gesture(gest_1_condition_names[1], gest_1_condition_names[2], "1")
-gest_2_sig_table <- make_table_per_gesture(gest_2_condition_names[1], gest_2_condition_names[2], "2")
-gest_3_sig_table <- make_table_per_gesture(gest_3_condition_names[1], gest_3_condition_names[2], "3")
-gest_4_sig_table <- make_table_per_gesture(gest_4_condition_names[1], gest_4_condition_names[2], "4")
-gest_5_sig_table <- make_table_per_gesture(gest_5_condition_names[1], gest_5_condition_names[2], "5")
 
+gest_1_sig_table <- make_table_per_gesture("unpolite", gest_1_condition_names[1], gest_1_condition_names[2], "1")
+gest_2_sig_table <- make_table_per_gesture("entity", gest_2_condition_names[1], gest_2_condition_names[2], "2")
+gest_3_sig_table <- make_table_per_gesture("audience", gest_3_condition_names[1], gest_3_condition_names[2], "3")
+gest_4_sig_table <- make_table_per_gesture("anything", gest_4_condition_names[1], gest_4_condition_names[2], "4")
+gest_5_sig_table <- make_table_per_gesture("specific", gest_5_condition_names[1], gest_5_condition_names[2], "5")
+
+all_sig_vals <- rbind(gest_1_sig_table, gest_2_sig_table, gest_3_sig_table, gest_4_sig_table, gest_5_sig_table) %>%
+  filter(grepl("\\*", sig)) 
+
+# png("sig_vals.png", height = 50*nrow(all_sig_vals), width = 200*ncol(all_sig_vals))
+# grid.table(all_sig_vals)
+# dev.off()
+
+# export to latex
+# print(xtable(all_sig_vals, type = "latex"), file = "sig_vals_ordered.tex")
 ```
 
-
-Visualize these significant differences with a difference matrix. 
-We will see that sometimes, one metaphor dominates and we see non-significant
-differences between the original and one of the manipulations, but a significant
-difference between the original and the other manipulation. However, when we
-observe these responses in conjunction with the other data, we see that while 
-peoples explicit rankings of the gesture change, they are able to decode
-nuances in the gesture.
 ```{r}
-## for buttheads
-##  c1  c2   p
-## 1-0  1-0  1
-## 1-1  1-0  0.9394285
-## 1-2  1-0  0.001962781
-## 1-0  1-1  0.9394285
-## 1-1  1-1  1
-## 1-2  1-1  0.006549727
-## 1-0  1-2  0.001962781
-## 1-1  1-2  0.006549727
-## 1-2  1-2  1
-##   Var1 Var2 value
-## 1  mpg  mpg  1.00
-## 2 disp  mpg -0.85
-## 3   hp  mpg -0.78
-## 4 drat  mpg  0.68
-## 5   wt  mpg -0.87
-## 6 qsec  mpg  0.42
-
-c1 <- rep(c("1-0", "1-1", "1-2"), 3)
-c2 <- rep(c("1-0", "1-1", "1-2"), each=3)
-p <- c(1, 0.9394285, 0.001962781, 0.9394285, 1, 0.006549727, 0.001962781, 0.006549727, 1)
-df <- data.frame(c1, c2, p)
-
-library(ggplot2)
-ggplot(data = df, aes(x=c1, y=c2, fill=p)) + 
-  geom_tile()
+all_sig_vals
 ```
+
+
+Quickly get average score for a dataset
+```{r}
+get_avg_score <- function(data, cond, statement) {
+  m <- data %>%
+    filter(condition==cond) %>%
+    filter(statement_measure==statement)
+  m <- mean(m$score)  
+  return(m)
+}
+
+print(get_avg_score(west_gest_4_clean, "original", "Answer.worktogether"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

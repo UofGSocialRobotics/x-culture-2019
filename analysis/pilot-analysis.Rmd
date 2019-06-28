@@ -1,0 +1,341 @@
+---
+title: "XC Analysis 2019 (fixed questions)"
+author: "csaund"
+date: "6/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(pwr)
+library(ordinal)
+```
+
+
+## Load 'N' Wrangle
+
+Load these bad larrys
+```{r}
+xcdata <- read.csv('xc_pilot_fixed_questions.csv') %>%
+  select(Answer.accessible, Answer.confident, Answer.conflict, Answer.control, 
+         Answer.dominant, Answer.goal, Answer.many, Answer.members, 
+         Answer.open, Answer.sure, Answer.tension, Answer.worktogether,
+         Answer.vid_id)
+
+u0 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_1-0.mov") %>%
+  select(-Answer.vid_id)
+
+u1 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_1-1.mov") %>%
+  select(-Answer.vid_id)
+
+u2 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_1-2.mov") %>%
+  select(-Answer.vid_id)
+
+e0 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_2-0.mov") %>%
+  select(-Answer.vid_id)
+
+e1 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_2-1.mov") %>%
+  select(-Answer.vid_id)
+
+e2 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_2-2.mov") %>%
+  select(-Answer.vid_id)
+
+a0 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_3-0.mov") %>%
+  select(-Answer.vid_id)
+
+a1 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_3-1.mov") %>%
+  select(-Answer.vid_id)
+
+a2 <- xcdata %>%
+  filter(Answer.vid_id == 
+           "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_3-2.mov") %>%
+  select(-Answer.vid_id)
+
+u0_gathered <- u0 %>%
+  gather("metaphor_measure", "score", 1:12) %>%
+  select("metaphor_measure", "score")
+
+u1_gathered <- u1 %>%
+  gather("metaphor_measure", "score", 1:12) %>%
+  select("metaphor_measure", "score")
+
+u2_gathered <- u2 %>%
+  gather("metaphor_measure", "score", 1:12) %>%
+  select("metaphor_measure", "score")
+```
+
+
+### Spot checks 
+some things should correlate, others should not. IE the questions that go together should correlate. 
+accessible <--> open
+confident <--> sure
+conflict <--> tension
+dominant <--> control
+goal <--> worktogether
+many <--> members
+
+So now we group the metaphor measures by group and facet wrap by that. EZ
+
+```{r}
+add_groups <- function(data) {
+  data$group <- ""
+  for(row in 1:nrow(data)) {
+    if (data$metaphor_measure[row] == "Answer.accessible") {
+               data$group[row] <- "open"
+    } else if (data$metaphor_measure[row] == "Answer.open") {
+              data$group[row] <- "open"
+    } else if (data$metaphor_measure[row] == "Answer.confident") {
+              data$group[row] <- "sure"
+    } else if (data$metaphor_measure[row] == "Answer.sure") {
+              data$group[row] <- "sure"
+    } else if (data$metaphor_measure[row] == "Answer.conflict") {
+              data$group[row] <- "conflict"
+    } else if (data$metaphor_measure[row] == "Answer.tension") {
+              data$group[row] <- "conflict"
+    } else if (data$metaphor_measure[row] == "Answer.control") {
+               data$group[row] <- "control"
+    } else if (data$metaphor_measure[row] == "Answer.dominant") {
+              data$group[row] <- "control"
+    } else if (data$metaphor_measure[row] == "Answer.goal") {
+              data$group[row] <- "unity"
+    } else if (data$metaphor_measure[row] == "Answer.worktogether") {
+              data$group[row] <- "unity"
+    } else if (data$metaphor_measure[row] == "Answer.many") {
+              data$group[row] <- "size"
+    } else if (data$metaphor_measure[row] == "Answer.members") {
+              data$group[row] <- "size"              
+    } else {
+      # for some reason it's not recognizing the annoyed case, so let's throw it in the else
+      # cause that seems safe.
+      data$group[row] <- "other"
+    }
+  }
+  return(data)
+}
+
+u0_grouped <- add_groups(u0_gathered)
+u1_grouped <- add_groups(u1_gathered)
+u2_grouped <- add_groups(u2_gathered)
+```
+
+
+
+Create grouped overlay of correlated questions. Violin plot of question correlations by group (for single conditions of a single gesture)
+```{r}
+create_grouped_overlay <- function(data) {
+  p <- ggplot(data) + 
+    aes(x=factor(nrow(data)),y=score,fill=metaphor_measure)+
+    geom_violin(alpha=0.3,position="identity") +
+    facet_wrap("group")  
+  return(p)    
+}
+ 
+u0_grouped_overlay <- create_grouped_overlay(u0_grouped)
+u1_grouped_overlay <- create_grouped_overlay(u1_grouped)
+u2_grouped_overlay <- create_grouped_overlay(u2_grouped)
+ 
+ 
+u0_grouped_overlay
+u1_grouped_overlay 
+u2_grouped_overlay
+```
+
+Aww yeah baby. 
+
+This graph shows the correlation of the grouped variables. We want them to be highly correlated with each other, and preferably not super correlated with one another. This should hold moreso for the extreme versions of the gestures.
+
+
+wait but correlations are not that.
+```{r}
+ggplotRegression <- function(fit){
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+    geom_point() +
+    stat_smooth(method = "lm", col = "red") +
+    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       "Intercept =",signif(fit$coef[[1]],5 ),
+                       " Slope =",signif(fit$coef[[2]], 5),
+                       " P =",signif(summary(fit)$coef[2,4], 5)))
+}
+
+ggplotRegression(lm(Answer.confident ~ Answer.sure, data = u0))
+
+lm(Answer.confident ~ Answer.sure, data = u0)[1][1]$coefficients[2]
+```
+
+Add correlation coefficients??
+
+## HEREE!!!!!
+
+```{r}
+##   Var1 Var2 value
+## 1  mpg  mpg  1.00
+## 2 disp  mpg -0.85
+## 3   hp  mpg -0.78
+## 4 drat  mpg  0.68
+## 5   wt  mpg -0.87
+## 6 qsec  mpg  0.42
+
+
+## Go through and populate with metaphors and difference values
+create_difference_matrix <- function(data) {
+  difference_table <- data.frame(
+    Question1 = c(""),
+    Question2 = c(""),
+    Rsq = c(""),
+    stringsAsFactors=FALSE
+  )
+  
+  metas = colnames(data)
+  
+  for(metaphor in metas) {
+    for(meta in rev(metas)) {
+      diff <- cor(data[meta], data[metaphor])
+      row <- c(metaphor, meta, diff)
+      difference_table <- rbind(difference_table, row)  
+    }
+  }
+  
+  # difference_matrix$Rsq <- as.numeric(as.character(difference_matrix$Rsq))
+  difference_table <- difference_table[-1,]
+  # there is some problem here with the difference numeric
+  difference_table$Rsq <- as.numeric(as.character(difference_table$Rsq))
+  #difference_table$difference <- scale_0_1(difference_table$difference)
+  return(difference_table)
+}
+
+diff_mat_u0 <- create_difference_matrix(u0)
+diff_mat_u0$vid = "u0"
+diff_mat_u1 <- create_difference_matrix(u1)
+diff_mat_u1$vid = "u1"
+diff_mat_u2 <- create_difference_matrix(u2)
+diff_mat_u2$vid = "u2"
+```
+
+```{r}
+plot_diff_matrix_purple <- function(matrix, t) {
+  plot_diff_matrix(matrix, "darkorchid4", "aliceblue", "honeydew1", t)
+}
+
+plot_diff_matrix_green <- function(matrix, t) {
+  plot_diff_matrix(matrix, "white", "darkgreen", "honeydew1", t)
+}
+
+plot_diff_matrix_pink <- function(matrix, t) {
+  plot_diff_matrix(matrix, "aliceblue", "hotpink4", "mistyrose1", t)
+}
+
+plot_diff_matrix_blue <- function(matrix, t="") {
+  plot_diff_matrix(matrix, "aliceblue", "royalblue4", "slategray2", title=t)
+}
+
+plot_diff_matrix <- function(matrix, low_col, high_col, mid_col, title) {
+  p <- ggplot(data=matrix, aes(x=Question1, y=Question2, fill=Rsq)) + 
+    geom_tile(color="white") +
+    scale_fill_gradient2(low=low_col, high=high_col, mid=mid_col,
+                         midpoint=0.25, space="Lab") +
+    theme_minimal() +
+    coord_fixed() +
+    theme_bw() +
+    theme(axis.text.x=element_text(angle=90),
+        axis.ticks=element_blank(),
+        axis.line=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_line(color='#eeeeee')) +
+      ggtitle(title)
+  return(p)
+}
+```
+
+
+### Correlation Matrix of questions
+Get wrapped plot of correlations across conditions for same gesture
+```{r}
+
+plot_diff_matrix_help <- function(matrix, t="") {
+  plot_diff_matrix(matrix, "palevioletred", "royalblue4", "aliceblue", title=t)
+}
+
+test <- plot_diff_matrix_help(rbind(diff_mat_u0, diff_mat_u1, diff_mat_u2), "Correlation of questions across single gesture for three conditions") + 
+  facet_wrap("vid")
+```
+
+
+### Violin plots of responses to questions
+```{r}
+ub_named <- u0_gathered
+ua_named <- u1_gathered
+uc_named <- u2_gathered
+ub_named$vid = "original"
+ua_named$vid = "a_intertwine"
+uc_named$vid = "z_collide"
+
+ggplot(rbind(ua_named, ub_named, uc_named), aes(vid, score)) + 
+  geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
+  #geom_dotplot(aes(color=condition), binaxis='y', stackdir='center', dotsize=0.5) +
+  facet_wrap(~metaphor_measure) + 
+  labs(
+    title = "Violin plot (density) of ranked responses per condition by metaphor"   ,
+    caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
+  )
+```
+
+
+### Density plot? 
+Regrouping data in a potentially horrifying way
+```{r}
+u0_grouped_named <- add_groups(ua_named)
+u1_grouped_named <- add_groups(ub_named)
+u2_grouped_named <- add_groups(uc_named)
+```
+
+Group it all together and do it by group but you can also just do it by groups and facet wrap by metaphor measure for 
+indiv question results. 
+```{r}
+p <- ggplot(rbind(u0_grouped_named, u1_grouped_named, u2_grouped_named), aes(x=score, fill=vid)) + 
+    geom_density(alpha=0.3, stat="density", adjust=0.8) +
+    facet_wrap(~group, scale="free")
+p
+```
+
+
+#### Put it together and how do you do? Bibbity Bobbity BAM.
+```{r}
+## random helpers
+gather_select <- function(d) {
+  d <- d %>%
+    gather("metaphor_measure", "score", 1:12) %>%
+    select("metaphor_measure", "score")
+}
+
+do_the_thing <- function(d0, d1, d2) {
+  d0_g <- gather_select(d0)
+  d1_g <- gather_select(d1)
+  d2_g <- gather_select(d2)
+  d0_group <- add_groups(d0_g)
+  d1_group <- add_groups(d1_g)
+  d2_group <- add_groups(d2_g)
+  d0_grouped_overlay <- create_grouped_overlay(d0_group)
+  
+}
+
+do_the_thing(u0, u1, u2)
+
+```
