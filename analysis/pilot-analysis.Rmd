@@ -219,6 +219,18 @@ plot_violin_density <- function(d0, d1, d2) {
     )
   return(g)
 }
+
+plot_violin_density_grouped <- function(d0, d1, d2) {
+  g <- ggplot(rbind(d0, d1, d2), aes(vid, score)) + 
+    geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
+    #geom_dotplot(aes(color=condition), binaxis='y', stackdir='center', dotsize=0.5) +
+    facet_wrap(~group) + 
+    labs(
+      title = "Violin plot (density) of ranked responses per condition by metaphor"   ,
+      caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
+    )
+  return(g)
+}
 ```
 
 
@@ -232,6 +244,13 @@ plot_group_density <- function(d0, d1, d2) {
   p <- ggplot(rbind(d0, d1, d2), aes(x=score, fill=vid)) + 
       geom_density(alpha=0.3, stat="density", adjust=0.8) +
       facet_wrap(~group, scale="free")
+  return(p)  
+}
+
+plot_question_density <- function(d0, d1, d2) {
+  p <- ggplot(rbind(d0, d1, d2), aes(x=score, fill=vid)) + 
+      geom_density(alpha=0.3, stat="density", adjust=0.8) +
+      facet_wrap(~metaphor_measure, scale="free")
   return(p)  
 }
 ```
@@ -280,12 +299,16 @@ do_the_thing <- function(d0, d1, d2) {
   d2_grouped_named <- add_groups(dc_named)
   
   ## violin density plot 
- violin_density <- plot_violin_density(da_named, db_named, dc_named) 
+ violin_density_question <- plot_violin_density(da_named, db_named, dc_named) 
+ violin_density_grouped <- plot_violin_density_grouped(d0_grouped_named, d1_grouped_named, d2_grouped_named)
  
  ## plot density plot -- with groups
- grouped_density <- plot_group_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
+ density_grouped <- plot_group_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
+ density_question <- plot_question_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
  
- return_list <- list("overlays" = overlays, "correlation_matrix" = difference_matrix, "violin" = violin_density, "density" = grouped_density)
+ return_list <- list("overlays" = overlays, "correlation_matrix" = difference_matrix, 
+                     "violin_density_question" = violin_density_question, "violin_density_grouped" = violin_density_grouped,
+                     "density_grouped" = density_grouped, "density_question" = density_question)
 }
 
 all_dat <- do_the_thing(u0, u1, u2)
@@ -293,5 +316,7 @@ all_dat <- do_the_thing(u0, u1, u2)
 Cool now access everything as follows:
 all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
 all_dat$correlation_matrix: the correlation matrices that visualize the above as well.
-all_dat$violin: the violin plot of all question distributions across gesture conditions.
-all_dat$density: density plot of group distributions across gesture conditions.
+all_dat$violin_density_question: the violin plot of all question distributions across gesture conditions.
+all_dat$violin_density_grouped: the violin plot of group distributions across gesture conditions.
+all_dat$density_grouped: density plot of group distributions across gesture conditions.
+all_dat$density_question: density plot of all question distributions across gesture conditions.
