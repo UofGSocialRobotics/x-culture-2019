@@ -130,10 +130,6 @@ add_groups <- function(data) {
   }
   return(data)
 }
-
-u0_grouped <- add_groups(u0_gathered)
-u1_grouped <- add_groups(u1_gathered)
-u2_grouped <- add_groups(u2_gathered)
 ```
 
 
@@ -147,53 +143,17 @@ create_grouped_overlay <- function(data) {
     facet_wrap("group")  
   return(p)    
 }
- 
-u0_grouped_overlay <- create_grouped_overlay(u0_grouped)
-u1_grouped_overlay <- create_grouped_overlay(u1_grouped)
-u2_grouped_overlay <- create_grouped_overlay(u2_grouped)
- 
- 
-u0_grouped_overlay
-u1_grouped_overlay 
-u2_grouped_overlay
 ```
-
-Aww yeah baby. 
 
 This graph shows the correlation of the grouped variables. We want them to be highly correlated with each other, and preferably not super correlated with one another. This should hold moreso for the extreme versions of the gestures.
 
 
-wait but correlations are not that.
+Really could have correlation plot w Q1 on X and Q2 on Y but frankly those don't look great and we shouldn't expect them to... 
+
+
+### Correlation Matrix of questions
+Get wrapped plot of correlations across conditions for same gesture
 ```{r}
-ggplotRegression <- function(fit){
-  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
-    geom_point() +
-    stat_smooth(method = "lm", col = "red") +
-    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                       "Intercept =",signif(fit$coef[[1]],5 ),
-                       " Slope =",signif(fit$coef[[2]], 5),
-                       " P =",signif(summary(fit)$coef[2,4], 5)))
-}
-
-ggplotRegression(lm(Answer.confident ~ Answer.sure, data = u0))
-
-lm(Answer.confident ~ Answer.sure, data = u0)[1][1]$coefficients[2]
-```
-
-Add correlation coefficients??
-
-## HEREE!!!!!
-
-```{r}
-##   Var1 Var2 value
-## 1  mpg  mpg  1.00
-## 2 disp  mpg -0.85
-## 3   hp  mpg -0.78
-## 4 drat  mpg  0.68
-## 5   wt  mpg -0.87
-## 6 qsec  mpg  0.42
-
-
 ## Go through and populate with metaphors and difference values
 create_difference_matrix <- function(data) {
   difference_table <- data.frame(
@@ -220,32 +180,9 @@ create_difference_matrix <- function(data) {
   #difference_table$difference <- scale_0_1(difference_table$difference)
   return(difference_table)
 }
-
-diff_mat_u0 <- create_difference_matrix(u0)
-diff_mat_u0$vid = "u0"
-diff_mat_u1 <- create_difference_matrix(u1)
-diff_mat_u1$vid = "u1"
-diff_mat_u2 <- create_difference_matrix(u2)
-diff_mat_u2$vid = "u2"
 ```
 
 ```{r}
-plot_diff_matrix_purple <- function(matrix, t) {
-  plot_diff_matrix(matrix, "darkorchid4", "aliceblue", "honeydew1", t)
-}
-
-plot_diff_matrix_green <- function(matrix, t) {
-  plot_diff_matrix(matrix, "white", "darkgreen", "honeydew1", t)
-}
-
-plot_diff_matrix_pink <- function(matrix, t) {
-  plot_diff_matrix(matrix, "aliceblue", "hotpink4", "mistyrose1", t)
-}
-
-plot_diff_matrix_blue <- function(matrix, t="") {
-  plot_diff_matrix(matrix, "aliceblue", "royalblue4", "slategray2", title=t)
-}
-
 plot_diff_matrix <- function(matrix, low_col, high_col, mid_col, title) {
   p <- ggplot(data=matrix, aes(x=Question1, y=Question2, fill=Rsq)) + 
     geom_tile(color="white") +
@@ -262,57 +199,41 @@ plot_diff_matrix <- function(matrix, low_col, high_col, mid_col, title) {
       ggtitle(title)
   return(p)
 }
-```
 
-
-### Correlation Matrix of questions
-Get wrapped plot of correlations across conditions for same gesture
-```{r}
-
-plot_diff_matrix_help <- function(matrix, t="") {
+plot_diff_matrix_pretty <- function(matrix, t="") {
   plot_diff_matrix(matrix, "palevioletred", "royalblue4", "aliceblue", title=t)
 }
-
-test <- plot_diff_matrix_help(rbind(diff_mat_u0, diff_mat_u1, diff_mat_u2), "Correlation of questions across single gesture for three conditions") + 
-  facet_wrap("vid")
 ```
 
 
 ### Violin plots of responses to questions
 ```{r}
-ub_named <- u0_gathered
-ua_named <- u1_gathered
-uc_named <- u2_gathered
-ub_named$vid = "original"
-ua_named$vid = "a_intertwine"
-uc_named$vid = "z_collide"
-
-ggplot(rbind(ua_named, ub_named, uc_named), aes(vid, score)) + 
-  geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
-  #geom_dotplot(aes(color=condition), binaxis='y', stackdir='center', dotsize=0.5) +
-  facet_wrap(~metaphor_measure) + 
-  labs(
-    title = "Violin plot (density) of ranked responses per condition by metaphor"   ,
-    caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
-  )
+plot_violin_density <- function(d0, d1, d2) {
+  g <- ggplot(rbind(d0, d1, d2), aes(vid, score)) + 
+    geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
+    #geom_dotplot(aes(color=condition), binaxis='y', stackdir='center', dotsize=0.5) +
+    facet_wrap(~metaphor_measure) + 
+    labs(
+      title = "Violin plot (density) of ranked responses per condition by metaphor"   ,
+      caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
+    )
+  return(g)
+}
 ```
 
 
 ### Density plot? 
-Regrouping data in a potentially horrifying way
-```{r}
-u0_grouped_named <- add_groups(ua_named)
-u1_grouped_named <- add_groups(ub_named)
-u2_grouped_named <- add_groups(uc_named)
-```
+Regrouping data in a potentially horrifying way. Need to make sure questions make sense...
 
 Group it all together and do it by group but you can also just do it by groups and facet wrap by metaphor measure for 
 indiv question results. 
 ```{r}
-p <- ggplot(rbind(u0_grouped_named, u1_grouped_named, u2_grouped_named), aes(x=score, fill=vid)) + 
-    geom_density(alpha=0.3, stat="density", adjust=0.8) +
-    facet_wrap(~group, scale="free")
-p
+plot_group_density <- function(d0, d1, d2) {
+  p <- ggplot(rbind(d0, d1, d2), aes(x=score, fill=vid)) + 
+      geom_density(alpha=0.3, stat="density", adjust=0.8) +
+      facet_wrap(~group, scale="free")
+  return(p)  
+}
 ```
 
 
@@ -325,17 +246,52 @@ gather_select <- function(d) {
     select("metaphor_measure", "score")
 }
 
-do_the_thing <- function(d0, d1, d2) {
-  d0_g <- gather_select(d0)
-  d1_g <- gather_select(d1)
-  d2_g <- gather_select(d2)
-  d0_group <- add_groups(d0_g)
-  d1_group <- add_groups(d1_g)
-  d2_group <- add_groups(d2_g)
-  d0_grouped_overlay <- create_grouped_overlay(d0_group)
-  
+wrangle_data <- function(d, name="data") {
+  gathered <- gather_select(d)
+  grouped <- add_groups(gathered)
+  overlay_plot <- create_grouped_overlay(grouped)
+  diff_mat <- create_difference_matrix(d)
+  diff_mat$vid <- name
+  list_of_returns <- list("gathered" = gathered, "grouped" = grouped, "overlay_plot" = overlay_plot, "diff_mat" = diff_mat)
+  return(list_of_returns)
 }
 
-do_the_thing(u0, u1, u2)
 
+do_the_thing <- function(d0, d1, d2) {
+  d0_data <- wrangle_data(d0, "original")
+  d1_data <- wrangle_data(d1, "intertwine")
+  d2_data <- wrangle_data(d2, "unpolite")
+  
+  # wrangle data
+  overlays <- list("d0_overlay" = d0_data$overlay_plot, "d1_overlay" = d1_data$overlay_plot, "d2_overlay" = d2_data$overlay_plot)
+  difference_matrix <- plot_diff_matrix_pretty(rbind(d0_data$diff_mat, d1_data$diff_mat, d2_data$diff_mat), 
+    "Correlation of questions across single gesture for three conditions") + 
+    facet_wrap("vid")  
+  
+  ## rename some things for the density plots
+  db_named <- d0_data$gathered
+  da_named <- d1_data$gathered
+  dc_named <- d2_data$gathered
+  db_named$vid = "original"
+  da_named$vid = "a_condition1"
+  dc_named$vid = "z_condition2"
+  d0_grouped_named <- add_groups(da_named)
+  d1_grouped_named <- add_groups(db_named)
+  d2_grouped_named <- add_groups(dc_named)
+  
+  ## violin density plot 
+ violin_density <- plot_violin_density(da_named, db_named, dc_named) 
+ 
+ ## plot density plot -- with groups
+ grouped_density <- plot_group_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
+ 
+ return_list <- list("overlays" = overlays, "correlation_matrix" = difference_matrix, "violin" = violin_density, "density" = grouped_density)
+}
+
+all_dat <- do_the_thing(u0, u1, u2)
 ```
+Cool now access everything as follows:
+all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
+all_dat$correlation_matrix: the correlation matrices that visualize the above as well.
+all_dat$violin: the violin plot of all question distributions across gesture conditions.
+all_dat$density: density plot of group distributions across gesture conditions.
