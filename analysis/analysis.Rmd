@@ -50,10 +50,10 @@ load_clean_data <- function(filepath) {
   return(data)
 }
 
-d1 <- load_clean_data("./data/XC_5_western_gest_western_participants.csv")
-d2 <- load_clean_data("./data/XC_gest_full_western_participants_5.csv")
-d3 <- load_clean_data("./data/XC_gest_full_western_participants_4.csv")
-d4 <- load_clean_data("./data/XC_pilot_gest_2.csv")
+d1 <- load_clean_data("../data/XC_5_western_gest_western_participants.csv")
+d2 <- load_clean_data("../data/XC_gest_full_western_participants_5.csv")
+d3 <- load_clean_data("../data/XC_gest_full_western_participants_4.csv")
+d4 <- load_clean_data("../data/XC_pilot_gest_2.csv")
 
 data <- rbind(d1, d2, d3, d4)
 

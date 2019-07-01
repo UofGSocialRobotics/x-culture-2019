@@ -18,7 +18,7 @@ library(ordinal)
 
 Load these bad larrys
 ```{r}
-xcdata <- read.csv('xc_pilot_fixed_questions.csv') %>%
+xcdata <- rbind(read.csv('xc_pilot_fixed_questions.csv'), read.csv('xc_pilot_fixed_questions2.csv')) %>%
   select(Answer.accessible, Answer.confident, Answer.conflict, Answer.control, 
          Answer.dominant, Answer.goal, Answer.many, Answer.members, 
          Answer.open, Answer.sure, Answer.tension, Answer.worktogether,
@@ -68,18 +68,6 @@ a2 <- xcdata %>%
   filter(Answer.vid_id == 
            "https://s3.us-east-2.amazonaws.com/metaphoric-gestures-x-culture/western_gest_3-2.mov") %>%
   select(-Answer.vid_id)
-
-u0_gathered <- u0 %>%
-  gather("metaphor_measure", "score", 1:12) %>%
-  select("metaphor_measure", "score")
-
-u1_gathered <- u1 %>%
-  gather("metaphor_measure", "score", 1:12) %>%
-  select("metaphor_measure", "score")
-
-u2_gathered <- u2 %>%
-  gather("metaphor_measure", "score", 1:12) %>%
-  select("metaphor_measure", "score")
 ```
 
 
@@ -276,10 +264,12 @@ wrangle_data <- function(d, name="data") {
 }
 
 
-do_the_thing <- function(d0, d1, d2) {
-  d0_data <- wrangle_data(d0, "original")
-  d1_data <- wrangle_data(d1, "intertwine")
-  d2_data <- wrangle_data(d2, "unpolite")
+do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = "z_condition2", gesture = "single") {
+  d0_data <- wrangle_data(d0, n0)
+  d1_data <- wrangle_data(d1, n1)
+  d2_data <- wrangle_data(d2, n2)
+  
+  graph_title <- paste("Correlation of questions for", gesture, "gesture across conditions.")
   
   # wrangle data
   overlays <- list("d0_overlay" = d0_data$overlay_plot, "d1_overlay" = d1_data$overlay_plot, "d2_overlay" = d2_data$overlay_plot)
@@ -311,7 +301,14 @@ do_the_thing <- function(d0, d1, d2) {
                      "density_grouped" = density_grouped, "density_question" = density_question)
 }
 
-all_dat <- do_the_thing(u0, u1, u2)
+all_unpolite_data <- do_the_thing(u0, u1, u2, "original", "intertwine", "collide")
+all_entity_data <- do_the_thing(e0, e1, e2)
+all_audience_data <- do_the_thing(a0, a1, a2)
+
+all_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(u0), create_difference_matrix(u1), create_difference_matrix(u2),
+                                                        create_difference_matrix(e0), create_difference_matrix(e1), create_difference_matrix(e2),
+                                                        create_difference_matrix(a0), create_difference_matrix(a1), create_difference_matrix(a2)), 
+    "Correlation of questions across single gesture for three conditions") 
 ```
 Cool now access everything as follows:
 all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
@@ -320,3 +317,73 @@ all_dat$violin_density_question: the violin plot of all question distributions a
 all_dat$violin_density_grouped: the violin plot of group distributions across gesture conditions.
 all_dat$density_grouped: density plot of group distributions across gesture conditions.
 all_dat$density_question: density plot of all question distributions across gesture conditions.
+
+
+
+
+## Stats
+Pretty, but what does it mean? Well, to determine whether any of these differences are significant (aka, did people interpret different things from each of the different gesture conditions, which, because we, too, are people, we know they did) we need to see what the significant differences between rankings in each gesture and condition are.
+```{r}
+## gather the bad larries
+gather_clean <- function(d, n="") {
+  ret <- d %>%
+    gather("metaphor_measure", "score", 1:12) %>%
+    mutate(condition=n) %>%
+    add_groups()
+  return(ret)
+}
+
+unp_all <- rbind(gather_clean(u0, "original"), 
+                 gather_clean(u1, "cond1"), 
+                 gather_clean(u2, "cond2"))
+
+
+do_anova_per_group <- function(data, g) {
+  group_data <- data %>%
+    filter(group==g)
+  res.aov <- aov(score ~ condition, data=group_data)
+  print(g)
+  print(summary(res.aov))
+  return(res.aov)
+}
+
+do_anova_per_question <- function(data, measure) {
+  question_data <- data %>%
+    filter(metaphor_measure==measure)
+  res.aov <- aov(score ~ condition, data=question_data)
+  print(measure)
+  print(summary(res.aov))
+  return(res.aov)
+}
+
+do_anova_per_data <- function(data) {
+  # opts <- c("Answer.accessible", "Answer.open", 
+  #                 "Answer.confident", "Answer.sure",
+  #                 "Answer.control", "Answer.dominant", 
+  #                 "Answer.goal", "Answer.worktogether",
+  #                 "Answer.conflict", "Answer.tension")
+  
+  groups <- c("open",
+              "conflict",
+              "control", 
+              "size",
+              "sure",
+              "unity")
+  # print("==== BY QUESTION ====")
+  # for (o in opts) {
+  #   print(o)
+  #   a <- do_anova_per_question(data, o)
+  #   print(summary(a))
+  #   print("========================")
+  # }
+  print("==== BY GROUP ====")
+  for (g in groups) {
+    print(g)
+    a <- do_anova_per_group(data, g)
+    print(summary(a))
+    print("========================")
+  }
+}
+
+do_anova_per_data(unp_all)
+```
