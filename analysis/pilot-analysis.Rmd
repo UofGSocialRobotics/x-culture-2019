@@ -333,11 +333,6 @@ gather_clean <- function(d, n="") {
   return(ret)
 }
 
-unp_all <- rbind(gather_clean(u0, "original"), 
-                 gather_clean(u1, "cond1"), 
-                 gather_clean(u2, "cond2"))
-
-
 do_anova_per_group <- function(data, g) {
   group_data <- data %>%
     filter(group==g)
@@ -347,35 +342,14 @@ do_anova_per_group <- function(data, g) {
   return(res.aov)
 }
 
-do_anova_per_question <- function(data, measure) {
-  question_data <- data %>%
-    filter(metaphor_measure==measure)
-  res.aov <- aov(score ~ condition, data=question_data)
-  print(measure)
-  print(summary(res.aov))
-  return(res.aov)
-}
-
 do_anova_per_data <- function(data) {
-  # opts <- c("Answer.accessible", "Answer.open", 
-  #                 "Answer.confident", "Answer.sure",
-  #                 "Answer.control", "Answer.dominant", 
-  #                 "Answer.goal", "Answer.worktogether",
-  #                 "Answer.conflict", "Answer.tension")
-  
   groups <- c("open",
               "conflict",
               "control", 
               "size",
               "sure",
               "unity")
-  # print("==== BY QUESTION ====")
-  # for (o in opts) {
-  #   print(o)
-  #   a <- do_anova_per_question(data, o)
-  #   print(summary(a))
-  #   print("========================")
-  # }
+  
   print("==== BY GROUP ====")
   for (g in groups) {
     print(g)
@@ -385,5 +359,114 @@ do_anova_per_data <- function(data) {
   }
 }
 
-do_anova_per_data(unp_all)
+do_anova_per_gest <- function(d0, d1, d2) {
+  d <- rbind(gather_clean(d0, "original"), 
+             gather_clean(d1, "cond1"), 
+             gather_clean(d2, "cond2"))
+  do_anova_per_data(d)
+}
+
+do_all_anovas <- function() {
+  print("!!!!UNPOLITE!!!!!")
+  do_anova_per_gest(u0, u1, u2)
+  print(" ")
+  print("!!!!ENTITY!!!!!")
+  do_anova_per_gest(e0, e1, e2)
+  print(" ")
+  print("!!!!AUDIENCE!!!!!")
+  do_anova_per_gest(a0, a1, a2)
+}
+
+do_all_anovas()
+```
+
+
+Now get those T-Tests done DID.
+
+```{r}
+
+get_sig_val <- function(p) {
+  if(p < 0.0005) {
+    return("***")
+  }
+  if(p < 0.005) {
+    return("**")
+    }
+  if(p < 0.05) {
+    return("*")
+  }
+  return ("")
+}
+
+do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
+  print(dat)
+  d <- data.frame()
+  if(dat == "1") {
+    d <- unp_d
+  }
+  if(dat == "2") {
+    d <- e_d
+  }
+  if(dat == "3") {
+    d <- a_d
+  }
+  
+  p <- as.numeric(t.test(
+            get_vals(cond1, statement, d),
+            get_vals(cond2, statement, d))[3])
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=6), digits=5)
+  return(p_adjusted)
+}
+
+get_vals <- function(condition_name, g, dat) {
+  ret <- dat %>%
+    filter(condition==condition_name) %>%
+    filter(group==g)
+  ret <- ret$score  
+  return(ret)
+}
+
+
+# For some reason can't generalize this to all gestures?
+make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
+  groups <- c("open",
+            "conflict",
+            "control", 
+            "size",
+            "sure",
+            "unity")
+
+  group <- rep(groups, each=3)
+  cond1 <- rep(c(cond1name, cond2name, "original"), 6)
+  cond2 <- rep(c("original", cond1name, cond2name), 6)
+  df <- data.frame(group, cond1, cond2)   
+  
+  df$p <- mapply(do_t_test_adjusted, 
+               as.character(df$cond1), 
+               as.character(df$cond2), 
+               as.character(df$group),
+               dat)
+  df$sig <- mapply(sig, df$p)
+
+  return(df)
+}
+
+u0_g_cl <- gather_clean(u0, "original") 
+u1_g_cl <- gather_clean(u1, "cond1") 
+u2_g_cl <- gather_clean(u2, "cond2")
+unp_d <- rbind(u0_g_cl, u1_g_cl, u2_g_cl)
+
+e0_g_cl <- gather_clean(e0, "original") 
+e1_g_cl <- gather_clean(e1, "cond1") 
+e2_g_cl <- gather_clean(e2, "cond2")
+e_d <- rbind(e0_g_cl, e1_g_cl, e2_g_cl)
+
+a0_g_cl <- gather_clean(a0, "original") 
+a1_g_cl <- gather_clean(a1, "cond1") 
+a2_g_cl <- gather_clean(a2, "cond2")
+a_d <- rbind(a0_g_cl, a1_g_cl, a2_g_cl)
+
+gest_1_sig_table <- make_table_per_gesture("unpolite", "cond1", "cond2", "1")
+gest_2_sig_table <- make_table_per_gesture("entity", "cond1", "cond2", "2")
+gest_3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
 ```
