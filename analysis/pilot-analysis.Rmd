@@ -11,12 +11,14 @@ library(tidyverse)
 library(ggplot2)
 library(pwr)
 library(ordinal)
+library(gridExtra)
+library(RColorBrewer)
 ```
 
 
 ## Load 'N' Wrangle
 
-Load these bad larrys
+Load these bad larrys (straight from mTurk template)
 ```{r}
 xcdata <- rbind(read.csv('xc_pilot_fixed_questions.csv'), read.csv('xc_pilot_fixed_questions2.csv')) %>%
   select(Answer.accessible, Answer.confident, Answer.conflict, Answer.control, 
@@ -71,6 +73,48 @@ a2 <- xcdata %>%
 ```
 
 
+Also load these buggerinos (from psytoolkit template)
+```{r}
+psydata <- rbind(read.csv('psytoolkit_pilot.csv'), read.csv('psytoolkit_pilot2.csv')) %>% 
+  na.omit() %>%
+  distinct()
+colnames(psydata) <- c("participantID", "vid_id", "rand", "free_response", 
+                 "Answer.many", "Answer.members", "Answer.conflict", "Answer.tension",
+                 "Answer.open", "Answer.accessible", "Answer.control", "Answer.dominant",
+                 "Answer.worktogether", "Answer.goal", "Answer.sure", "Answer.confident",
+                 "endcode", "t_start", "t_end", "t_total") 
+
+wg4.0 <- psydata %>%
+  filter(vid_id == 
+           "334666350") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg4.1 <- psydata %>%
+  filter(vid_id == 
+           "334666369") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg4.2 <- psydata %>%
+  filter(vid_id == 
+           "334666395") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg5.0 <- psydata %>%
+  filter(vid_id == 
+           "334666150") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg5.1 <- psydata %>%
+  filter(vid_id == 
+           "334666125") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg5.2 <- psydata %>%
+  filter(vid_id == 
+           "334666100") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+```
+
 ### Spot checks 
 some things should correlate, others should not. IE the questions that go together should correlate. 
 accessible <--> open
@@ -87,13 +131,13 @@ add_groups <- function(data) {
   data$group <- ""
   for(row in 1:nrow(data)) {
     if (data$metaphor_measure[row] == "Answer.accessible") {
-               data$group[row] <- "open"
+               data$group[row] <- "openness"
     } else if (data$metaphor_measure[row] == "Answer.open") {
-              data$group[row] <- "open"
+              data$group[row] <- "openness"
     } else if (data$metaphor_measure[row] == "Answer.confident") {
-              data$group[row] <- "sure"
+              data$group[row] <- "certainty"
     } else if (data$metaphor_measure[row] == "Answer.sure") {
-              data$group[row] <- "sure"
+              data$group[row] <- "certainty"
     } else if (data$metaphor_measure[row] == "Answer.conflict") {
               data$group[row] <- "conflict"
     } else if (data$metaphor_measure[row] == "Answer.tension") {
@@ -219,6 +263,19 @@ plot_violin_density_grouped <- function(d0, d1, d2) {
     )
   return(g)
 }
+
+####### TEST BELOW HERE #########
+
+plot_violin_density_group_overlay <- function(d0, d1, d2) {
+  g <- ggplot(rbind(d0, d1, d2)) + 
+    aes(x=factor(nrow(d0)),y=score,fill=vid)+
+    geom_violin(alpha=0.3,position="identity") +
+    facet_wrap("group") +
+    labs(
+      title = "Violin plot (density) of ranked responses per condition by metaphor grouping"
+    )
+  return(g)
+}
 ```
 
 
@@ -230,14 +287,14 @@ indiv question results.
 ```{r}
 plot_group_density <- function(d0, d1, d2) {
   p <- ggplot(rbind(d0, d1, d2), aes(x=score, fill=vid)) + 
-      geom_density(alpha=0.3, stat="density", adjust=0.8) +
+      geom_density(alpha=0.3, stat="density", adjust=1.2) +
       facet_wrap(~group, scale="free")
   return(p)  
 }
 
 plot_question_density <- function(d0, d1, d2) {
   p <- ggplot(rbind(d0, d1, d2), aes(x=score, fill=vid)) + 
-      geom_density(alpha=0.3, stat="density", adjust=0.8) +
+      geom_density(alpha=0.3, stat="density", adjust=1.2) +
       facet_wrap(~metaphor_measure, scale="free")
   return(p)  
 }
@@ -291,6 +348,7 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
   ## violin density plot 
  violin_density_question <- plot_violin_density(da_named, db_named, dc_named) 
  violin_density_grouped <- plot_violin_density_grouped(d0_grouped_named, d1_grouped_named, d2_grouped_named)
+ violin_dnesity_grouped_overlay <- plot_violin_density_group_overlay(d0_grouped_named, d1_grouped_named, d2_grouped_named)
  
  ## plot density plot -- with groups
  density_grouped <- plot_group_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
@@ -298,17 +356,33 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
  
  return_list <- list("overlays" = overlays, "correlation_matrix" = difference_matrix, 
                      "violin_density_question" = violin_density_question, "violin_density_grouped" = violin_density_grouped,
+                     "violin_density_grouped_overlay" = violin_dnesity_grouped_overlay,
                      "density_grouped" = density_grouped, "density_question" = density_question)
 }
 
 all_unpolite_data <- do_the_thing(u0, u1, u2, "original", "intertwine", "collide")
 all_entity_data <- do_the_thing(e0, e1, e2)
 all_audience_data <- do_the_thing(a0, a1, a2)
+all_protected_data <- do_the_thing(wg4.0, wg4.1, wg4.2)
+all_bowl_data <- do_the_thing(wg5.0, wg5.1, wg5.2)
 
 all_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(u0), create_difference_matrix(u1), create_difference_matrix(u2),
                                                         create_difference_matrix(e0), create_difference_matrix(e1), create_difference_matrix(e2),
+                                                        create_difference_matrix(wg4.0), create_difference_matrix(wg4.1), create_difference_matrix(wg4.2),
+                                                        create_difference_matrix(wg5.0), create_difference_matrix(wg5.1), create_difference_matrix(wg5.2),
                                                         create_difference_matrix(a0), create_difference_matrix(a1), create_difference_matrix(a2)), 
-    "Correlation of questions across single gesture for three conditions") 
+    "Correlation of questions across all gesture conditions") 
+
+## save some other things too why not
+ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_unpolite_data$violin_density_grouped_overlay)
+ggsave(filename = "all_entity_data--violin_density_grouped.png", plot = all_entity_data$violin_density_grouped_overlay)
+ggsave(filename = "all_audience_data--violin_density_grouped.png", plot = all_audience_data$violin_density_grouped_overlay)
+ggsave(filename = "all_protected_data--violin_density_grouped.png", plot = all_protected_data$violin_density_grouped_overlay)
+ggsave(filename = "all_bowl_data--violin_density_grouped.png", plot = all_bowl_data$violin_density_grouped_overlay)
+
+
+
+#ggsave(filename = "all_correlational_data.png", plot = all_correlational_data)
 ```
 Cool now access everything as follows:
 all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
@@ -318,7 +392,13 @@ all_dat$violin_density_grouped: the violin plot of group distributions across ge
 all_dat$density_grouped: density plot of group distributions across gesture conditions.
 all_dat$density_question: density plot of all question distributions across gesture conditions.
 
-
+if you want to plot all of the overlays nicelygest_sig you can do this:
+```{r}
+#p1 <- all_protected_data$overlays[["d0_overlay"]]
+#p2 <- all_protected_data$overlays[["d1_overlay"]]
+#p3 <- all_protected_data$overlays[["d2_overlay"]]
+#grid.arrange(p1, p2, p3, ncol=3)
+```
 
 
 ## Stats
@@ -343,11 +423,11 @@ do_anova_per_group <- function(data, g) {
 }
 
 do_anova_per_data <- function(data) {
-  groups <- c("open",
+  groups <- c("openness",
               "conflict",
               "control", 
               "size",
-              "sure",
+              "certainty",
               "unity")
   
   print("==== BY GROUP ====")
@@ -384,7 +464,6 @@ do_all_anovas()
 Now get those T-Tests done DID.
 
 ```{r}
-
 get_sig_val <- function(p) {
   if(p < 0.0005) {
     return("***")
@@ -392,29 +471,45 @@ get_sig_val <- function(p) {
   if(p < 0.005) {
     return("**")
     }
-  if(p < 0.05) {
+  if(p < 0.1) {
     return("*")
   }
   return ("")
 }
 
+get_nice_things <- function(d0, d1, d2, n0="original", n1="cond1", n2="cond2") {
+  d0_g_cl <- gather_clean(d0, n0) 
+  d1_g_cl <- gather_clean(d1, n1) 
+  d2_g_cl <- gather_clean(d2, n2)
+  d_total <- rbind(d0_g_cl, d1_g_cl, d2_g_cl)
+  return(d_total)
+}
+
+
+## Have to do this hacky bit for getting the data frame and I haven't figured out why but 
+## passing the data directly just doesn't play.
 do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
-  print(dat)
   d <- data.frame()
   if(dat == "1") {
-    d <- unp_d
+    d <- get_nice_things(u0, u1, u2)
   }
   if(dat == "2") {
-    d <- e_d
+    d <- get_nice_things(e0, e1, e2)
   }
   if(dat == "3") {
-    d <- a_d
+    d <- get_nice_things(a0, a1, a2)
+  }
+  if(dat == "4") {
+    d <- get_nice_things(wg4.0, wg4.1, wg4.2)
+    }
+  if(dat == "5") {
+    d <- get_nice_things(wg5.0, wg5.1, wg5.2)
   }
   
   p <- as.numeric(t.test(
             get_vals(cond1, statement, d),
             get_vals(cond2, statement, d))[3])
-  p_adjusted <- round(p.adjust(p, method="bonferroni", n=6), digits=5)
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=18), digits=5)
   return(p_adjusted)
 }
 
@@ -429,11 +524,11 @@ get_vals <- function(condition_name, g, dat) {
 
 # For some reason can't generalize this to all gestures?
 make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
-  groups <- c("open",
+  groups <- c("openness",
             "conflict",
             "control", 
             "size",
-            "sure",
+            "certainty",
             "unity")
 
   group <- rep(groups, each=3)
@@ -446,27 +541,207 @@ make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
                as.character(df$cond2), 
                as.character(df$group),
                dat)
-  df$sig <- mapply(sig, df$p)
+  df$sig <- mapply(get_sig_val, df$p)
 
   return(df)
 }
 
-u0_g_cl <- gather_clean(u0, "original") 
-u1_g_cl <- gather_clean(u1, "cond1") 
-u2_g_cl <- gather_clean(u2, "cond2")
-unp_d <- rbind(u0_g_cl, u1_g_cl, u2_g_cl)
-
-e0_g_cl <- gather_clean(e0, "original") 
-e1_g_cl <- gather_clean(e1, "cond1") 
-e2_g_cl <- gather_clean(e2, "cond2")
-e_d <- rbind(e0_g_cl, e1_g_cl, e2_g_cl)
-
-a0_g_cl <- gather_clean(a0, "original") 
-a1_g_cl <- gather_clean(a1, "cond1") 
-a2_g_cl <- gather_clean(a2, "cond2")
-a_d <- rbind(a0_g_cl, a1_g_cl, a2_g_cl)
 
 gest_1_sig_table <- make_table_per_gesture("unpolite", "cond1", "cond2", "1")
 gest_2_sig_table <- make_table_per_gesture("entity", "cond1", "cond2", "2")
 gest_3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
+gest_4_sig_table <- make_table_per_gesture("anything", "cond1", "cond2", "4")
+gest_5_sig_table <- make_table_per_gesture("specific", "cond1", "cond2", "5")
 ```
+
+
+
+
+
+
+
+
+
+# PART TWO: BICULTURALISM AT ITS FINEST
+```{r}
+wrangle_mini <- function(d, cond="data", culture="western") {
+  gathered <- gather_select(d)
+  grouped <- add_groups(gathered)
+  grouped$condition <- cond
+  grouped$viewer_culture <- culture
+  return(grouped)
+}
+
+## Pretending that wg4 is our eastern viewers for wg1
+u0_w_t <- wrangle_mini(u0, "original", "western")
+u1_w_t <- wrangle_mini(u1, "intertwine", "western")
+u2_w_t <- wrangle_mini(u2, "collide", "western")
+u0_e_t <- wrangle_mini(wg4.0, "original", "eastern")
+u1_e_t <- wrangle_mini(wg4.1, "intertwine", "eastern")
+u2_e_t <- wrangle_mini(wg4.2, "collide", "eastern")
+
+u_total_t <- rbind(u0_w_t, u1_w_t, u2_w_t, u0_e_t, u1_e_t, u2_e_t)
+
+```
+
+cool now we have all that data in one place. We need to compare the western and eastern viewers across conditions. 
+
+
+Easy enough to do stats on means between cultures but baby I wanna see those VIOLIN PLOTSSSSSS.
+
+Can only plot by one thing at a time (i.e. for a single gesture condition then visualize across 
+metaphor measures, or for a single metaphor measure then visualize across conditions)
+```{r}
+violin_compare_cultures_across_meta_groups <- function(data, cond="original") {
+  g <- ggplot(filter(data, condition == cond)) + 
+    aes(x=factor(nrow(data)),y=score,fill=viewer_culture) +
+    geom_violin(alpha=0.4,position="identity") +
+    #scale_fill_brewer(palette="PiYG") +
+    #scale_fill_manual(values=c("palevioletred1", "royalblue3")) +
+    facet_wrap("group") +
+    labs(
+      title = "Comparison across cultures for Unpolite Gesture -- Original Condition"
+    ) 
+  return(g)
+}
+
+
+## I think I'll do it across conditions first
+wg1.0_total_plot_compare_cultures_across_groups <- violin_compare_cultures_across_meta_groups(u_total_t, "original")
+wg1.0_total_plot_compare_cultures_across_groups
+
+wg1.1_total_plot_compare_cultures_across_groups <- violin_compare_cultures_across_meta_groups(u_total_t, "intertwine")
+
+wg1.2_total_plot_compare_cultures_across_groups <- violin_compare_cultures_across_meta_groups(u_total_t, "collide")
+```
+
+
+Cool now across I actually don't think the other one makes sense because you're comparing things across different gestures which defeats the purpose of the visualizations. 
+
+So stats it is. 
+```{r}
+## gather the bad larries
+do_anova_per_culture <- function(data, g) {
+  group_data <- data %>%
+    filter(group==g)
+  res.aov <- aov(score ~ viewer_culture, data=group_data)
+  print(g)
+  print(summary(res.aov))
+  return(res.aov)
+}
+
+do_anova_per_data_single_gest <- function(data) {
+  groups <- c("openness",
+              "conflict",
+              "control", 
+              "size",
+              "certainty",
+              "unity")
+  
+  print("==== BY GROUP ====")
+  for (g in groups) {
+    print(g)
+    a <- do_anova_per_culture(data, g)
+    print(summary(a))
+    print("========================")
+  }
+}
+
+
+## need to send only one condition
+do_anova_per_gest_by_culture <- function(d, cond) {
+  do_anova_per_data_single_gest(filter(d, condition==cond))
+}
+
+do_all_culture_anovas <- function() {
+  print("!!!!UNPOLITE!!!!!")
+  do_anova_per_gest_by_culture(u_total_t, "original")
+  print(" ")
+}
+
+do_all_culture_anovas()
+
+```
+
+Uhh yeah I guess that works but this is a more direct way of comparing them
+```{r}
+get_avg_by_culture_group <- function(d, culture, g) {
+  d_t <- d %>%
+    filter(viewer_culture == culture) %>%
+    filter(group == g)
+  m <- mean(d_t$score)
+}
+
+
+
+## Have to do this hacky bit for getting the data frame and I haven't figured out why but 
+## passing the data directly just doesn't play.
+do_t_test_adjusted_culture_group <- function(dat, g) {
+  p <- as.numeric(t.test(
+            get_vals_by_culture(1, "western", g),
+            get_vals_by_culture(1, "eastern", g))[3])
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=12), digits=5)
+  return(p_adjusted)
+  
+  t.test(filter_by_group(u0_w_t, "openness")$score, filter_by_group(u0_e_t, "openness")$score)
+}
+
+get_vals_by_culture <- function(dat, culture, g) {
+  if(dat==1) {
+    d <- u_total_t %>% 
+      filter(condition=="original")
+  }
+  ret <- d %>%
+    filter(viewer_culture==culture) %>%
+    filter(group=="openness")
+  ret <- ret$score  
+  return(ret)
+}
+
+
+# data comes in as already filtered out by gesture/condition
+make_table_per_gesture_by_culture <- function(dat) {
+  groups <- c("openness",
+            "conflict",
+            "control", 
+            "size",
+            "certainty",
+            "unity")
+
+  group <- rep(groups, each=1)
+  #western_mean <- rep(c("western", 18))
+  #eastern_mean <- rep(c("original", cond1name, cond2name), 6)
+  df <- data.frame(group)#, western_mean, eastern_mean)   
+  
+  ## currently this line is the offending one because dat needs to be right length
+  df$p <- mapply(do_t_test_adjusted_culture_group, dat, as.character(df$group))
+  df$sig <- mapply(get_sig_val, df$p)
+
+  return(df)
+} 
+
+u0_t_comparison <- make_table_per_gesture_by_culture(filter(u_total_t, condition=="original"))
+
+filter_by_group <- function(d, g) {
+  d %>%
+    filter(group==g)
+}
+
+# POC 8 July 2019 5:04pm
+t.test(filter_by_group(u0_w_t, "openness")$score, filter_by_group(u0_e_t, "openness")$score)
+
+do_t_test_adjusted_culture_group(filter(u_total_t, condition=="original"), "openness")
+```
+
+
+Look we want a table like this 
+Gesture 1-0
+group       western_avg      eastern_avg      t_test_p      sig
+openness        4.2               1.2           0.004
+certainty       3.1               3.2           0.981
+
+Gesture 1-1
+group       western_avg      eastern_avg      t_test_p      sig
+openness
+certainty
+.... 
