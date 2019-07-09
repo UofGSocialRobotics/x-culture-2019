@@ -245,10 +245,9 @@ plot_diff_matrix_pretty <- function(matrix, t="") {
 plot_violin_density <- function(d0, d1, d2) {
   g <- ggplot(rbind(d0, d1, d2), aes(vid, score)) + 
     geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
-    #geom_dotplot(aes(color=condition), binaxis='y', stackdir='center', dotsize=0.5) +
     facet_wrap(~metaphor_measure) + 
     labs(
-      title = "Violin plot (density) of ranked responses per condition by metaphor"   ,
+      title = "Violin plot (density) of ranked responses per condition by metaphor",
       caption = "Horizontal lines are drawn at the 0.25, 0.5, and 0.75 quantiles of the distribution."
     )
   return(g)
@@ -257,7 +256,6 @@ plot_violin_density <- function(d0, d1, d2) {
 plot_violin_density_grouped <- function(d0, d1, d2) {
   g <- ggplot(rbind(d0, d1, d2), aes(vid, score)) + 
     geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
-    #geom_dotplot(aes(color=condition), binaxis='y', stackdir='center', dotsize=0.5) +
     facet_wrap(~group) + 
     labs(
       title = "Violin plot (density) of ranked responses per condition by metaphor"   ,
@@ -265,8 +263,6 @@ plot_violin_density_grouped <- function(d0, d1, d2) {
     )
   return(g)
 }
-
-####### TEST BELOW HERE #########
 
 plot_violin_density_group_overlay <- function(d0, d1, d2) {
   g <- ggplot(rbind(d0, d1, d2)) + 
@@ -331,10 +327,12 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
   graph_title <- paste("Correlation of questions for", gesture, "gesture across conditions.")
   
   # wrangle data
-  overlays <- list("d0_overlay" = d0_data$overlay_plot, "d1_overlay" = d1_data$overlay_plot, "d2_overlay" = d2_data$overlay_plot)
+  overlays <- list("d0_overlay" = d0_data$overlay_plot, 
+                   "d1_overlay" = d1_data$overlay_plot, 
+                   "d2_overlay" = d2_data$overlay_plot)
   difference_matrix <- plot_diff_matrix_pretty(rbind(d0_data$diff_mat, d1_data$diff_mat, d2_data$diff_mat), 
-    "Correlation of questions across single gesture for three conditions") + 
-    facet_wrap("vid")  
+                      "Correlation of questions across single gesture for three conditions") + 
+                      facet_wrap("vid")  
   
   ## rename some things for the density plots
   db_named <- d0_data$gathered
@@ -356,23 +354,36 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
  density_grouped <- plot_group_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
  density_question <- plot_question_density(d0_grouped_named, d1_grouped_named, d2_grouped_named)
  
- return_list <- list("overlays" = overlays, "correlation_matrix" = difference_matrix, 
-                     "violin_density_question" = violin_density_question, "violin_density_grouped" = violin_density_grouped,
+ return_list <- list("overlays" = overlays, 
+                     "correlation_matrix" = difference_matrix, 
+                     "violin_density_question" = violin_density_question, 
+                     "violin_density_grouped" = violin_density_grouped,
                      "violin_density_grouped_overlay" = violin_dnesity_grouped_overlay,
-                     "density_grouped" = density_grouped, "density_question" = density_question)
+                     "density_grouped" = density_grouped, 
+                     "density_question" = density_question)
 }
 
-all_unpolite_data <- do_the_thing(wg1.0.w, wg1.1.w, wg1.2.w, "original", "intertwine", "collide")
-all_entity_data <- do_the_thing(wg2.0.w, wg2.1.w, wg2.2.w)
-all_audience_data <- do_the_thing(wg3.0.w, wg3.1.w, wg3.2.w)
-all_protected_data <- do_the_thing(wg4.0.w, wg4.1.w, wg4.2.w)
-all_bowl_data <- do_the_thing(wg5.0.w, wg5.1.w, wg5.2.w)
+all_wg1_data <- do_the_thing(wg1.0.w, wg1.1.w, wg1.2.w, "original", "intertwine", "collide")
+all_wg2_data <- do_the_thing(wg2.0.w, wg2.1.w, wg2.2.w)
+all_wg3_data <- do_the_thing(wg3.0.w, wg3.1.w, wg3.2.w)
+all_wg4_data <- do_the_thing(wg4.0.w, wg4.1.w, wg4.2.w)
+all_wg5_data <- do_the_thing(wg5.0.w, wg5.1.w, wg5.2.w)
 
-all_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), create_difference_matrix(wg1.1.w), create_difference_matrix(wg1.2.w),
-                                                        create_difference_matrix(wg2.0.w), create_difference_matrix(wg2.1.w), create_difference_matrix(wg2.2.w),
-                                                        create_difference_matrix(wg4.0.w), create_difference_matrix(wg4.1.w), create_difference_matrix(wg4.2.w),
-                                                        create_difference_matrix(wg5.0.w), create_difference_matrix(wg5.1.w), create_difference_matrix(wg5.2.w),
-                                                        create_difference_matrix(wg3.0.w), create_difference_matrix(wg3.1.w), create_difference_matrix(wg3.2.w)), 
+all_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), 
+                                                        create_difference_matrix(wg1.1.w), 
+                                                        create_difference_matrix(wg1.2.w),
+                                                        create_difference_matrix(wg2.0.w), 
+                                                        create_difference_matrix(wg2.1.w), 
+                                                        create_difference_matrix(wg2.2.w),
+                                                        create_difference_matrix(wg4.0.w), 
+                                                        create_difference_matrix(wg4.1.w), 
+                                                        create_difference_matrix(wg4.2.w),
+                                                        create_difference_matrix(wg5.0.w), 
+                                                        create_difference_matrix(wg5.1.w),
+                                                        create_difference_matrix(wg5.2.w),
+                                                        create_difference_matrix(wg3.0.w), 
+                                                        create_difference_matrix(wg3.1.w), 
+                                                        create_difference_matrix(wg3.2.w)), 
     "Correlation of questions across all gesture conditions") 
 
 ## save some other things too why not
