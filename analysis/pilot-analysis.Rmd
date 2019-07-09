@@ -600,6 +600,7 @@ create_total_bicultural_tables <- function(wd0, wd1, wd2, ed0, ed1, ed2, cond1="
 ## when we actually do it it'll be wg1.0.w, wg1.1.w, wg1.2.w, wg1.0.e, wg1.1.e, wg1.2.e
 wg1_total <- create_total_bicultural_tables(wg1.0.w, wg1.1.w, wg1.2.w, wg4.0.w, wg4.1.w, wg4.2.w, "intertwine", "collide")
 
+### could put this all in a loop but writing it out isn't so bad and it helps me see just how much data we have.
 #Uncomment for a good time [[once we have the bi-cultural data]]
 # wg2_total <- create_total_bicultural_tables(wg2.0.w, wg2.1.w, wg2.2.w, wg2.0.e, wg2.1.e, wg2.2.e, "cond1", "cond2")
 # wg3_total <- create_total_bicultural_tables(wg3.0.w, wg3.1.w, wg3.2.w, wg3.0.e, wg3.1.e, wg3.2.e, "cond1", "cond2")
@@ -646,9 +647,23 @@ get_violin_comparisons_per_gesture <- function(dat, cond1="cond1", cond2="cond2"
 }
 
 wg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg1_total, "intertwine", "collide", "wg1")
+
+## Uncomment when there's more data
+#wg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg2_total, "cond1", "cond2", "wg2")
+#wg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg3_total, "cond1", "cond2", "wg3")
+#wg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg4_total, "cond1", "cond2", "wg4")
+#wg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg5_total, "cond1", "cond2", "wg5")
+
+#eg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg1_total, "cond1", "cond2", "eg1")
+#eg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg2_total, "cond1", "cond2", "eg2")
+#eg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg3_total, "cond1", "cond2", "eg3")
+#eg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg4_total, "cond1", "cond2", "eg4")
+#eg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg5_total, "cond1", "cond2", "eg5")
+
+
+
 ```
 Now the plots live in things like `wg1_violin_culture_comparisons$c0_violin_comparison`
-
 
 
 Cool now across I actually don't think the other comparison makes sense because you're comparing things across different gestures which defeats the purpose of the visualizations. 
@@ -698,7 +713,9 @@ do_all_culture_anovas <- function() {
   print(" ")
 }
 
-do_all_culture_anovas()
+## I don't think this is a particularly useful metric. It basically tells us slightly less
+## Than what we do below. It was necessary up above but not here. 
+# do_all_culture_anovas()
 
 ```
 
@@ -733,23 +750,36 @@ make_table_per_gesturecondition_by_culture <- function(dat) {
   }
 
   df <- data.frame(groups, western_mean, eastern_mean, p, sig)   
-
   return(df)
 } 
 
 
 do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
   c0 <- make_table_per_gesturecondition_by_culture(filter(dat, condition=="original"))
-  
   c1 <- make_table_per_gesturecondition_by_culture(filter(dat, condition==cond1))
-  
   c2 <- make_table_per_gesturecondition_by_culture(filter(dat, condition==cond2))
+  
   return_list <- list("c0_comparison"=c0, 
                       "c1_comparison"=c1,
                       "c2_comparison"=c2)
 }
 
 wg1_total_comparison_tables <- do_t_culture_groups(wg1_total, "intertwine", "collide", "wg1")
+
+## And again uncommnet here for fun times
+# wg2_total_comparison_tables <- do_t_culture_groups(wg2_total, "cond1", "cond2", "wg2")
+# wg3_total_comparison_tables <- do_t_culture_groups(wg3_total, "cond1", "cond2", "wg3")
+# wg4_total_comparison_tables <- do_t_culture_groups(wg4_total, "cond1", "cond2", "wg4")
+# wg5_total_comparison_tables <- do_t_culture_groups(wg5_total, "cond1", "cond2", "wg5")
+# 
+# eg1_total_comparison_tables <- do_t_culture_groups(eg1_total, "cond1", "cond2", "eg1")
+# eg2_total_comparison_tables <- do_t_culture_groups(eg2_total, "cond1", "cond2", "eg2")
+# eg3_total_comparison_tables <- do_t_culture_groups(eg3_total, "cond1", "cond2", "eg3")
+# eg4_total_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", "cond2", "eg4")
+# eg5_total_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
+
+
+
 ```
 Now all that data lives in things like `wg1_total_comparison_tables$c0_comparison`
 that look like this:
