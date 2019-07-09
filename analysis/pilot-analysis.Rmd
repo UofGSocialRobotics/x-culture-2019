@@ -20,6 +20,8 @@ library(RColorBrewer)
 wg1.0.e == "western gesture 1, condition 0, eastern viewer culture"
 eg4.2.w == "eastern gesture 4 condition 2, western viewer culture"
 
+# Part One: Overlapping Metaphors!?!?
+
 ## Load 'N' Wrangle
 
 Load these bad larrys (straight from mTurk template)
@@ -88,7 +90,7 @@ colnames(psydata) <- c("participantID", "vid_id", "rand", "free_response",
                  "Answer.worktogether", "Answer.goal", "Answer.sure", "Answer.confident",
                  "endcode", "t_start", "t_end", "t_total") 
 
-wg4.0.w.w <- psydata %>%
+wg4.0.w <- psydata %>%
   filter(vid_id == 
            "334666350") %>%
   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
@@ -169,7 +171,6 @@ add_groups <- function(data) {
 ```
 
 
-
 Create grouped overlay of correlated questions. Violin plot of question correlations by group (for single conditions of a single gesture)
 ```{r}
 create_grouped_overlay <- function(data) {
@@ -184,8 +185,7 @@ create_grouped_overlay <- function(data) {
 This graph shows the correlation of the grouped variables. We want them to be highly correlated with each other, and preferably not super correlated with one another. This should hold moreso for the extreme versions of the gestures.
 
 
-Really could have correlation plot w Q1 on X and Q2 on Y but frankly those don't look great and we shouldn't expect them to... 
-
+Really could have correlation plot w Q1 on X and Q2 on Y but those don't look great and we shouldn't expect them to... 
 
 ### Correlation Matrix of questions
 Get wrapped plot of correlations across conditions for same gesture
@@ -318,7 +318,6 @@ wrangle_data <- function(d, name="data") {
   return(list_of_returns)
 }
 
-
 do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = "z_condition2", gesture = "single") {
   d0_data <- wrangle_data(d0, n0)
   d1_data <- wrangle_data(d1, n1)
@@ -326,12 +325,11 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
   
   graph_title <- paste("Correlation of questions for", gesture, "gesture across conditions.")
   
-  # wrangle data
   overlays <- list("d0_overlay" = d0_data$overlay_plot, 
                    "d1_overlay" = d1_data$overlay_plot, 
                    "d2_overlay" = d2_data$overlay_plot)
   difference_matrix <- plot_diff_matrix_pretty(rbind(d0_data$diff_mat, d1_data$diff_mat, d2_data$diff_mat), 
-                      "Correlation of questions across single gesture for three conditions") + 
+                      graph_title) + 
                       facet_wrap("vid")  
   
   ## rename some things for the density plots
@@ -369,7 +367,7 @@ all_wg3_data <- do_the_thing(wg3.0.w, wg3.1.w, wg3.2.w)
 all_wg4_data <- do_the_thing(wg4.0.w, wg4.1.w, wg4.2.w)
 all_wg5_data <- do_the_thing(wg5.0.w, wg5.1.w, wg5.2.w)
 
-all_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), 
+all_western_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), 
                                                         create_difference_matrix(wg1.1.w), 
                                                         create_difference_matrix(wg1.2.w),
                                                         create_difference_matrix(wg2.0.w), 
@@ -387,16 +385,15 @@ all_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix
     "Correlation of questions across all gesture conditions") 
 
 ## save some other things too why not
-ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_unpolite_data$violin_density_grouped_overlay)
-ggsave(filename = "all_entity_data--violin_density_grouped.png", plot = all_entity_data$violin_density_grouped_overlay)
-ggsave(filename = "all_audience_data--violin_density_grouped.png", plot = all_audience_data$violin_density_grouped_overlay)
-ggsave(filename = "all_protected_data--violin_density_grouped.png", plot = all_protected_data$violin_density_grouped_overlay)
-ggsave(filename = "all_bowl_data--violin_density_grouped.png", plot = all_bowl_data$violin_density_grouped_overlay)
-
-
-
-#ggsave(filename = "all_correlational_data.png", plot = all_correlational_data)
+# ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg1_data$violin_density_grouped_overlay)
+# ggsave(filename = "all_entity_data--violin_density_grouped.png", plot = all_wg2_data$violin_density_grouped_overlay)
+# ggsave(filename = "all_audience_data--violin_density_grouped.png", plot = all_wg3_data$violin_density_grouped_overlay)
+# ggsave(filename = "all_protected_data--violin_density_grouped.png", plot = all_wg4_data$violin_density_grouped_overlay)
+# ggsave(filename = "all_bowl_data--violin_density_grouped.png", plot = all_wg5_data$violin_density_grouped_overlay)
+# 
+# ggsave(filename = "all_western_correlational_data.png", plot = all_western_correlational_data)
 ```
+
 Cool now access everything as follows:
 all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
 all_dat$correlation_matrix: the correlation matrices that visualize the above as well.
@@ -405,11 +402,11 @@ all_dat$violin_density_grouped: the violin plot of group distributions across ge
 all_dat$density_grouped: density plot of group distributions across gesture conditions.
 all_dat$density_question: density plot of all question distributions across gesture conditions.
 
-if you want to plot all of the overlays nicelygest_sig you can do this:
+if you want to plot all of the overlays nicely you can do this:
 ```{r}
-#p1 <- all_protected_data$overlays[["d0_overlay"]]
-#p2 <- all_protected_data$overlays[["d1_overlay"]]
-#p3 <- all_protected_data$overlays[["d2_overlay"]]
+#p1 <- all_wg1_data$overlays[["d0_overlay"]]
+#p2 <- all_wg2_data$overlays[["d1_overlay"]]
+#p3 <- all_wg3_data$overlays[["d2_overlay"]]
 #grid.arrange(p1, p2, p3, ncol=3)
 ```
 
@@ -468,6 +465,12 @@ do_all_anovas <- function() {
   print(" ")
   print("!!!!AUDIENCE!!!!!")
   do_anova_per_gest(wg3.0.w, wg3.1.w, wg3.2.w)
+  print(" ")
+  print("!!!!PROTECTED!!!!!")
+  do_anova_per_gest(wg4.0.w, wg4.1.w, wg4.2.w)
+  print(" ")
+  print("!!!!BOWL!!!!!")
+  do_anova_per_gest(wg5.0.w, wg5.1.w, wg5.2.w)
 }
 
 do_all_anovas()
@@ -560,17 +563,12 @@ make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
 }
 
 
-gest_1_sig_table <- make_table_per_gesture("unpolite", "cond1", "cond2", "1")
-gest_2_sig_table <- make_table_per_gesture("entity", "cond1", "cond2", "2")
-gest_3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
-gest_4_sig_table <- make_table_per_gesture("anything", "cond1", "cond2", "4")
-gest_5_sig_table <- make_table_per_gesture("specific", "cond1", "cond2", "5")
+wg1_sig_table <- make_table_per_gesture("unpolite", "cond1", "cond2", "1")
+wg2_sig_table <- make_table_per_gesture("entity", "cond1", "cond2", "2")
+wg3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
+wg4_sig_table <- make_table_per_gesture("protected", "cond1", "cond2", "4")
+wg5_sig_table <- make_table_per_gesture("bowl", "cond1", "cond2", "5")
 ```
-
-
-
-
-
 
 
 
@@ -601,6 +599,18 @@ create_total_bicultural_tables <- function(wd0, wd1, wd2, ed0, ed1, ed2, cond1="
 ## Pretending that wg4 is our eastern viewers for wg1
 ## when we actually do it it'll be wg1.0.w, wg1.1.w, wg1.2.w, wg1.0.e, wg1.1.e, wg1.2.e
 wg1_total <- create_total_bicultural_tables(wg1.0.w, wg1.1.w, wg1.2.w, wg4.0.w, wg4.1.w, wg4.2.w, "intertwine", "collide")
+
+#Uncomment for a good time [[once we have the bi-cultural data]]
+# wg2_total <- create_total_bicultural_tables(wg2.0.w, wg2.1.w, wg2.2.w, wg2.0.e, wg2.1.e, wg2.2.e, "cond1", "cond2")
+# wg3_total <- create_total_bicultural_tables(wg3.0.w, wg3.1.w, wg3.2.w, wg3.0.e, wg3.1.e, wg3.2.e, "cond1", "cond2")
+# wg4_total <- create_total_bicultural_tables(wg4.0.w, wg4.1.w, wg4.2.w, wg4.0.e, wg4.1.e, wg4.2.e, "cond1", "cond2")
+# wg5_total <- create_total_bicultural_tables(wg5.0.w, wg5.1.w, wg5.2.w, wg5.0.e, wg5.1.e, wg5.2.e, "cond1", "cond2")
+
+# eg1_total <- create_total_bicultural_tables(eg1.0.w, eg1.1.w, eg1.2.w, eg1.0.e, eg1.1.e, eg1.2.e, "cond1", "cond2")
+# eg2_total <- create_total_bicultural_tables(eg2.0.w, eg2.1.w, eg2.2.w, eg2.0.e, eg2.1.e, eg2.2.e, "cond1", "cond2")
+# eg3_total <- create_total_bicultural_tables(eg3.0.w, eg3.1.w, eg3.2.w, eg3.0.e, eg3.1.e, eg3.2.e, "cond1", "cond2")
+# eg4_total <- create_total_bicultural_tables(eg4.0.w, eg4.1.w, eg4.2.w, eg4.0.e, eg4.1.e, eg4.2.e, "cond1", "cond2")
+# eg5_total <- create_total_bicultural_tables(eg5.0.w, eg5.1.w, eg5.2.w, eg5.0.e, eg5.1.e, eg5.2.e, "cond1", "cond2")
 
 ```
 
@@ -722,18 +732,18 @@ make_table_per_gesturecondition_by_culture <- function(dat) {
                   get_sig_val(p_val))
   }
 
-  df <- data.frame(group, western_mean, eastern_mean, p, sig)   
+  df <- data.frame(groups, western_mean, eastern_mean, p, sig)   
 
   return(df)
 } 
 
 
 do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
-  c0 <- make_table_per_gesture_by_culture(filter(dat, condition=="original"))
+  c0 <- make_table_per_gesturecondition_by_culture(filter(dat, condition=="original"))
   
-  c1 <- make_table_per_gesture_by_culture(filter(dat, condition==cond1))
+  c1 <- make_table_per_gesturecondition_by_culture(filter(dat, condition==cond1))
   
-  c2 <- make_table_per_gesture_by_culture(filter(dat, condition==cond2))
+  c2 <- make_table_per_gesturecondition_by_culture(filter(dat, condition==cond2))
   return_list <- list("c0_comparison"=c0, 
                       "c1_comparison"=c1,
                       "c2_comparison"=c2)
