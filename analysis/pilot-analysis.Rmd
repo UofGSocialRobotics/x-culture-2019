@@ -671,56 +671,14 @@ Cool now across I actually don't think the other comparison makes sense because 
 So anyway, 
 
 ### Stats
+Could do ANOVAs but it doesn't necessarily make sense since we're just comparing two groups.
 ```{r}
-## gather the bad larries
-do_anova_per_culture <- function(data, g) {
-  group_data <- data %>%
-    filter(group==g)
-  res.aov <- aov(score ~ viewer_culture, data=group_data)
-  print(g)
-  print(summary(res.aov))
-  return(res.aov)
+bi_culture_t_test <- function(g1, g2) {
+  p <- t.test(g1, g2)[3]$p.value
+  p <- round(p.adjust(p, method="bonferroni", n=12), digits=5)
+  return(p)
 }
 
-do_anova_per_data_single_gest <- function(data) {
-  groups <- c("openness",
-              "conflict",
-              "control", 
-              "size",
-              "certainty",
-              "unity")
-  
-  print("==== BY GROUP ====")
-  for (g in groups) {
-    print(g)
-    a <- do_anova_per_culture(data, g)
-    print(summary(a))
-    print("========================")
-  }
-}
-
-
-## need to send only one condition
-do_anova_per_gest_by_culture <- function(d, cond) {
-  do_anova_per_data_single_gest(filter(d, condition==cond))
-}
-
-do_all_culture_anovas <- function() {
-  print("!!!!WG1!!!!!")
-  do_anova_per_gest_by_culture(wg1_total, "original")
-  do_anova_per_gest_by_culture(wg1_total, "intertwine")
-  do_anova_per_gest_by_culture(wg1_total, "collide")
-  print(" ")
-}
-
-## I don't think this is a particularly useful metric. It basically tells us slightly less
-## Than what we do below. It was necessary up above but not here. 
-# do_all_culture_anovas()
-
-```
-
-Uhh yeah I guess that works but this is a more direct way of comparing them
-```{r}
 # data comes in as already filtered out by gesture/condition
 make_table_per_gesturecondition_by_culture <- function(dat) {
   groups <- c("openness",
@@ -742,11 +700,10 @@ make_table_per_gesturecondition_by_culture <- function(dat) {
     
     western_mean <- append(western_mean, mean(w_only$score))
     eastern_mean <- append(eastern_mean, mean(e_only$score))
-    p_val <- t.test(w_only$score, e_only$score)[3]$p.value
-    p_val <- round(p.adjust(p_val, method="bonferroni", n=12), digits=5)
-    p <- append(p, p_val)
+    p_v <- bi_culture_t_test(w_only$score, e_only$score)
+    p <- append(p, p_v)
     sig <- append(sig,
-                  get_sig_val(p_val))
+                  get_sig_val(p_v))
   }
 
   df <- data.frame(groups, western_mean, eastern_mean, p, sig)   
@@ -764,21 +721,19 @@ do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name=
                       "c2_comparison"=c2)
 }
 
-wg1_total_comparison_tables <- do_t_culture_groups(wg1_total, "intertwine", "collide", "wg1")
+wg1_total_cultural_comparison_tables <- do_t_culture_groups(wg1_total, "intertwine", "collide", "wg1")
 
 ## And again uncommnet here for fun times
-# wg2_total_comparison_tables <- do_t_culture_groups(wg2_total, "cond1", "cond2", "wg2")
-# wg3_total_comparison_tables <- do_t_culture_groups(wg3_total, "cond1", "cond2", "wg3")
-# wg4_total_comparison_tables <- do_t_culture_groups(wg4_total, "cond1", "cond2", "wg4")
-# wg5_total_comparison_tables <- do_t_culture_groups(wg5_total, "cond1", "cond2", "wg5")
+# wg2_total_cultural_comparison_tables <- do_t_culture_groups(wg2_total, "cond1", "cond2", "wg2")
+# wg3_total_cultural_comparison_tables <- do_t_culture_groups(wg3_total, "cond1", "cond2", "wg3")
+# wg4_total_cultural_comparison_tables <- do_t_culture_groups(wg4_total, "cond1", "cond2", "wg4")
+# wg5_total_cultural_comparison_tables <- do_t_culture_groups(wg5_total, "cond1", "cond2", "wg5")
 # 
-# eg1_total_comparison_tables <- do_t_culture_groups(eg1_total, "cond1", "cond2", "eg1")
-# eg2_total_comparison_tables <- do_t_culture_groups(eg2_total, "cond1", "cond2", "eg2")
-# eg3_total_comparison_tables <- do_t_culture_groups(eg3_total, "cond1", "cond2", "eg3")
-# eg4_total_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", "cond2", "eg4")
-# eg5_total_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
-
-
+# eg1_total_cultural_comparison_tables <- do_t_culture_groups(eg1_total, "cond1", "cond2", "eg1")
+# eg2_total_cultural_comparison_tables <- do_t_culture_groups(eg2_total, "cond1", "cond2", "eg2")
+# eg3_total_cultural_comparison_tables <- do_t_culture_groups(eg3_total, "cond1", "cond2", "eg3")
+# eg4_total_cultural_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", "cond2", "eg4")
+# eg5_total_cultural_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
 
 ```
 Now all that data lives in things like `wg1_total_comparison_tables$c0_comparison`
