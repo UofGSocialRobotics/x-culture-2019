@@ -24,6 +24,7 @@ eg4.2.w == "eastern gesture 4 condition 2, western viewer culture"
 
 ## Load 'N' Wrangle
 
+### Western Participants
 Load these bad larrys (straight from mTurk template)
 ```{r}
 xcdata <- rbind(read.csv('xc_pilot_fixed_questions.csv'), read.csv('xc_pilot_fixed_questions2.csv')) %>%
@@ -81,7 +82,11 @@ wg3.2.w <- xcdata %>%
 
 Also load these buggerinos (from psytoolkit template)
 ```{r}
-psydata <- rbind(read.csv('psytoolkit_pilot.csv'), read.csv('psytoolkit_pilot2.csv')) %>% 
+psydata <- rbind(read.csv('psytoolkit_pilot.csv'), 
+                 read.csv('psytoolkit_pilot2.csv'),
+                 read.csv('w-part-e-gest-pilot.csv'),
+                 read.csv('w-part-e-gest-top90.csv'),
+                 read.csv('w-part-e-gest-total.csv')) %>% 
   na.omit() %>%
   distinct()
 colnames(psydata) <- c("participantID", "vid_id", "rand", "free_response", 
@@ -119,7 +124,241 @@ wg5.2.w <- psydata %>%
   filter(vid_id == 
            "334666100") %>%
   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+## once more for eastern gestures
+
+eg1.0.w <- psydata %>%
+  filter(vid_id == 
+           "334668817") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg1.1.w <- psydata %>%
+  filter(vid_id == 
+           "334668844") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg1.2.w <- psydata %>%
+  filter(vid_id == 
+           "334668883") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg2.0.w <- psydata %>%
+  filter(vid_id == 
+           "334668913") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg2.1.w <- psydata %>%
+  filter(vid_id == 
+           "334668938") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg2.2.w <- psydata %>%
+  filter(vid_id == 
+           "334668968") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg3.0.w <- psydata %>%
+  filter(vid_id == 
+           "334668989") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg3.1.w <- psydata %>%
+  filter(vid_id == 
+           "334669043") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg3.2.w <- psydata %>%
+  filter(vid_id == 
+           "334669066") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg4.0.w <- psydata %>%
+  filter(vid_id == 
+           "334668792") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg4.1.w <- psydata %>%
+  filter(vid_id == 
+           "334668766") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg4.2.w <- psydata %>%
+  filter(vid_id == 
+           "334668728") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
 ```
+
+
+
+### Eastern Participants
+```{r}
+j_psydata <- rbind(read.csv('japanese-pilot-data.csv'), 
+                   read.csv('japanese-west-1-2-3.csv'),
+                   read.csv('japanese-west-1-4-5.csv'),
+                   read.csv('e-part-w-gest-1.csv'),
+                   read.csv('e-part-w-gest-2.csv')) %>% 
+  na.omit() %>%
+  distinct()
+colnames(j_psydata) <- c("participantID", "vid_id", "rand", "free_response", 
+                 "Answer.many", "Answer.members", "Answer.conflict", "Answer.tension",
+                 "Answer.open", "Answer.accessible", "Answer.control", "Answer.dominant",
+                 "Answer.worktogether", "Answer.goal", "Answer.sure", "Answer.confident",
+                 "endcode", "t_start", "t_end", "t_total") 
+
+wg1.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334661117") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg1.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666262") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg1.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666284") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg2.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666214") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg2.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666167") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg2.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666191") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg3.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666300") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg3.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666234") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg3.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666324") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg4.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666350") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg4.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666369") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg4.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666395") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg5.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666150") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg5.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666125") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+wg5.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334666100") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+## once more for eastern gestures
+
+eg1.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668817") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg1.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668844") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg1.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668883") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg2.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668913") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg2.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668938") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg2.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668968") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg3.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668989") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg3.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334669043") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg3.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334669066") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg4.0.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668792") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg4.1.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668766") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+eg4.2.e <- j_psydata %>%
+  filter(vid_id == 
+           "334668728") %>%
+  select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+
+# eg5.0.e <- j_psydata %>%
+#   filter(vid_id == 
+#            "334666150") %>%
+#   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+# 
+# eg5.1.e <- j_psydata %>%
+#   filter(vid_id == 
+#            "334666125") %>%
+#   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+# 
+# eg5.2.e <- j_psydata %>%
+#   filter(vid_id == 
+#            "334666100") %>%
+#   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+```
+
 
 ### Spot checks 
 some things should correlate, others should not. IE the questions that go together should correlate. 
@@ -267,7 +506,7 @@ plot_violin_density_grouped <- function(d0, d1, d2) {
 plot_violin_density_group_overlay <- function(d0, d1, d2) {
   g <- ggplot(rbind(d0, d1, d2)) + 
     aes(x=factor(nrow(d0)),y=score,fill=vid)+
-    geom_violin(alpha=0.3,position="identity") +
+    geom_violin(alpha=0.3,position="identity", adjust=1.3) +
     facet_wrap("group") +
     labs(
       title = "Violin plot (density) of ranked responses per condition by metaphor grouping"
@@ -337,8 +576,8 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
   da_named <- d1_data$gathered
   dc_named <- d2_data$gathered
   db_named$vid = "original"
-  da_named$vid = "a_condition1"
-  dc_named$vid = "z_condition2"
+  da_named$vid = "collide"
+  dc_named$vid = "intertwine"
   d0_grouped_named <- add_groups(da_named)
   d1_grouped_named <- add_groups(db_named)
   d2_grouped_named <- add_groups(dc_named)
@@ -367,7 +606,7 @@ all_wg3_data <- do_the_thing(wg3.0.w, wg3.1.w, wg3.2.w)
 all_wg4_data <- do_the_thing(wg4.0.w, wg4.1.w, wg4.2.w)
 all_wg5_data <- do_the_thing(wg5.0.w, wg5.1.w, wg5.2.w)
 
-all_western_correlational_data <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), 
+all_western_correlational_data.w <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), 
                                                         create_difference_matrix(wg1.1.w), 
                                                         create_difference_matrix(wg1.2.w),
                                                         create_difference_matrix(wg2.0.w), 
@@ -382,10 +621,66 @@ all_western_correlational_data <- plot_diff_matrix_pretty(rbind(create_differenc
                                                         create_difference_matrix(wg3.0.w), 
                                                         create_difference_matrix(wg3.1.w), 
                                                         create_difference_matrix(wg3.2.w)), 
-    "Correlation of questions across all gesture conditions") 
+    "Correlation of questions across all gesture conditions for western participants")
+
+
+all_western_correlational_data.e <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.e), 
+                                                        create_difference_matrix(wg1.1.e), 
+                                                        create_difference_matrix(wg1.2.e),
+                                                        create_difference_matrix(wg2.0.e), 
+                                                        create_difference_matrix(wg2.1.e), 
+                                                        create_difference_matrix(wg2.2.e),
+                                                        create_difference_matrix(wg4.0.e), 
+                                                        create_difference_matrix(wg4.1.e), 
+                                                        create_difference_matrix(wg4.2.e),
+                                                        create_difference_matrix(wg5.0.e), 
+                                                        create_difference_matrix(wg5.1.e),
+                                                        create_difference_matrix(wg5.2.e),
+                                                        create_difference_matrix(wg3.0.e), 
+                                                        create_difference_matrix(wg3.1.e), 
+                                                        create_difference_matrix(wg3.2.e)), 
+    "Correlation of questions across all gesture conditions for western participants") 
+
+
+all_eastern_correlational_data.w <- plot_diff_matrix_pretty(rbind(create_difference_matrix(eg1.0.w), 
+                                                        create_difference_matrix(eg1.1.w), 
+                                                        create_difference_matrix(eg1.2.w),
+                                                        create_difference_matrix(eg2.0.w), 
+                                                        create_difference_matrix(eg2.1.w), 
+                                                        create_difference_matrix(eg2.2.w),
+                                                        create_difference_matrix(eg4.0.w), 
+                                                        create_difference_matrix(eg4.1.w), 
+                                                        create_difference_matrix(eg4.2.w),
+                                                        create_difference_matrix(eg5.0.w), 
+                                                        create_difference_matrix(eg5.1.w),
+                                                        create_difference_matrix(eg5.2.w),
+                                                        create_difference_matrix(eg3.0.w), 
+                                                        create_difference_matrix(eg3.1.w), 
+                                                        create_difference_matrix(eg3.2.w)), 
+    "Correlation of questions across all gesture conditions for western participants")
+
+
+all_eastern_correlational_data.e <- plot_diff_matrix_pretty(rbind(create_difference_matrix(eg1.0.e), 
+                                                        create_difference_matrix(eg1.1.e), 
+                                                        create_difference_matrix(eg1.2.e),
+                                                        create_difference_matrix(eg2.0.e), 
+                                                        create_difference_matrix(eg2.1.e), 
+                                                        create_difference_matrix(eg2.2.e),
+                                                        create_difference_matrix(eg4.0.e), 
+                                                        create_difference_matrix(eg4.1.e), 
+                                                        create_difference_matrix(eg4.2.e),
+                                                        create_difference_matrix(eg5.0.e), 
+                                                        create_difference_matrix(eg5.1.e),
+                                                        create_difference_matrix(eg5.2.e),
+                                                        create_difference_matrix(eg3.0.e), 
+                                                        create_difference_matrix(eg3.1.e), 
+                                                        create_difference_matrix(eg3.2.e)), 
+    "Correlation of questions across all gesture conditions for western participants") 
+
+
 
 ## save some other things too why not
-# ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg1_data$violin_density_grouped_overlay)
+ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg1_data$violin_density_grouped_overlay)
 # ggsave(filename = "all_entity_data--violin_density_grouped.png", plot = all_wg2_data$violin_density_grouped_overlay)
 # ggsave(filename = "all_audience_data--violin_density_grouped.png", plot = all_wg3_data$violin_density_grouped_overlay)
 # ggsave(filename = "all_protected_data--violin_density_grouped.png", plot = all_wg4_data$violin_density_grouped_overlay)
@@ -398,6 +693,7 @@ Cool now access everything as follows:
 all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
 all_dat$correlation_matrix: the correlation matrices that visualize the above as well.
 all_dat$violin_density_question: the violin plot of all question distributions across gesture conditions.
+all_dat$violin_density_grouped_overlay: the violin plot of all question distributions across gesture conditions, but overlayed.
 all_dat$violin_density_grouped: the violin plot of group distributions across gesture conditions.
 all_dat$density_grouped: density plot of group distributions across gesture conditions.
 all_dat$density_question: density plot of all question distributions across gesture conditions.
@@ -568,6 +864,21 @@ wg2_sig_table <- make_table_per_gesture("entity", "cond1", "cond2", "2")
 wg3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
 wg4_sig_table <- make_table_per_gesture("protected", "cond1", "cond2", "4")
 wg5_sig_table <- make_table_per_gesture("bowl", "cond1", "cond2", "5")
+
+#### Do spot tests below ####
+spot_test <- function(d0, d1, d2, cond1="cond1", cond2="cond2", g="openness") {
+  d <- get_nice_things(d0, d1, d2)
+  g1 <- d %>%
+    filter(condition==cond1, group==g)
+  g2 <- d %>%
+    filter(condition==cond2, group==g)
+  p <- t.test(g1$score, g2$score)$p.value
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=18), digits=5)
+  return(p_adjusted)
+}
+
+# for example:
+#spot_test(wg1.0.w, wg1.1.w, wg1.2.w, "original", "cond2", "conflict")
 ```
 
 
@@ -598,21 +909,19 @@ create_total_bicultural_tables <- function(wd0, wd1, wd2, ed0, ed1, ed2, cond1="
 
 ## Pretending that wg4 is our eastern viewers for wg1
 ## when we actually do it it'll be wg1.0.w, wg1.1.w, wg1.2.w, wg1.0.e, wg1.1.e, wg1.2.e
-wg1_total <- create_total_bicultural_tables(wg1.0.w, wg1.1.w, wg1.2.w, wg4.0.w, wg4.1.w, wg4.2.w, "intertwine", "collide")
-
+wg1_total <- create_total_bicultural_tables(wg1.0.w, wg1.1.w, wg1.2.w, wg1.0.e, wg1.1.e, wg1.2.e, "cond1", "cond2")
 ### could put this all in a loop but writing it out isn't so bad and it helps me see just how much data we have.
 #Uncomment for a good time [[once we have the bi-cultural data]]
-# wg2_total <- create_total_bicultural_tables(wg2.0.w, wg2.1.w, wg2.2.w, wg2.0.e, wg2.1.e, wg2.2.e, "cond1", "cond2")
-# wg3_total <- create_total_bicultural_tables(wg3.0.w, wg3.1.w, wg3.2.w, wg3.0.e, wg3.1.e, wg3.2.e, "cond1", "cond2")
-# wg4_total <- create_total_bicultural_tables(wg4.0.w, wg4.1.w, wg4.2.w, wg4.0.e, wg4.1.e, wg4.2.e, "cond1", "cond2")
-# wg5_total <- create_total_bicultural_tables(wg5.0.w, wg5.1.w, wg5.2.w, wg5.0.e, wg5.1.e, wg5.2.e, "cond1", "cond2")
+wg2_total <- create_total_bicultural_tables(wg2.0.w, wg2.1.w, wg2.2.w, wg2.0.e, wg2.1.e, wg2.2.e, "cond1", "cond2")
+wg3_total <- create_total_bicultural_tables(wg3.0.w, wg3.1.w, wg3.2.w, wg3.0.e, wg3.1.e, wg3.2.e, "cond1", "cond2")
+wg4_total <- create_total_bicultural_tables(wg4.0.w, wg4.1.w, wg4.2.w, wg4.0.e, wg4.1.e, wg4.2.e, "cond1", "cond2")
+wg5_total <- create_total_bicultural_tables(wg5.0.w, wg5.1.w, wg5.2.w, wg5.0.e, wg5.1.e, wg5.2.e, "cond1", "cond2")
 
-# eg1_total <- create_total_bicultural_tables(eg1.0.w, eg1.1.w, eg1.2.w, eg1.0.e, eg1.1.e, eg1.2.e, "cond1", "cond2")
-# eg2_total <- create_total_bicultural_tables(eg2.0.w, eg2.1.w, eg2.2.w, eg2.0.e, eg2.1.e, eg2.2.e, "cond1", "cond2")
-# eg3_total <- create_total_bicultural_tables(eg3.0.w, eg3.1.w, eg3.2.w, eg3.0.e, eg3.1.e, eg3.2.e, "cond1", "cond2")
-# eg4_total <- create_total_bicultural_tables(eg4.0.w, eg4.1.w, eg4.2.w, eg4.0.e, eg4.1.e, eg4.2.e, "cond1", "cond2")
+eg1_total <- create_total_bicultural_tables(eg1.0.w, eg1.1.w, eg1.2.w, eg1.0.e, eg1.1.e, eg1.2.e, "cond1", "cond2")
+eg2_total <- create_total_bicultural_tables(eg2.0.w, eg2.1.w, eg2.2.w, eg2.0.e, eg2.1.e, eg2.2.e, "cond1", "cond2")
+eg3_total <- create_total_bicultural_tables(eg3.0.w, eg3.1.w, eg3.2.w, eg3.0.e, eg3.1.e, eg3.2.e, "cond1", "cond2")
+eg4_total <- create_total_bicultural_tables(eg4.0.w, eg4.1.w, eg4.2.w, eg4.0.e, eg4.1.e, eg4.2.e, "cond1", "cond2")
 # eg5_total <- create_total_bicultural_tables(eg5.0.w, eg5.1.w, eg5.2.w, eg5.0.e, eg5.1.e, eg5.2.e, "cond1", "cond2")
-
 ```
 
 cool now we have all that data in one place. We need to compare the western and eastern viewers across conditions. 
@@ -646,21 +955,19 @@ get_violin_comparisons_per_gesture <- function(dat, cond1="cond1", cond2="cond2"
                       "c2_violin_comparison"=c2)
 }
 
-wg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg1_total, "intertwine", "collide", "wg1")
+wg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
 
 ## Uncomment when there's more data
-#wg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg2_total, "cond1", "cond2", "wg2")
-#wg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg3_total, "cond1", "cond2", "wg3")
-#wg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg4_total, "cond1", "cond2", "wg4")
-#wg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg5_total, "cond1", "cond2", "wg5")
+wg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg2_total, "cond1", "cond2", "wg2")
+wg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg3_total, "cond1", "cond2", "wg3")
+wg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg4_total, "cond1", "cond2", "wg4")
+wg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg5_total, "cond1", "cond2", "wg5")
 
-#eg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg1_total, "cond1", "cond2", "eg1")
-#eg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg2_total, "cond1", "cond2", "eg2")
-#eg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg3_total, "cond1", "cond2", "eg3")
-#eg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg4_total, "cond1", "cond2", "eg4")
+eg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg1_total, "cond1", "cond2", "eg1")
+eg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg2_total, "cond1", "cond2", "eg2")
+eg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg3_total, "cond1", "cond2", "eg3")
+eg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg4_total, "cond1", "cond2", "eg4")
 #eg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg5_total, "cond1", "cond2", "eg5")
-
-
 
 ```
 Now the plots live in things like `wg1_violin_culture_comparisons$c0_violin_comparison`
@@ -721,19 +1028,19 @@ do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name=
                       "c2_comparison"=c2)
 }
 
-wg1_total_cultural_comparison_tables <- do_t_culture_groups(wg1_total, "intertwine", "collide", "wg1")
+wg1_total_cultural_comparison_tables <- do_t_culture_groups(wg1_total, "cond1", "cond2", "wg1")
 
 ## And again uncommnet here for fun times
-# wg2_total_cultural_comparison_tables <- do_t_culture_groups(wg2_total, "cond1", "cond2", "wg2")
-# wg3_total_cultural_comparison_tables <- do_t_culture_groups(wg3_total, "cond1", "cond2", "wg3")
-# wg4_total_cultural_comparison_tables <- do_t_culture_groups(wg4_total, "cond1", "cond2", "wg4")
-# wg5_total_cultural_comparison_tables <- do_t_culture_groups(wg5_total, "cond1", "cond2", "wg5")
+wg2_total_cultural_comparison_tables <- do_t_culture_groups(wg2_total, "cond1", "cond2", "wg2")
+wg3_total_cultural_comparison_tables <- do_t_culture_groups(wg3_total, "cond1", "cond2", "wg3")
+wg4_total_cultural_comparison_tables <- do_t_culture_groups(wg4_total, "cond1", "cond2", "wg4")
+wg5_total_cultural_comparison_tables <- do_t_culture_groups(wg5_total, "cond1", "cond2", "wg5")
 # 
-# eg1_total_cultural_comparison_tables <- do_t_culture_groups(eg1_total, "cond1", "cond2", "eg1")
-# eg2_total_cultural_comparison_tables <- do_t_culture_groups(eg2_total, "cond1", "cond2", "eg2")
-# eg3_total_cultural_comparison_tables <- do_t_culture_groups(eg3_total, "cond1", "cond2", "eg3")
-# eg4_total_cultural_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", "cond2", "eg4")
-# eg5_total_cultural_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
+eg1_total_cultural_comparison_tables <- do_t_culture_groups(eg1_total, "cond1", "cond2", "eg1")
+eg2_total_cultural_comparison_tables <- do_t_culture_groups(eg2_total, "cond1", "cond2", "eg2")
+eg3_total_cultural_comparison_tables <- do_t_culture_groups(eg3_total, "cond1", "cond2", "eg3")
+eg4_total_cultural_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", "cond2", "eg4")
+eg5_total_cultural_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
 
 ```
 Now all that data lives in things like `wg1_total_comparison_tables$c0_comparison`

@@ -116,25 +116,21 @@ format_indiv_gesture <- function (gesture_num, condition1, condition2) {
   return(cleaned)
 }
 
-gest_1_condition_names <- c("together", "collide")
+gest_1_condition_names <- c("intertwine", "collide")
 gest_2_condition_names <- c("separated", "chest")
 gest_3_condition_names <- c("no_circle", "palm_up")
 gest_4_condition_names <- c("frame", "cover")
 gest_5_condition_names <- c("bowl", "forward")
 
 west_gest_1_clean <- format_indiv_gesture("1-", gest_1_condition_names[1], gest_1_condition_names[2])
-# all good
 
 west_gest_2_clean <- format_indiv_gesture("2-", gest_2_condition_names[1], gest_2_condition_names[2])
-# need more original
 
 west_gest_3_clean <- format_indiv_gesture("3-", "no_circle", "palm_up")
 
 west_gest_4_clean <- format_indiv_gesture("4-", "frame", "cover")
-# need more cover
 
 west_gest_5_clean <- format_indiv_gesture("5-", "bowl", "forward")
-# need more original and forward
 
 east_gest_1_clean <- east_cleaned %>%
   mutate(ID=row_number()) %>%
@@ -190,29 +186,28 @@ west_1_violin <- create_violin(west_gest_1_clean)
 #ggsave("unpolite_violin.png", plot=west_1_violin)
 
 
-### Get plots just for these ones
-test_d_1 <- west_gest_1_clean %>%
-  filter(statement_measure == "Answer.tension")
-test_d_2 <- west_gest_1_clean %>%
-  filter(statement_measure == "Answer.worktogether")
-test_d <- rbind(test_d_1, test_d_2)
-
-test_plot <- ggplot(test_d, aes(condition, score)) + 
-    geom_violin(aes(fill=condition, alpha=0.5), scale="area", draw_quantiles = c(0.25, 0.5, 0.75)) +
-    facet_wrap(~statement_measure) + 
-  scale_fill_discrete(name = "Gesture Condition", labels = c("Collide", "Original", "Intertwine")) +
-  theme(
-    legend.key.size = unit(1.5, "cm"),
-    legend.key.width = unit(0.5,"cm"),
-    legend.text = element_text(size = 10)
-  )
-ggsave("unpolite_violin_tens_work.png", plot=test_plot)
+### Get plots just for the paper
+# test_d_1 <- west_gest_1_clean %>%
+#   filter(statement_measure == "Answer.tension")
+# test_d_2 <- west_gest_1_clean %>%
+#   filter(statement_measure == "Answer.worktogether")
+# test_d <- rbind(test_d_1, test_d_2)
+# 
+# test_plot <- ggplot(test_d, aes(condition, score)) + 
+#     geom_violin(aes(fill=condition, alpha=0.5), scale="area", draw_quantiles = c(0.25, 0.5, 0.75)) +
+#     facet_wrap(~statement_measure) + 
+#   scale_fill_discrete(name = "Gesture Condition", labels = c("Collide", "Intertwine", "Original")) +
+#   theme(
+#     legend.key.size = unit(1.5, "cm"),
+#     legend.key.width = unit(0.5,"cm"),
+#     legend.text = element_text(size = 10)
+#   )
+# ggsave("unpolite_violin_tens_work.png", plot=test_plot)
 
 
 west_1_west_2_bar <- create_bar(west_gest_2_clean)
 west_2_dense <- create_density(west_gest_2_clean)
 west_2_violin <- create_violin(west_gest_2_clean)  
-#ggsave("entity_violin.png", plot=west_2_violin)
 
 west_3_bar <- create_bar(west_gest_3_clean)
 west_3_dense <- create_density(west_gest_3_clean)
@@ -246,6 +241,12 @@ west_2_violin
 west_3_violin
 west_4_violin
 west_5_violin
+
+west_1_dense
+west_2_dense
+west_3_dense
+west_4_dense
+west_5_dense
 ```
 
 ## Stats
@@ -289,10 +290,6 @@ do_anova_per_data(west_gest_5_clean)
 
 w1 <- do_anova_per_statement(west_gest_1_clean, "Answer.buttheads")
 summary(w1)
-
-
-# pairwise.t.test(w1$score, w1$condition,
-#                p.adjust.method = "BH")
 
 ```
 
@@ -392,10 +389,6 @@ gest_5_sig_table <- make_table_per_gesture("specific", gest_5_condition_names[1]
 all_sig_vals <- rbind(gest_1_sig_table, gest_2_sig_table, gest_3_sig_table, gest_4_sig_table, gest_5_sig_table) %>%
   filter(grepl("\\*", sig)) 
 
-# png("sig_vals.png", height = 50*nrow(all_sig_vals), width = 200*ncol(all_sig_vals))
-# grid.table(all_sig_vals)
-# dev.off()
-
 # export to latex
 # print(xtable(all_sig_vals, type = "latex"), file = "sig_vals_ordered.tex")
 ```
@@ -405,7 +398,7 @@ all_sig_vals
 ```
 
 
-Quickly get average score for a dataset
+Quickly get average score for a dataset, mostly to spotcheck
 ```{r}
 get_avg_score <- function(data, cond, statement) {
   m <- data %>%
