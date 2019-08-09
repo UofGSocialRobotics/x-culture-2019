@@ -6,13 +6,14 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(ggplot2)
 library(pwr)
 library(ordinal)
 library(gridExtra)
 library(RColorBrewer)
+library(knitr)
 ```
 
 
@@ -124,6 +125,7 @@ wg5.2.w <- psydata %>%
   filter(vid_id == 
            "334666100") %>%
   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
+ 
 
 ## once more for eastern gestures
 
@@ -197,7 +199,12 @@ j_psydata <- rbind(read.csv('japanese-pilot-data.csv'),
                    read.csv('japanese-west-1-2-3.csv'),
                    read.csv('japanese-west-1-4-5.csv'),
                    read.csv('e-part-w-gest-1.csv'),
-                   read.csv('e-part-w-gest-2.csv')) %>% 
+                   read.csv('e-part-w-gest-2.csv'),
+                   read.csv('e-part-w-gest-t.csv'),
+                   read.csv('e-part-w-gest-14.csv'),
+                   read.csv('e-part-w-gest-16.csv'),
+                   read.csv('e-part-w-gest-17.csv'),
+                   read.csv('e-part-w-gest-18.csv')) %>% 
   na.omit() %>%
   distinct()
 colnames(j_psydata) <- c("participantID", "vid_id", "rand", "free_response", 
@@ -438,6 +445,25 @@ create_difference_matrix <- function(data) {
     stringsAsFactors=FALSE
   )
   
+  ### TEMP -- RENAME THINGS SO THEY'RE NEXT TO THE RIGHT ONES
+  ### THIS COULD BE DISASTEROUS!!!!
+  colnames(data)[colnames(data)=="Answer.worktogether"] <- "unity.worktogether"
+  colnames(data)[colnames(data)=="Answer.goal"] <- "unity.goal"
+  colnames(data)[colnames(data)=="Answer.tension"] <- "conflict.tension"
+  colnames(data)[colnames(data)=="Answer.conflict"] <- "conflict.conflict"
+  colnames(data)[colnames(data)=="Answer.many"] <- "size.many"
+  colnames(data)[colnames(data)=="Answer.members"] <- "size.members"
+  colnames(data)[colnames(data)=="Answer.dominant"] <- "control.dominant"
+  colnames(data)[colnames(data)=="Answer.control"] <- "control.control"
+  colnames(data)[colnames(data)=="Answer.open"] <- "openness.open"
+  colnames(data)[colnames(data)=="Answer.accessible"] <- "openness.accessible"
+  colnames(data)[colnames(data)=="Answer.sure"] <- "certainty.sure"
+  colnames(data)[colnames(data)=="Answer.confident"] <- "certainty.confident"
+
+  
+  
+  ###
+  
   metas = colnames(data)
   
   for(metaphor in metas) {
@@ -651,9 +677,6 @@ all_eastern_correlational_data.w <- plot_diff_matrix_pretty(rbind(create_differe
                                                         create_difference_matrix(eg4.0.w), 
                                                         create_difference_matrix(eg4.1.w), 
                                                         create_difference_matrix(eg4.2.w),
-                                                        create_difference_matrix(eg5.0.w), 
-                                                        create_difference_matrix(eg5.1.w),
-                                                        create_difference_matrix(eg5.2.w),
                                                         create_difference_matrix(eg3.0.w), 
                                                         create_difference_matrix(eg3.1.w), 
                                                         create_difference_matrix(eg3.2.w)), 
@@ -669,9 +692,6 @@ all_eastern_correlational_data.e <- plot_diff_matrix_pretty(rbind(create_differe
                                                         create_difference_matrix(eg4.0.e), 
                                                         create_difference_matrix(eg4.1.e), 
                                                         create_difference_matrix(eg4.2.e),
-                                                        create_difference_matrix(eg5.0.e), 
-                                                        create_difference_matrix(eg5.1.e),
-                                                        create_difference_matrix(eg5.2.e),
                                                         create_difference_matrix(eg3.0.e), 
                                                         create_difference_matrix(eg3.1.e), 
                                                         create_difference_matrix(eg3.2.e)), 
@@ -688,15 +708,49 @@ ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg
 # 
 # ggsave(filename = "all_western_correlational_data.png", plot = all_western_correlational_data)
 ```
+## Correlations
+Western Gestures, Western/Eastern Participants
+
+```{r, out.width='50%'}
+all_western_correlational_data.w
+all_western_correlational_data.e
+```
+
+Eastern Gestures, Western/Eastern Participants
+
+```{r, out.width='50%'}
+all_eastern_correlational_data.w
+all_eastern_correlational_data.e
+```
+
+To get the individual ones (per gesture, say) you can do this to position the w/e side by side.
+```{r echo=FALSE, out.width='50%'}
+plot1 <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.w), 
+                                       create_difference_matrix(wg4.1.w), 
+                                       create_difference_matrix(wg4.2.w)))
+
+plot2 <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.e), 
+                                       create_difference_matrix(wg4.1.e), 
+                                       create_difference_matrix(wg4.2.e)))
+
+plot1
+plot2
+```
 
 Cool now access everything as follows:
-all_dat$overlays[["d0_overlay"]]: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
-all_dat$correlation_matrix: the correlation matrices that visualize the above as well.
-all_dat$violin_density_question: the violin plot of all question distributions across gesture conditions.
-all_dat$violin_density_grouped_overlay: the violin plot of all question distributions across gesture conditions, but overlayed.
-all_dat$violin_density_grouped: the violin plot of group distributions across gesture conditions.
-all_dat$density_grouped: density plot of group distributions across gesture conditions.
-all_dat$density_question: density plot of all question distributions across gesture conditions.
+`all_dat$overlays[["d0_overlay"]]`: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
+
+`all_dat$correlation_matrix`: the correlation matrices that visualize the above as well.
+
+`all_dat$violin_density_question`: the violin plot of all question distributions across gesture conditions.
+
+`all_dat$violin_density_grouped_overlay`: the violin plot of all question distributions across gesture conditions, but overlayed.
+
+`all_dat$violin_density_grouped`: the violin plot of group distributions across gesture conditions.
+
+`all_dat$density_grouped`: density plot of group distributions across gesture conditions.
+
+`all_dat$density_question`: density plot of all question distributions across gesture conditions.
 
 if you want to plot all of the overlays nicely you can do this:
 ```{r}
@@ -769,7 +823,7 @@ do_all_anovas <- function() {
   do_anova_per_gest(wg5.0.w, wg5.1.w, wg5.2.w)
 }
 
-do_all_anovas()
+#do_all_anovas()
 ```
 
 
@@ -865,6 +919,7 @@ wg3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
 wg4_sig_table <- make_table_per_gesture("protected", "cond1", "cond2", "4")
 wg5_sig_table <- make_table_per_gesture("bowl", "cond1", "cond2", "5")
 
+
 #### Do spot tests below ####
 spot_test <- function(d0, d1, d2, cond1="cond1", cond2="cond2", g="openness") {
   d <- get_nice_things(d0, d1, d2)
@@ -876,6 +931,14 @@ spot_test <- function(d0, d1, d2, cond1="cond1", cond2="cond2", g="openness") {
   p_adjusted <- round(p.adjust(p, method="bonferroni", n=18), digits=5)
   return(p_adjusted)
 }
+
+
+kable(filter(wg1_sig_table, sig != ""))
+kable(filter(wg2_sig_table, sig != ""))
+kable(filter(wg3_sig_table, sig != ""))
+kable(filter(wg4_sig_table, sig != ""))
+kable(filter(wg5_sig_table, sig != ""))
+
 
 # for example:
 #spot_test(wg1.0.w, wg1.1.w, wg1.2.w, "original", "cond2", "conflict")
@@ -935,7 +998,7 @@ metaphor measures, or for a single metaphor measure then visualize across condit
 violin_compare_cultures_across_meta_groups <- function(data, cond="original", gesture_name="unknown") {
   g <- ggplot(filter(data, condition == cond)) + 
     aes(x=factor(nrow(data)),y=score,fill=viewer_culture) +
-    geom_violin(alpha=0.4,position="identity") +
+    geom_violin(alpha=0.5,position="identity", adjust=1.2) +
     #scale_fill_brewer(palette="PiYG") +
     #scale_fill_manual(values=c("palevioletred1", "royalblue3")) +
     facet_wrap("group") +
@@ -945,19 +1008,23 @@ violin_compare_cultures_across_meta_groups <- function(data, cond="original", ge
   return(g)
 }
 
+violin_prep_data_get_plot <- function(data, cond="original", gesture_name="unknown") {
+  d <- filter(data, condition == cond)
+  g <- violin_compare_cultures_across_meta_groups(d, cond, gesture_name)
+  return(g)
+}
+
 
 get_violin_comparisons_per_gesture <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
-  c0 <- violin_compare_cultures_across_meta_groups(dat, "original", gesture_name)
-  c1 <- violin_compare_cultures_across_meta_groups(dat, cond1, gesture_name)
-  c2 <- violin_compare_cultures_across_meta_groups(dat, cond2, gesture_name)
+  c0 <- violin_prep_data_get_plot(dat, "original", gesture_name)
+  c1 <- violin_prep_data_get_plot(dat, cond1, gesture_name)
+  c2 <- violin_prep_data_get_plot(dat, cond2, gesture_name)
   return_list <- list("c0_violin_comparison"=c0, 
                       "c1_violin_comparison"=c1,
                       "c2_violin_comparison"=c2)
 }
 
 wg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
-
-## Uncomment when there's more data
 wg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg2_total, "cond1", "cond2", "wg2")
 wg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg3_total, "cond1", "cond2", "wg3")
 wg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg4_total, "cond1", "cond2", "wg4")
@@ -970,6 +1037,51 @@ eg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg4_total, 
 #eg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg5_total, "cond1", "cond2", "eg5")
 
 ```
+
+
+```{r}
+## playing with dotplots
+dot_compare_cultures_across_meta_groups <- function(data, cond="original", gesture_name="unknown") {
+  g <- ggplot(filter(data, condition == cond)) + 
+    aes(x=factor(nrow(data)), binaxis = "x",y=score,fill=viewer_culture) +
+    geom_dotplot(alpha=0.5,position="identity") +
+    facet_wrap("group") +
+    labs(
+      title = paste("Comparison across cultures for", gesture_name, " -- ", cond, "Condition")
+    ) 
+  return(g)
+}
+
+dot_prep_data_get_plot <- function(data, cond="original", gesture_name="unknown") {
+  d <- filter(data, condition == cond)
+  g <- dot_compare_cultures_across_meta_groups(d, cond, gesture_name)
+  return(g)
+}
+
+
+get_dot_comparisons_per_gesture <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
+  c0 <- dot_prep_data_get_plot(dat, "original", gesture_name)
+  return(c0)
+}
+
+get_dot_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
+
+t_dat <- wg1_total %>%
+  filter(condition=="original") 
+  
+ggplot(t_dat) + 
+  geom_dotplot(binaxis="y", method="dotdensity", stackdir = "center", binwidth=0.3) +
+  aes(x=score, fill=viewer_culture, alpha=1) +
+  facet_wrap("group") +
+  labs(
+    title = paste("testing this bad larry")
+  ) 
+
+```
+
+
+
+
 Now the plots live in things like `wg1_violin_culture_comparisons$c0_violin_comparison`
 
 
@@ -979,7 +1091,7 @@ So anyway,
 
 ### Stats
 Could do ANOVAs but it doesn't necessarily make sense since we're just comparing two groups.
-```{r}
+```{r echo = FALSE}
 bi_culture_t_test <- function(g1, g2) {
   p <- t.test(g1, g2)[3]$p.value
   p <- round(p.adjust(p, method="bonferroni", n=12), digits=5)
@@ -1029,8 +1141,6 @@ do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name=
 }
 
 wg1_total_cultural_comparison_tables <- do_t_culture_groups(wg1_total, "cond1", "cond2", "wg1")
-
-## And again uncommnet here for fun times
 wg2_total_cultural_comparison_tables <- do_t_culture_groups(wg2_total, "cond1", "cond2", "wg2")
 wg3_total_cultural_comparison_tables <- do_t_culture_groups(wg3_total, "cond1", "cond2", "wg3")
 wg4_total_cultural_comparison_tables <- do_t_culture_groups(wg4_total, "cond1", "cond2", "wg4")
@@ -1040,10 +1150,162 @@ eg1_total_cultural_comparison_tables <- do_t_culture_groups(eg1_total, "cond1", 
 eg2_total_cultural_comparison_tables <- do_t_culture_groups(eg2_total, "cond1", "cond2", "eg2")
 eg3_total_cultural_comparison_tables <- do_t_culture_groups(eg3_total, "cond1", "cond2", "eg3")
 eg4_total_cultural_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", "cond2", "eg4")
-eg5_total_cultural_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
+#eg5_total_cultural_comparison_tables <- do_t_culture_groups(eg5_total, "cond1", "cond2", "eg5")
 
 ```
-Now all that data lives in things like `wg1_total_comparison_tables$c0_comparison`
+Now all that data lives in things like `wg1_total_cultural_comparison_tables$c0_comparison`
 that look like this:
 WG1-0 (this name isn't here in the actual version, we just know from the naming scheme)
-`r wg1_total_comparison_tables$c0_comparison`
+
+### WG1
+```{r, out.width='50%'}
+kable(wg1_total_cultural_comparison_tables$c0_comparison)
+wg1_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg1-0.png")
+kable(wg1_total_cultural_comparison_tables$c1_comparison)
+wg1_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg1-1.png")
+kable(wg1_total_cultural_comparison_tables$c2_comparison)
+wg1_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg1-2.png")
+```
+
+### WG2
+```{r, out.width='50%'}
+kable(wg2_total_cultural_comparison_tables$c0_comparison)
+wg2_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg2-0.png")
+kable(wg2_total_cultural_comparison_tables$c1_comparison)
+wg2_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg2-1.png")
+kable(wg2_total_cultural_comparison_tables$c2_comparison)
+wg2_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg2-2.png")
+```
+
+### WG3
+```{r, out.width='50%'}
+kable(wg3_total_cultural_comparison_tables$c0_comparison)
+wg3_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg3-0.png")
+kable(wg3_total_cultural_comparison_tables$c1_comparison)
+wg3_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg3-1.png")
+kable(wg3_total_cultural_comparison_tables$c2_comparison)
+wg3_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg3-2.png")
+```
+
+### WG4
+```{r, out.width='50%'}
+kable(wg4_total_cultural_comparison_tables$c0_comparison)
+wg4_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg4-0.png")
+kable(wg4_total_cultural_comparison_tables$c1_comparison)
+wg4_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg4-1.png")
+kable(wg4_total_cultural_comparison_tables$c2_comparison)
+wg4_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg4-2.png")
+```
+
+### WG5
+```{r, out.width='50%'}
+kable(wg5_total_cultural_comparison_tables$c0_comparison)
+wg5_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg5-0.png")
+kable(wg5_total_cultural_comparison_tables$c1_comparison)
+wg5_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg5-1.png")
+kable(wg5_total_cultural_comparison_tables$c2_comparison)
+wg5_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/wg5-2.png")
+```
+
+
+### EG1
+```{r, out.width='50%'}
+kable(eg1_total_cultural_comparison_tables$c0_comparison)
+eg1_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg1-0.png")
+kable(eg1_total_cultural_comparison_tables$c1_comparison)
+eg1_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg1-1.png")
+kable(eg1_total_cultural_comparison_tables$c2_comparison)
+eg1_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg1-2.png")
+```
+
+### EG2
+```{r, out.width='50%'}
+kable(eg2_total_cultural_comparison_tables$c0_comparison)
+eg2_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg2-0.png")
+kable(eg2_total_cultural_comparison_tables$c1_comparison)
+eg2_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg2-1.png")
+kable(eg2_total_cultural_comparison_tables$c2_comparison)
+eg2_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg2-2.png")
+```
+
+### EG3
+```{r, out.width='50%'}
+kable(eg3_total_cultural_comparison_tables$c0_comparison)
+eg3_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg3-0.png")
+kable(eg3_total_cultural_comparison_tables$c1_comparison)
+eg3_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg3-1.png")
+kable(eg3_total_cultural_comparison_tables$c2_comparison)
+eg3_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg3-2.png")
+```
+
+### EG4
+```{r, out.width='50%'}
+kable(eg4_total_cultural_comparison_tables$c0_comparison)
+eg4_violin_culture_comparisons$c0_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg4-0.png")
+kable(eg4_total_cultural_comparison_tables$c1_comparison)
+eg4_violin_culture_comparisons$c1_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg4-1.png")
+kable(eg4_total_cultural_comparison_tables$c2_comparison)
+eg4_violin_culture_comparisons$c2_violin_comparison
+knitr::include_graphics("/Users/carolynsaund/Desktop/eg4-2.png")
+```
+
+
+### Are these powers good enough?
+Quick spot check...
+```{r}
+get_effect_size <- function(vec1, vec2) {
+  u1 <- mean(vec1)
+  u2 <- mean(vec2)
+  sd_pooled <- sqrt((sd(vec1) ** 2) + (sd(vec2) ** 2) / 2)
+  return((u1 - u2) / sd_pooled)
+}
+
+calculate_power_for_condition <- function(gesture_data, metaphor, cond) {
+  t1.w <- filter(gesture_data, viewer_culture == "western") %>%
+    filter(group == metaphor) %>%
+    filter(condition == cond)
+  
+  t1.e <- filter(gesture_data, viewer_culture == "eastern") %>%
+    filter(group == metaphor) %>%
+    filter(condition == cond)
+  
+  d <- get_effect_size(t1.w$score, t1.e$score)  
+  power <- pwr.t2n.test(n1 = length(t1.w$score), n2 = length(t1.e$score), d, sig.level = 0.05)
+  return(power)
+}
+```
+
+Short Answer: yes because we grouped so n = 2n lol. Interestingly, only for the significant differences do we see powers > 0.8. I mean not *that* interestingly cause like that's how effect size works but still. Anyway, power is definitely high enough.
+
+Example usage:
+```{r echo = TRUE}
+cond_power <- calculate_power_for_condition(wg2_total, "conflict", "original")
+```
+Then you get a variable called `cond_power` you can use to see the actual power through `cond_power$power`. 
+In this case our power is `r cond_power$power`
