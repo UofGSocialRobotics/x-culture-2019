@@ -945,7 +945,163 @@ kable(filter(wg5_sig_table, sig != ""))
 ```
 
 
+## Individual Response Patterns tho
+Cool so we have all this but what do *individuals* actually perceive -- multiple interpretations, or one predominant one? Only likert will tell us. 
 
+Let's do this with a **PIE CHART** BAYBEEEEE
+
+-- highly is top 3 for ranked
+-- highly is 5,6,7 for likert
+- people who ranked X & Y highly 
+- people who ranked X highly (but not Y)
+- people who ranked Y highly (but not X)
+- people who did neither
+```{r}
+##  group      value (count)
+##  X + Y   
+##  X
+##  Y
+##  neither
+
+
+## Get data for this pie chart. Double since we're adding to 14 here
+likert_upper_cutoff <- 10
+
+
+get_pie_data <- function(dat, group1, group2) {
+  ## this requires a whole new analysis of data of individuals...
+  indiv_dat <- dat %>%
+  mutate(conflict = Answer.conflict + Answer.tension, 
+         openness = Answer.open + Answer.accessible,
+         unity = Answer.goal + Answer.worktogether,
+         confidence = Answer.confident + Answer.sure,
+         control = Answer.dominant + Answer.control,
+         size = Answer.many + Answer.members) %>%
+  select(conflict, openness, unity, confidence, control, size)
+  
+  # get value then convert to percentages
+  g1_high <- sum(indiv_dat[group1] >= 10 & indiv_dat[group2] < 10)
+  g2_high <- sum(indiv_dat[group2] >= 10 & indiv_dat[group1] < 10)
+  both_high <- sum(indiv_dat[group2] >= 10 & indiv_dat[group1] >= 10)
+  neither_high <- sum(indiv_dat[group2] < 10 & indiv_dat[group1] < 10)
+  
+  df <- data.frame(
+    group = c("both", group1, group2, "neither"),
+    value = c(both_high, g1_high, g2_high, neither_high)
+  )
+  
+  return(df)
+}
+
+make_pie_chart <- function(dat, group1, group2, gesture_name, cond) {
+  #d <- get_pie_data(dat, "conflict", "unity")  
+  blank_theme <- theme_minimal() +
+      theme(
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.border = element_blank(),
+      panel.grid=element_blank(),
+      axis.ticks = element_blank(),
+      plot.title=element_text(size=14, face="bold")
+    )
+
+  pie <- ggplot(dat, aes(x="", y=value, fill=group))+
+    geom_bar(width = 1, stat = "identity") + 
+    coord_polar("y", start=0)+  blank_theme +
+    theme(axis.text.x=element_blank()) +
+    geom_text(aes(y = value/3 + c(0, cumsum(value)[-length(value)]), 
+              label = percent(value/100)), size=5) + 
+    ggtitle(paste("comp.", gesture_name, cond," -- ", group1, "//", group2))
+  return(pie)
+}
+
+p_wg1.0 <- make_pie_chart(get_pie_data(wg1.0.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "original")
+p_wg1.1 <- make_pie_chart(get_pie_data(wg1.1.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "intertwine")
+p_wg1.2 <- make_pie_chart(get_pie_data(wg1.2.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "collide")
+
+
+```
+
+```{r}
+grid.arrange(p_wg1.0, p_wg1.1, p_wg1.2, ncol=1)
+```
+
+
+## this is just messy
+```{r}
+## let's say ranking 1,2,3
+
+## oh shit let's pull in the ranking data. 
+uo <- read.csv('../../IVA2019-data-and-examples/uo_individuals.csv')
+ut <- read.csv('../../IVA2019-data-and-examples/ut_individuals.csv')
+uf <- read.csv('../../IVA2019-data-and-examples/uf_individuals.csv')
+
+## now just massage it so it looks nicer...
+clean_ranking_dat <- function(dat) {
+  dat <- dat[-1,]
+  dat <- dat %>%
+  select(Please.order.these.questions.from.most..first..to.least..last..true., 
+         X,
+         X.1,
+         X.2,
+         X.3,
+         X.4,
+         X.5,
+         X.6,
+         X.7,
+         X.8) 
+  n <- c("worktogether", "everybody", "tension", "disagree", "many", 
+             "getalong", "likes", "annoyed", "control", "feedback")
+  names(dat) <- n
+  dat <- dat[!apply(dat, 1, function(x) any(x=="")),]
+  dat$worktogether <- as.numeric(as.character(dat$worktogether))
+  dat$tension <- as.numeric(as.character(dat$tension))
+  dat$disagree <- as.numeric(as.character(dat$disagree))
+  dat$getalong <- as.numeric(as.character(dat$getalong))
+  return(dat)
+}
+
+group_ranking_dat <- function(dat) {
+  d <- dat %>%
+    mutate(conflict_high = (tension <= 3 | disagree <= 3),
+           unity_high = (worktogether <= 3 | getalong <= 3))
+}
+
+get_pie_data_ranked <- function(dat) {
+  both_high <- sum(dat$conflict_high & dat$unity_high)
+  g1_high <- sum(dat$conflict_high & !dat$unity_high)
+  g2_high <- sum(!dat$conflict_high & dat$unity_high)
+  neither_high <- sum(!dat$conflict_high & !dat$unity_high)
+  
+  df <- data.frame(
+    group = c("both", "conflict", "unity", "neither"),
+    value = c(both_high, g1_high, g2_high, neither_high)
+  )
+  
+  return(df)
+}
+
+prep_ranked_for_pie <- function(dat) {
+  d_indiv_clean <- clean_ranking_dat(dat)
+  d_grouped <- group_ranking_dat(d_indiv_clean)
+  pie_dat <- get_pie_data_ranked(d_grouped)
+  return(pie_dat)
+}
+
+p_uo_ranked <- prep_ranked_for_pie(uo)
+p_ut_ranked <- prep_ranked_for_pie(ut)
+p_uf_ranked <- prep_ranked_for_pie(uf)
+
+p_wg1.0_ranked <- make_pie_chart(p_uo_ranked, "ranked", "conflict/unity", "unpolite", "original")
+p_wg1.1_ranked <- make_pie_chart(p_ut_ranked, "ranked", "conflict/unity", "unpolite", "intertwine")
+p_wg1.2_ranked <- make_pie_chart(p_uf_ranked, "ranked", "conflict/unity", "unpolite", "collide")
+```
+
+So here are our ranked ones
+```{r}
+
+grid.arrange(p_wg1.0, p_wg1.0_ranked, p_wg1.1, p_wg1.1_ranked, p_wg1.2, p_wg1.2_ranked, nrow=3, ncol=2)
+```
 
 # PART TWO: BICULTURALISM AT ITS FINEST
 
