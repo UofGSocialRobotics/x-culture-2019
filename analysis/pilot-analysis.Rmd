@@ -14,6 +14,7 @@ library(ordinal)
 library(gridExtra)
 library(RColorBrewer)
 library(knitr)
+library(scales)
 ```
 
 
@@ -879,6 +880,33 @@ do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
   return(p_adjusted)
 }
 
+
+do_wilcox_adjusted <- function(cond1, cond2, statement, dat) {
+  d <- data.frame()
+  if(dat == "1") {
+    d <- get_nice_things(wg1.0.w, wg1.1.w, wg1.2.w)
+  }
+  if(dat == "2") {
+    d <- get_nice_things(wg2.0.w, wg2.1.w, wg2.2.w)
+  }
+  if(dat == "3") {
+    d <- get_nice_things(wg3.0.w, wg3.1.w, wg3.2.w)
+  }
+  if(dat == "4") {
+    d <- get_nice_things(wg4.0.w, wg4.1.w, wg4.2.w)
+    }
+  if(dat == "5") {
+    d <- get_nice_things(wg5.0.w, wg5.1.w, wg5.2.w)
+  }
+  
+  p <- as.numeric(wilcox.test(score ~ condition, 
+                              filter(d, 
+                                     group==statement, 
+                                     condition ==cond1|condition==cond2))[3])
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=18), digits=5)
+  return(p_adjusted)
+}
+
 get_vals <- function(condition_name, g, dat) {
   ret <- dat %>%
     filter(condition==condition_name) %>%
@@ -889,7 +917,7 @@ get_vals <- function(condition_name, g, dat) {
 
 
 # For some reason can't generalize this to all gestures?
-make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
+make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat, do_wilcox=FALSE) {
   groups <- c("openness",
             "conflict",
             "control", 
@@ -902,11 +930,21 @@ make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
   cond2 <- rep(c("original", cond1name, cond2name), 6)
   df <- data.frame(group, cond1, cond2)   
   
-  df$p <- mapply(do_t_test_adjusted, 
-               as.character(df$cond1), 
-               as.character(df$cond2), 
-               as.character(df$group),
-               dat)
+  if(!do_wilcox) {
+    df$p <- mapply(do_t_test_adjusted, 
+             as.character(df$cond1), 
+             as.character(df$cond2), 
+             as.character(df$group),
+             dat)    
+  }
+  else {
+    df$p <- mapply(do_wilcox_adjusted, 
+             as.character(df$cond1), 
+             as.character(df$cond2), 
+             as.character(df$group),
+             dat)  
+  }
+
   df$sig <- mapply(get_sig_val, df$p)
 
   return(df)
@@ -914,10 +952,20 @@ make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat) {
 
 
 wg1_sig_table <- make_table_per_gesture("unpolite", "cond1", "cond2", "1")
+wg1_sig_table_wilcox <- make_table_per_gesture("unpolite", "cond1", "cond2", "1", do_wilcox=TRUE)
+
 wg2_sig_table <- make_table_per_gesture("entity", "cond1", "cond2", "2")
+wg2_sig_table_wilcox <- make_table_per_gesture("entity", "cond1", "cond2", "2", do_wilcox=TRUE)
+
 wg3_sig_table <- make_table_per_gesture("audience", "cond1", "cond2", "3")
+wg3_sig_table_wilcox <- make_table_per_gesture("audience", "cond1", "cond2", "3", do_wilcox=TRUE)
+
 wg4_sig_table <- make_table_per_gesture("protected", "cond1", "cond2", "4")
+wg4_sig_table_wilcox <- make_table_per_gesture("protected", "cond1", "cond2", "4", do_wilcox=TRUE)
+
 wg5_sig_table <- make_table_per_gesture("bowl", "cond1", "cond2", "5")
+wg5_sig_table_wilcox <- make_table_per_gesture("bowl", "cond1", "cond2", "5", do_wilcox=TRUE)
+
 
 
 #### Do spot tests below ####
@@ -934,16 +982,25 @@ spot_test <- function(d0, d1, d2, cond1="cond1", cond2="cond2", g="openness") {
 
 
 kable(filter(wg1_sig_table, sig != ""))
+kable(filter(wg1_sig_table_wilcox, sig != ""))
+
 kable(filter(wg2_sig_table, sig != ""))
+kable(filter(wg2_sig_table_wilcox, sig != ""))
+
 kable(filter(wg3_sig_table, sig != ""))
+kable(filter(wg3_sig_table_wilcox, sig != ""))
+
 kable(filter(wg4_sig_table, sig != ""))
+kable(filter(wg4_sig_table_wilcox, sig != ""))
+
 kable(filter(wg5_sig_table, sig != ""))
+kable(filter(wg5_sig_table_wilcox, sig != ""))
 
 
 # for example:
 #spot_test(wg1.0.w, wg1.1.w, wg1.2.w, "original", "cond2", "conflict")
 ```
-
+The above shows that t tests and mann-whitney-wilcox have the same significance results.
 
 ## Individual Response Patterns tho
 Cool so we have all this but what do *individuals* actually perceive -- multiple interpretations, or one predominant one? Only likert will tell us. 
@@ -971,13 +1028,13 @@ likert_upper_cutoff <- 10
 get_pie_data <- function(dat, group1, group2) {
   ## this requires a whole new analysis of data of individuals...
   indiv_dat <- dat %>%
-  mutate(conflict = Answer.conflict + Answer.tension, 
-         openness = Answer.open + Answer.accessible,
-         unity = Answer.goal + Answer.worktogether,
-         confidence = Answer.confident + Answer.sure,
-         control = Answer.dominant + Answer.control,
-         size = Answer.many + Answer.members) %>%
-  select(conflict, openness, unity, confidence, control, size)
+    mutate(conflict = Answer.conflict + Answer.tension, 
+           openness = Answer.open + Answer.accessible,
+           unity = Answer.goal + Answer.worktogether,
+           certainty = Answer.confident + Answer.sure,
+           control = Answer.dominant + Answer.control,
+           size = Answer.many + Answer.members) %>%
+    select(conflict, openness, unity, certainty, control, size)
   
   # get value then convert to percentages
   g1_high <- sum(indiv_dat[group1] >= 10 & indiv_dat[group2] < 10)
@@ -985,9 +1042,15 @@ get_pie_data <- function(dat, group1, group2) {
   both_high <- sum(indiv_dat[group2] >= 10 & indiv_dat[group1] >= 10)
   neither_high <- sum(indiv_dat[group2] < 10 & indiv_dat[group1] < 10)
   
+  g1_high <- (g1_high / nrow(indiv_dat)) 
+  g2_high <- (g2_high / nrow(indiv_dat)) 
+  both_high <- (both_high / nrow(indiv_dat)) 
+  neither_high <- (neither_high / nrow(indiv_dat))
+  
+  
   df <- data.frame(
-    group = c("both", group1, group2, "neither"),
-    value = c(both_high, g1_high, g2_high, neither_high)
+    group = c("both", group1, "neither", group2),
+    value = c(both_high, g1_high, neither_high, g2_high)
   )
   
   return(df)
@@ -997,33 +1060,57 @@ make_pie_chart <- function(dat, group1, group2, gesture_name, cond) {
   #d <- get_pie_data(dat, "conflict", "unity")  
   blank_theme <- theme_minimal() +
       theme(
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      panel.border = element_blank(),
-      panel.grid=element_blank(),
-      axis.ticks = element_blank(),
-      plot.title=element_text(size=14, face="bold")
-    )
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_blank(),
+        panel.grid=element_blank(),
+        axis.ticks = element_blank(),
+        plot.title=element_text(size=7, face="bold")
+      )
 
   pie <- ggplot(dat, aes(x="", y=value, fill=group))+
     geom_bar(width = 1, stat = "identity") + 
     coord_polar("y", start=0)+  blank_theme +
     theme(axis.text.x=element_blank()) +
-    geom_text(aes(y = value/3 + c(0, cumsum(value)[-length(value)]), 
-              label = percent(value/100)), size=5) + 
+    geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5)) +
     ggtitle(paste("comp.", gesture_name, cond," -- ", group1, "//", group2))
   return(pie)
 }
 
-p_wg1.0 <- make_pie_chart(get_pie_data(wg1.0.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "original")
-p_wg1.1 <- make_pie_chart(get_pie_data(wg1.1.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "intertwine")
-p_wg1.2 <- make_pie_chart(get_pie_data(wg1.2.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "collide")
 
+p_wg1.0.w <- make_pie_chart(get_pie_data(wg1.0.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "original")
+p_wg1.1.w <- make_pie_chart(get_pie_data(wg1.1.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "intertwine")
+p_wg1.2.w <- make_pie_chart(get_pie_data(wg1.2.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "collide")
+p_wg2.0.w <- make_pie_chart(get_pie_data(wg2.0.w, "control", "openness"), "likert", "control/openness", "entity", "original")
+p_wg2.1.w <- make_pie_chart(get_pie_data(wg2.1.w, "control", "openness"), "likert", "control/openness", "entity", "open")
+p_wg2.2.w <- make_pie_chart(get_pie_data(wg2.2.w, "control", "openness"), "likert", "control/openness", "entity", "chest")
+p_wg3.0.w <- make_pie_chart(get_pie_data(wg3.0.w, "openness", "unity"), "likert", "openness/unity", "audience", "original")
+p_wg3.1.w <- make_pie_chart(get_pie_data(wg3.1.w, "openness", "unity"), "likert", "openness/unity", "audience", "down")
+p_wg3.2.w <- make_pie_chart(get_pie_data(wg3.2.w, "openness", "unity"), "likert", "openness/unity", "audience", "open")
+p_wg4.0.w <- make_pie_chart(get_pie_data(wg4.0.w, "size", "control"), "likert", "size/control", "anything", "original")
+p_wg4.1.w <- make_pie_chart(get_pie_data(wg4.1.w, "size", "control"), "likert", "size/control", "anything", "frame")
+p_wg4.2.w <- make_pie_chart(get_pie_data(wg4.2.w, "size", "control"), "likert", "size/control", "anything", "surface")
+p_wg5.0.w <- make_pie_chart(get_pie_data(wg5.0.w, "certainty", "unity"), "likert", "certainty/unity", "specific", "original")
+p_wg5.1.w <- make_pie_chart(get_pie_data(wg5.1.w, "certainty", "unity"), "likert", "certainty/unity", "specific", "bowl")
+p_wg5.2.w <- make_pie_chart(get_pie_data(wg5.2.w, "certainty", "unity"), "likert", "certainty/unity", "specific", "forward")
+
+p_wg1.0.e <- make_pie_chart(get_pie_data(wg1.0.e, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "original")
+p_wg1.1.e <- make_pie_chart(get_pie_data(wg1.1.e, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "intertwine")
+p_wg1.2.e <- make_pie_chart(get_pie_data(wg1.2.e, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "collide")
 
 ```
 
 ```{r}
-grid.arrange(p_wg1.0, p_wg1.1, p_wg1.2, ncol=1)
+all_wg1_data$violin_density_grouped_overlay
+grid.arrange(p_wg1.0.w, p_wg1.1.w, p_wg1.2.w, ncol=1)
+all_wg2_data$violin_density_grouped_overlay
+grid.arrange(p_wg2.0.w, p_wg2.1.w, p_wg2.2.w, ncol=3)
+all_wg3_data$violin_density_grouped_overlay
+grid.arrange(p_wg3.0.w, p_wg3.1.w, p_wg3.2.w, ncol=3)
+all_wg4_data$violin_density_grouped_overlay
+grid.arrange(p_wg4.0.w, p_wg4.1.w, p_wg4.2.w, ncol=3)
+all_wg5_data$violin_density_grouped_overlay
+grid.arrange(p_wg5.0.w, p_wg5.1.w, p_wg5.2.w, ncol=3)
 ```
 
 
@@ -1099,9 +1186,24 @@ p_wg1.2_ranked <- make_pie_chart(p_uf_ranked, "ranked", "conflict/unity", "unpol
 
 So here are our ranked ones
 ```{r}
-
-grid.arrange(p_wg1.0, p_wg1.0_ranked, p_wg1.1, p_wg1.1_ranked, p_wg1.2, p_wg1.2_ranked, nrow=3, ncol=2)
+grid.arrange(p_wg1.0.w, p_wg1.0_ranked, p_wg1.1.w, p_wg1.1_ranked, p_wg1.2.w, p_wg1.2_ranked, nrow=3, ncol=2)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # PART TWO: BICULTURALISM AT ITS FINEST
 
@@ -1141,6 +1243,12 @@ eg2_total <- create_total_bicultural_tables(eg2.0.w, eg2.1.w, eg2.2.w, eg2.0.e, 
 eg3_total <- create_total_bicultural_tables(eg3.0.w, eg3.1.w, eg3.2.w, eg3.0.e, eg3.1.e, eg3.2.e, "cond1", "cond2")
 eg4_total <- create_total_bicultural_tables(eg4.0.w, eg4.1.w, eg4.2.w, eg4.0.e, eg4.1.e, eg4.2.e, "cond1", "cond2")
 # eg5_total <- create_total_bicultural_tables(eg5.0.w, eg5.1.w, eg5.2.w, eg5.0.e, eg5.1.e, eg5.2.e, "cond1", "cond2")
+
+
+discretize_score <- function(data) {
+  d <- data %>%
+    mutate("score_grouping", )
+}
 ```
 
 cool now we have all that data in one place. We need to compare the western and eastern viewers across conditions. 
@@ -1465,3 +1573,58 @@ cond_power <- calculate_power_for_condition(wg2_total, "conflict", "original")
 ```
 Then you get a variable called `cond_power` you can use to see the actual power through `cond_power$power`. 
 In this case our power is `r cond_power$power`
+
+
+
+
+### Analyzing with high/med/low
+```{r}
+wg1_bucket_scores <- wg1_total %>% 
+    mutate(score_bucket = ifelse(score %in% 5:7, "high", 
+                          ifelse(score %in% 3:4, "med",
+                          ifelse(score %in% 1:2, "low", "NA"))))
+
+make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
+  blank_theme <- theme_minimal() +
+      theme(
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_blank(),
+        panel.grid=element_blank(),
+        axis.ticks = element_blank(),
+        plot.title=element_text(size=7, face="bold")
+      )
+
+  pie <- ggplot(dat, aes(x="", y=value, fill=score_bucket))+
+    geom_bar(width = 1, stat = "identity") + 
+    coord_polar("y", start=0)+  blank_theme +
+    theme(axis.text.x=element_blank()) +
+    geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5)) +
+    ggtitle(paste("comp.", gesture_name, cond," -- ", group1, "//", group2))
+  return(pie)
+}
+
+```
+
+```{r}
+
+## my god this is so quick and dirty I am deeply ashamed.
+
+t <- filter(wg1_bucket_scores, viewer_culture=="western", condition=="original", group=="conflict")
+
+a <- sum(t$score_bucket == "high") / nrow(t) 
+b <- sum(t$score_bucket == "med") / nrow(t)
+c <- sum(t$score_bucket == "low") / nrow(t)
+
+bucket <- c("high", "med", "low")
+value <- c(a,b,c)
+
+df <- data.frame(bucket, value)
+
+ggplot(df, aes(x="", y=value, fill=bucket))+
+    geom_bar(width = 1, stat = "identity") + 
+    coord_polar("y", start=0)+  blank_theme +
+    theme(axis.text.x=element_blank()) +
+    geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5)) 
+
+```
