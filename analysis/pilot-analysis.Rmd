@@ -1652,7 +1652,22 @@ bucket_culture_scores <- function(dat) {
   return(d)
 }
 
-wg1_total_bucketed <- bucket_culture_scores(wg1_total)
+g <- "unity"
+gest <- "WG1"
+wg1_total_bucketed <- bucket_culture_scores(wg1_total) %>%
+  filter(group==g) %>%
+  group_by(viewer_culture, condition) %>%
+  mutate(count_bucket = ifelse(score_bucket=="high", sum(score_bucket=="high"), 
+                        ifelse(score_bucket=="medium", sum(score_bucket=="medium"), 
+                               sum(score_bucket=="low")))) %>%
+  group_by(viewer_culture, condition) %>%
+  mutate(bucket_percent = count_bucket / sum(unique(count_bucket)))
+
+ggplot(wg1_total_bucketed,aes(x=condition,y=bucket_percent,fill=factor(viewer_culture)))+
+  geom_bar(stat="identity",position="dodge")+
+  xlab("Gesture Condition")+ylab("Score")+
+  ggtitle(paste("Score for", g, "for", gest, sep=" "))
+
 wg2_total_bucketed <- bucket_culture_scores(wg2_total)
 wg3_total_bucketed <- bucket_culture_scores(wg3_total)
 wg4_total_bucketed <- bucket_culture_scores(wg4_total)
