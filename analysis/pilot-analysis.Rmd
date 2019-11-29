@@ -1653,7 +1653,7 @@ bucket_culture_scores <- function(dat) {
 }
 
 
-create_bucketed_bar_chart <- function(dat, gest) {
+get_bucketed_data <- function(dat) {
   groups = c("unity", "conflict", "openness", "control", "size", "certainty")
   dfs = vector(mode="list", length=6)
   i = 1
@@ -1673,18 +1673,18 @@ create_bucketed_bar_chart <- function(dat, gest) {
   full_dat <- bind_rows(dfs, .id = "column_label")
 }
 
-t <- create_bucketed_bar_chart(wg1_total, "WG1")
+create_bucketed_bar_chart <- function(dat, gest) {
+  d <- get_bucketed_data(dat)
+  p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
+    geom_bar(stat="identity",position="fill")+
+    xlab("Gesture Condition")+ylab("Score")+
+    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+    facet_wrap("group")
+  return(p)
+}
 
-ggplot(t,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
-  geom_bar(stat="identity",position="fill")+
-  xlab("Gesture Condition")+ylab("Score")+
-  ggtitle(paste("Score for", g, "for", gest, sep=" ")) + 
-  facet_wrap("group")
-
-
-
-
-wg1_comp <- create_bucketed_bar_chart(wg1_total, "unity", "WG1")
+wg1_comp <- create_bucketed_bar_chart(wg1_total, "WG1")
+wg2_comp <- create_bucketed_bar_chart(wg2_total, "WG2")
 
 wg2_total_bucketed <- bucket_culture_scores(wg2_total)
 wg3_total_bucketed <- bucket_culture_scores(wg3_total)
