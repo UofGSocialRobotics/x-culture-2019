@@ -1652,6 +1652,23 @@ bucket_culture_scores <- function(dat) {
   return(d)
 }
 
+
+create_bucketed_bar_chart <- function(dat, g, gest) {
+  d <- bucket_culture_scores(dat) %>%
+    filter(group==g) %>%
+    group_by(viewer_culture, condition) %>%
+    mutate(count_bucket = ifelse(score_bucket=="high", sum(score_bucket=="high"), 
+                          ifelse(score_bucket=="medium", sum(score_bucket=="medium"), 
+                                 sum(score_bucket=="low")))) %>%
+    group_by(viewer_culture, condition) %>%
+    mutate(bucket_percent = count_bucket / sum(unique(count_bucket)))
+  
+  ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(viewer_culture)))+
+    geom_bar(stat="identity",position="dodge")+
+    xlab("Gesture Condition")+ylab("Score")+
+    ggtitle(paste("Score for", g, "for", gest, sep=" "))  
+}
+
 g <- "unity"
 gest <- "WG1"
 wg1_total_bucketed <- bucket_culture_scores(wg1_total) %>%
@@ -1661,12 +1678,15 @@ wg1_total_bucketed <- bucket_culture_scores(wg1_total) %>%
                         ifelse(score_bucket=="medium", sum(score_bucket=="medium"), 
                                sum(score_bucket=="low")))) %>%
   group_by(viewer_culture, condition) %>%
-  mutate(bucket_percent = count_bucket / sum(unique(count_bucket)))
+  mutate(bucket_percent = count_bucket / sum(unique(count_bucket))) %>%
+  mutate(culture_bucket = paste(viewer_culture, score_bucket, sep="_"))
 
-ggplot(wg1_total_bucketed,aes(x=condition,y=bucket_percent,fill=factor(viewer_culture)))+
+ggplot(wg1_total_bucketed,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
   geom_bar(stat="identity",position="dodge")+
   xlab("Gesture Condition")+ylab("Score")+
   ggtitle(paste("Score for", g, "for", gest, sep=" "))
+
+wg1_comp <- create_bucketed_bar_chart(wg1_total, "unity", "WG1")
 
 wg2_total_bucketed <- bucket_culture_scores(wg2_total)
 wg3_total_bucketed <- bucket_culture_scores(wg3_total)
