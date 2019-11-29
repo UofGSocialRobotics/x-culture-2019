@@ -1685,19 +1685,12 @@ create_bucketed_bar_chart <- function(dat, gest) {
 
 wg1_comp <- create_bucketed_bar_chart(wg1_total, "WG1")
 wg2_comp <- create_bucketed_bar_chart(wg2_total, "WG2")
+wg3_comp <- create_bucketed_bar_chart(wg3_total, "WG3")
+wg4_comp <- create_bucketed_bar_chart(wg4_total, "WG4")
+wg5_comp <- create_bucketed_bar_chart(wg5_total, "WG5")
 
-wg2_total_bucketed <- bucket_culture_scores(wg2_total)
-wg3_total_bucketed <- bucket_culture_scores(wg3_total)
-wg4_total_bucketed <- bucket_culture_scores(wg4_total)
-wg5_total_bucketed <- bucket_culture_scores(wg5_total)
-
-eg1_total_bucketed <- bucket_culture_scores(eg1_total)
-eg2_total_bucketed <- bucket_culture_scores(eg2_total)
-eg3_total_bucketed <- bucket_culture_scores(eg3_total)
-eg4_total_bucketed <- bucket_culture_scores(eg4_total)
-```
-
-See some charts for kicks
-```{r}
-
+eg1_comp <- create_bucketed_bar_chart(eg1_total, "EG1")
+eg2_comp <- create_bucketed_bar_chart(eg2_total, "EG2")
+eg3_comp <- create_bucketed_bar_chart(eg3_total, "EG3")
+eg4_comp <- create_bucketed_bar_chart(eg4_total, "EG4")
 ```
