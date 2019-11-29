@@ -1057,7 +1057,6 @@ get_pie_data <- function(dat, group1, group2) {
 }
 
 make_pie_chart <- function(dat, group1, group2, gesture_name, cond) {
-  #d <- get_pie_data(dat, "conflict", "unity")  
   blank_theme <- theme_minimal() +
       theme(
         axis.title.x = element_blank(),
@@ -1078,31 +1077,34 @@ make_pie_chart <- function(dat, group1, group2, gesture_name, cond) {
 }
 
 
-p_wg1.0.w <- make_pie_chart(get_pie_data(wg1.0.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "original")
-p_wg1.1.w <- make_pie_chart(get_pie_data(wg1.1.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "intertwine")
-p_wg1.2.w <- make_pie_chart(get_pie_data(wg1.2.w, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "collide")
-p_wg2.0.w <- make_pie_chart(get_pie_data(wg2.0.w, "control", "openness"), "likert", "control/openness", "entity", "original")
-p_wg2.1.w <- make_pie_chart(get_pie_data(wg2.1.w, "control", "openness"), "likert", "control/openness", "entity", "open")
-p_wg2.2.w <- make_pie_chart(get_pie_data(wg2.2.w, "control", "openness"), "likert", "control/openness", "entity", "chest")
-p_wg3.0.w <- make_pie_chart(get_pie_data(wg3.0.w, "openness", "unity"), "likert", "openness/unity", "audience", "original")
-p_wg3.1.w <- make_pie_chart(get_pie_data(wg3.1.w, "openness", "unity"), "likert", "openness/unity", "audience", "down")
-p_wg3.2.w <- make_pie_chart(get_pie_data(wg3.2.w, "openness", "unity"), "likert", "openness/unity", "audience", "open")
-p_wg4.0.w <- make_pie_chart(get_pie_data(wg4.0.w, "size", "control"), "likert", "size/control", "anything", "original")
-p_wg4.1.w <- make_pie_chart(get_pie_data(wg4.1.w, "size", "control"), "likert", "size/control", "anything", "frame")
-p_wg4.2.w <- make_pie_chart(get_pie_data(wg4.2.w, "size", "control"), "likert", "size/control", "anything", "surface")
-p_wg5.0.w <- make_pie_chart(get_pie_data(wg5.0.w, "certainty", "unity"), "likert", "certainty/unity", "specific", "original")
-p_wg5.1.w <- make_pie_chart(get_pie_data(wg5.1.w, "certainty", "unity"), "likert", "certainty/unity", "specific", "bowl")
-p_wg5.2.w <- make_pie_chart(get_pie_data(wg5.2.w, "certainty", "unity"), "likert", "certainty/unity", "specific", "forward")
+p_maker <- function(dat, g1, g2, c1, c2) {
+  p <- make_pie_chart(get_pie_data(dat, g1, g2), "likert", paste(g1, g2, sep="/"), c1, c2)
+}
 
-p_wg1.0.e <- make_pie_chart(get_pie_data(wg1.0.e, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "original")
-p_wg1.1.e <- make_pie_chart(get_pie_data(wg1.1.e, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "intertwine")
-p_wg1.2.e <- make_pie_chart(get_pie_data(wg1.2.e, "conflict", "unity"), "likert", "conflict/unity", "unpolite", "collide")
+p_wg1.0.w <- p_maker(wg1.0.w, "conflict", "unity", "unpolite", "original")
+p_wg1.1.w <- p_maker(wg1.1.w, "conflict", "unity", "unpolite", "intertwine")
+p_wg1.2.w <- p_maker(wg1.2.w, "conflict", "unity", "unpolite", "collide")
+p_wg2.0.w <- p_maker(wg2.0.w, "control", "openness", "entity", "original")
+p_wg2.1.w <- p_maker(wg2.1.w, "control", "openness", "entity", "open")
+p_wg2.2.w <- p_maker(wg2.2.w, "control", "openness", "entity", "chest")
+p_wg3.0.w <- p_maker(wg3.0.w, "openness", "unity", "audience", "original")
+p_wg3.1.w <- p_maker(wg3.1.w, "openness", "unity", "audience", "down")
+p_wg3.2.w <- p_maker(wg3.2.w, "openness", "unity", "audience", "open")
+p_wg4.0.w <- p_maker(wg4.0.w, "size", "control", "anything", "original")
+p_wg4.1.w <- p_maker(wg4.1.w, "size", "control", "anything", "frame")
+p_wg4.2.w <- p_maker(wg4.2.w, "size", "control", "anything", "surface")
+p_wg5.0.w <- p_maker(wg5.0.w, "certainty", "unity", "specific", "original")
+p_wg5.1.w <- p_maker(wg5.1.w, "certainty", "unity", "specific", "bowl")
+p_wg5.2.w <- p_maker(wg5.2.w, "certainty", "unity", "specific", "forward")
+p_wg1.0.e <- p_maker(wg1.0.e, "conflict", "unity", "unpolite", "original")
+p_wg1.1.e <- p_maker(wg1.1.e, "conflict", "unity", "unpolite", "intertwine")
+p_wg1.2.e <- p_maker(wg1.2.e, "conflict", "unity", "unpolite", "collide")
 
 ```
 
 ```{r}
 all_wg1_data$violin_density_grouped_overlay
-grid.arrange(p_wg1.0.w, p_wg1.1.w, p_wg1.2.w, ncol=1)
+grid.arrange(p_wg1.0.w, p_wg1.1.w, p_wg1.2.w, ncol=3)
 all_wg2_data$violin_density_grouped_overlay
 grid.arrange(p_wg2.0.w, p_wg2.1.w, p_wg2.2.w, ncol=3)
 all_wg3_data$violin_density_grouped_overlay
@@ -1111,6 +1113,15 @@ all_wg4_data$violin_density_grouped_overlay
 grid.arrange(p_wg4.0.w, p_wg4.1.w, p_wg4.2.w, ncol=3)
 all_wg5_data$violin_density_grouped_overlay
 grid.arrange(p_wg5.0.w, p_wg5.1.w, p_wg5.2.w, ncol=3)
+```
+
+
+and now for comparing western and eastern:
+```{r}
+grid.arrange(p_wg1.0.w, p_wg1.0.e, 
+             p_wg1.1.w, p_wg1.1.e,
+             p_wg1.2.w, p_wg1.2.e, 
+             ncol=2)
 ```
 
 
@@ -1424,119 +1435,119 @@ WG1-0 (this name isn't here in the actual version, we just know from the naming 
 ### WG1
 ```{r, out.width='50%'}
 kable(wg1_total_cultural_comparison_tables$c0_comparison)
-wg1_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg1-0.png")
+ggsave("wg1-0.png", plot=wg1_violin_culture_comparisons$c0_volin_comparison)
+knitr::include_graphics("wg1-0.png")
 kable(wg1_total_cultural_comparison_tables$c1_comparison)
-wg1_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg1-1.png")
-kable(wg1_total_cultural_comparison_tables$c2_comparison)
-wg1_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg1-2.png")
+ggsave("wg1-1.png", plot=wg1_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("wg1-1.png")
+kable(wg1_total_cultural_comparison_tables$c2_compariso)
+ggsave("wg1-2.png", plot=wg1_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("wg1-2.png")
 ```
 
 ### WG2
 ```{r, out.width='50%'}
 kable(wg2_total_cultural_comparison_tables$c0_comparison)
-wg2_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg2-0.png")
+ggsave("wg2-0.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("wg2-0.png")
 kable(wg2_total_cultural_comparison_tables$c1_comparison)
-wg2_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg2-1.png")
+ggsave("wg2-1.png", plot=wg2_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("wg2-1.png")
 kable(wg2_total_cultural_comparison_tables$c2_comparison)
-wg2_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg2-2.png")
+ggsave("wg2-2.png", plot=wg2_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("wg2-2.png")
 ```
 
 ### WG3
 ```{r, out.width='50%'}
 kable(wg3_total_cultural_comparison_tables$c0_comparison)
-wg3_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg3-0.png")
+ggsave("wg3-0.png", plot=wg3_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("wg3-0.png")
 kable(wg3_total_cultural_comparison_tables$c1_comparison)
-wg3_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg3-1.png")
+ggsave("wg3-1.png", plot=wg3_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("wg3-1.png")
 kable(wg3_total_cultural_comparison_tables$c2_comparison)
-wg3_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg3-2.png")
+ggsave("wg3-2.png", plot=wg3_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("wg3-2.png")
 ```
 
 ### WG4
 ```{r, out.width='50%'}
 kable(wg4_total_cultural_comparison_tables$c0_comparison)
-wg4_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg4-0.png")
+ggsave("wg4-0.png", plot=wg4_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("wg4-0.png")
 kable(wg4_total_cultural_comparison_tables$c1_comparison)
-wg4_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg4-1.png")
+ggsave("wg4-1.png", plot=wg4_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("wg4-1.png")
 kable(wg4_total_cultural_comparison_tables$c2_comparison)
-wg4_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg4-2.png")
+ggsave("wg4-2.png", plot=wg4_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("wg4-2.png")
 ```
 
 ### WG5
 ```{r, out.width='50%'}
 kable(wg5_total_cultural_comparison_tables$c0_comparison)
-wg5_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg5-0.png")
+ggsave("wg5-0.png", plot=wg5_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("wg5-0.png")
 kable(wg5_total_cultural_comparison_tables$c1_comparison)
-wg5_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg5-1.png")
+ggsave("wg5-1.png", plot=wg5_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("wg5-1.png")
 kable(wg5_total_cultural_comparison_tables$c2_comparison)
-wg5_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/wg5-2.png")
+ggsave("wg5-2.png", plot=wg5_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("wg5-2.png")
 ```
 
 
 ### EG1
 ```{r, out.width='50%'}
 kable(eg1_total_cultural_comparison_tables$c0_comparison)
-eg1_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg1-0.png")
+ggsave("eg1-0.png", plot=eg1_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("eg1-0.png")
 kable(eg1_total_cultural_comparison_tables$c1_comparison)
-eg1_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg1-1.png")
+ggsave("eg1-1.png", plot=eg1_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("eg1-1.png")
 kable(eg1_total_cultural_comparison_tables$c2_comparison)
-eg1_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg1-2.png")
+ggsave("eg1-2.png", plot=eg1_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("eg1-2.png")
 ```
 
 ### EG2
 ```{r, out.width='50%'}
 kable(eg2_total_cultural_comparison_tables$c0_comparison)
-eg2_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg2-0.png")
+ggsave("eg2-0.png", plot=eg2_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("eg2-0.png")
 kable(eg2_total_cultural_comparison_tables$c1_comparison)
-eg2_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg2-1.png")
+ggsave("eg2-1.png", plot=eg2_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("eg2-1.png")
 kable(eg2_total_cultural_comparison_tables$c2_comparison)
-eg2_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg2-2.png")
+ggsave("eg2-2.png", plot=eg2_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("eg2-2.png")
 ```
 
 ### EG3
 ```{r, out.width='50%'}
 kable(eg3_total_cultural_comparison_tables$c0_comparison)
-eg3_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg3-0.png")
+ggsave("eg3-0.png", plot=eg3_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("eg3-0.png")
 kable(eg3_total_cultural_comparison_tables$c1_comparison)
-eg3_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg3-1.png")
+ggsave("eg3-1.png", plot=eg3_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("eg3-1.png")
 kable(eg3_total_cultural_comparison_tables$c2_comparison)
-eg3_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg3-2.png")
+ggsave("eg3-2.png", plot=eg3_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("eg3-2.png")
 ```
 
 ### EG4
 ```{r, out.width='50%'}
 kable(eg4_total_cultural_comparison_tables$c0_comparison)
-eg4_violin_culture_comparisons$c0_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg4-0.png")
+ggsave("eg4-0.png", plot=eg4_violin_culture_comparisons$c0_violin_comparison)
+knitr::include_graphics("eg4-0.png")
 kable(eg4_total_cultural_comparison_tables$c1_comparison)
-eg4_violin_culture_comparisons$c1_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg4-1.png")
+ggsave("eg4-1.png", plot=eg4_violin_culture_comparisons$c1_violin_comparison)
+knitr::include_graphics("eg4-1.png")
 kable(eg4_total_cultural_comparison_tables$c2_comparison)
-eg4_violin_culture_comparisons$c2_violin_comparison
-knitr::include_graphics("/Users/carolynsaund/Desktop/eg4-2.png")
+ggsave("eg4-2.png", plot=eg4_violin_culture_comparisons$c2_violin_comparison)
+knitr::include_graphics("eg4-2.png")
 ```
 
 
@@ -1580,9 +1591,9 @@ In this case our power is `r cond_power$power`
 ### Analyzing with high/med/low
 ```{r}
 wg1_bucket_scores <- wg1_total %>% 
-    mutate(score_bucket = ifelse(score %in% 5:7, "high", 
-                          ifelse(score %in% 3:4, "med",
-                          ifelse(score %in% 1:2, "low", "NA"))))
+    mutate(score_bucket = ifelse(score %in% 5:7, "chigh", 
+                          ifelse(score %in% 3:4, "bmed",
+                          ifelse(score %in% 1:2, "alow", "NA"))))
 
 make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
   blank_theme <- theme_minimal() +
@@ -1608,23 +1619,52 @@ make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
 
 ```{r}
 
-## my god this is so quick and dirty I am deeply ashamed.
+## 21/8/19 my god this is so quick and dirty I am deeply ashamed.
+## 22/8/19 also it doesn't work right now
+## 29/8/19 abandoned this line of analysis
 
-t <- filter(wg1_bucket_scores, viewer_culture=="western", condition=="original", group=="conflict")
+t <- filter(wg1_bucket_scores, viewer_culture=="western", group=="conflict")
 
-a <- sum(t$score_bucket == "high") / nrow(t) 
-b <- sum(t$score_bucket == "med") / nrow(t)
-c <- sum(t$score_bucket == "low") / nrow(t)
+a <- sum(t$score_bucket == "ahigh") / nrow(t) 
+b <- sum(t$score_bucket == "bmed") / nrow(t)
+c <- sum(t$score_bucket == "clow") / nrow(t)
 
 bucket <- c("high", "med", "low")
 value <- c(a,b,c)
 
 df <- data.frame(bucket, value)
 
-ggplot(df, aes(x="", y=value, fill=bucket))+
-    geom_bar(width = 1, stat = "identity") + 
-    coord_polar("y", start=0)+  blank_theme +
-    theme(axis.text.x=element_blank()) +
-    geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5)) 
+wg1_bucket_scores$score_bucket <- as.factor(wg1_bucket_scores$score_bucket)
+wg1_bucket_scores$condition <- as.factor(wg1_bucket_scores$condition)
+
+ggplot(wg1_bucket_scores, aes(x=condition, y=score_bucket, fill=viewer_culture))+
+    geom_dotplot(stackdir="center", dotsize=0.3, binwidth = 0.1)
+
+```
+
+
+
+## Now analyze high/med/low
+```{r}
+bucket_culture_scores <- function(dat) {
+  d <- dat %>%
+    mutate(score_bucket = ifelse(score >= 5, "high", ifelse(score <= 2, "low", "medium")))
+  return(d)
+}
+
+wg1_total_bucketed <- bucket_culture_scores(wg1_total)
+wg2_total_bucketed <- bucket_culture_scores(wg2_total)
+wg3_total_bucketed <- bucket_culture_scores(wg3_total)
+wg4_total_bucketed <- bucket_culture_scores(wg4_total)
+wg5_total_bucketed <- bucket_culture_scores(wg5_total)
+
+eg1_total_bucketed <- bucket_culture_scores(eg1_total)
+eg2_total_bucketed <- bucket_culture_scores(eg2_total)
+eg3_total_bucketed <- bucket_culture_scores(eg3_total)
+eg4_total_bucketed <- bucket_culture_scores(eg4_total)
+```
+
+See some charts for kicks
+```{r}
 
 ```
