@@ -1677,6 +1677,12 @@ create_bucketed_bar_chart <- function(dat, gest) {
   d <- get_bucketed_data(dat)
   p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
     geom_bar(stat="identity",position="fill")+
+    scale_fill_manual("legend", values=c("eastern_ahigh" = "rosybrown2",  # rosybrown1, 3, 4
+                                         "eastern_bmedium" = "sandybrown",
+                                         "eastern_clow" = "lightgoldenrod2",
+                                         "western_ahigh" = "mediumseagreen", # steelblue1, 3, 4
+                                         "western_bmedium" = "steelblue",
+                                         "western_clow" = "mediumpurple3")) +
     xlab("Gesture Condition")+ylab("Score")+
     ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
     facet_wrap("group")
