@@ -424,8 +424,8 @@ create_grouped_overlay <- function(data) {
   p <- ggplot(data) + 
     aes(x=factor(nrow(data)),y=score,fill=metaphor_measure)+
     geom_violin(alpha=0.3,position="identity") +
-  return(p)    
     facet_wrap("group")  
+  return(p)    
 }
 ```
 
@@ -1666,7 +1666,7 @@ get_bucketed_data <- function(dat) {
                                      sum(score_bucket=="clow")))) %>%
         group_by(viewer_culture, condition) %>%
         mutate(bucket_percent = count_bucket / sum(count_bucket)) %>%
-        mutate(culture_bucket = paste(viewer_culture, score_bucket, sep="_")) 
+        mutate(culture_bucket = paste(score_bucket, viewer_culture, sep="_")) 
     dfs[[i]] <- d
     i = i + 1
   }
@@ -1677,12 +1677,12 @@ create_bucketed_bar_chart <- function(dat, gest) {
   d <- get_bucketed_data(dat)
   p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
     geom_bar(stat="identity",position="fill")+
-    scale_fill_manual("legend", values=c("eastern_ahigh" = "rosybrown2",  # rosybrown1, 3, 4
-                                         "eastern_bmedium" = "sandybrown",
-                                         "eastern_clow" = "lightgoldenrod2",
-                                         "western_ahigh" = "mediumseagreen", # steelblue1, 3, 4
-                                         "western_bmedium" = "steelblue",
-                                         "western_clow" = "mediumpurple3")) +
+    scale_fill_manual("legend", values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
+                                         "bmedium_eastern" = "steelblue2",
+                                         "clow_eastern" = "palevioletred2",
+                                         "ahigh_western" = "palegreen4", # steelblue1, 3, 4
+                                         "bmedium_western" = "steelblue4",
+                                         "clow_western" = "palevioletred4")) +
     xlab("Gesture Condition")+ylab("Score")+
     ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
     facet_wrap("group")
@@ -1699,4 +1699,151 @@ eg1_comp <- create_bucketed_bar_chart(eg1_total, "EG1")
 eg2_comp <- create_bucketed_bar_chart(eg2_total, "EG2")
 eg3_comp <- create_bucketed_bar_chart(eg3_total, "EG3")
 eg4_comp <- create_bucketed_bar_chart(eg4_total, "EG4")
+
+
+get_summary_stats <- function(dat) {
+  t <- get_bucketed_data(dat) %>%
+    select(group, condition, viewer_culture, score_bucket, count_bucket) %>%
+    group_by(condition, group, viewer_culture) %>%
+    unique() %>%
+    spread(score_bucket, count_bucket)
+  
+  sum_stats <- get_bucketed_data(dat) %>%
+    group_by(condition, group, viewer_culture) %>%
+    summarise(sd=sd(score), avg=mean(score))
+  
+  tt <- right_join(t, sum_stats, by=c("group", "viewer_culture", "condition"))
+  return(tt)
+}
+
+wg1_summary_stats <- get_summary_stats(wg1_total)
+wg2_summary_stats <- get_summary_stats(wg2_total)
+wg3_summary_stats <- get_summary_stats(wg3_total)
+wg4_summary_stats <- get_summary_stats(wg4_total)
+wg5_summary_stats <- get_summary_stats(wg5_total)
+
+eg1_summary_stats <- get_summary_stats(eg1_total)
+eg2_summary_stats <- get_summary_stats(eg2_total)
+eg3_summary_stats <- get_summary_stats(eg3_total)
+eg4_summary_stats <- get_summary_stats(eg4_total)
+```
+
+### Do some STATS on these puppies.
+1. Tell if proportion between groups are sig.
+```{r}
+test_bucketed_significance <- function(dat) {
+  #new_col_names <- c("condition", "group", "high_comp", "med_comp", "low_comp")
+  #names(newdf) <- new_col_names
+  condition <- c()
+  group <- c()
+  high_comp <- c()
+  med_comp <- c()
+  low_comp <- c()
+  groups <- c("certainty", "conflict", "control", "unity", "openness", "size")
+  cs <- c("cond1", "cond2", "original")
+  c1 <- dat %>%
+    filter(condition=="cond1")
+  c2 <- dat %>%
+    filter(condition=="cond2")
+  c0 <- dat %>%
+    filter(condition=="original")
+  for(c in cs) { 
+    c_dat <- dat %>%
+      filter(condition==c)
+    for(g in groups) {
+      g_dat <- c_dat %>%
+        filter(group==g)
+      w <- g_dat %>%
+        filter(viewer_culture=="western")
+      e <- g_dat %>%
+        filter(viewer_culture=="eastern")
+      wsum <- w$ahigh + w$bmedium + w$clow
+      esum <- e$ahigh + e$bmedium + e$clow
+      z.test.high <- prop.test(x=c(w$ahigh, e$ahigh), n=c(wsum, esum))
+      z.test.med <- prop.test(x=c(w$bmedium, e$bmedium), n=c(wsum, esum))
+      z.test.low <- prop.test(x=c(w$clow, e$clow), n=c(wsum, esum))
+      condition <- list.append(condition, c)
+      group <- list.append(group, g)
+      high_comp <- list.append(high_comp, paste(round(z.test.high$p.value, digits=4), get_sig(z.test.high$p.value), sep=" "))
+      med_comp <- list.append(med_comp, paste(round(z.test.med$p.value, digits=4), get_sig(z.test.med$p.value), sep=" "))
+      low_comp <- list.append(low_comp, paste(round(z.test.low$p.value, digits=4), get_sig(z.test.low$p.value), sep=" "))
+    } 
+  }
+  df <- data.frame(condition, group, high_comp, med_comp, low_comp)
+  return(df)
+}
+
+get_sig <- function(val) {
+  sig <- ""
+  if(val <= 0.0005) {
+    sig <- "***"
+  }
+  else if(val <= 0.005) {
+    sig <- "**"
+  }
+  else if(val <= 0.05) {
+    sig <- "*"
+  }
+  return(sig)
+}
+
+wg1_diffrence_table <- test_bucketed_significance(wg1_summary_stats)
+wg2_diffrence_table <- test_bucketed_significance(wg2_summary_stats)
+wg3_diffrence_table <- test_bucketed_significance(wg3_summary_stats)
+wg4_diffrence_table <- test_bucketed_significance(wg4_summary_stats)
+wg5_diffrence_table <- test_bucketed_significance(wg5_summary_stats)
+
+eg1_diffrence_table <- test_bucketed_significance(eg1_summary_stats)
+eg2_diffrence_table <- test_bucketed_significance(eg2_summary_stats)
+eg3_diffrence_table <- test_bucketed_significance(eg3_summary_stats)
+eg4_diffrence_table <- test_bucketed_significance(eg4_summary_stats)
+```
+
+Display these bad puppies now
+```{r}
+ggsave("wg1-barcomp.png", plot=wg1_comp)
+knitr::include_graphics("wg1-barcomp.png")
+kable(wg1_summary_stats)
+kable(wg1_diffrence_table)
+
+ggsave("wg2-barcomp.png", plot=wg2_comp)
+knitr::include_graphics("wg2-barcomp.png")
+kable(wg2_summary_stats)
+kable(wg2_diffrence_table)
+
+ggsave("wg3-barcomp.png", plot=wg3_comp)
+knitr::include_graphics("wg3-barcomp.png")
+kable(wg3_summary_stats)
+kable(wg3_diffrence_table)
+
+ggsave("wg4-barcomp.png", plot=wg4_comp)
+knitr::include_graphics("wg4-barcomp.png")
+kable(wg4_summary_stats)
+kable(wg4_diffrence_table)
+
+ggsave("wg5-barcomp.png", plot=wg5_comp)
+knitr::include_graphics("wg5-barcomp.png")
+kable(wg5_summary_stats)
+kable(wg5_diffrence_table)
+
+## EAST
+ggsave("eg1-barcomp.png", plot=eg1_comp)
+knitr::include_graphics("eg1-barcomp.png")
+kable(eg1_summary_stats)
+kable(eg1_difference_table)
+
+ggsave("eg2-barcomp.png", plot=eg2_comp)
+knitr::include_graphics("eg2-barcomp.png")
+kable(eg2_summary_stats)
+kable(eg2_difference_table)
+
+ggsave("eg3-barcomp.png", plot=eg3_comp)
+knitr::include_graphics("eg3-barcomp.png")
+kable(eg3_summary_stats)
+kable(eg3_difference_table)
+
+ggsave("eg4-barcomp.png", plot=eg4_comp)
+knitr::include_graphics("eg4-barcomp.png")
+kable(eg4_summary_stats)
+kable(eg4_difference_table)
 ```
