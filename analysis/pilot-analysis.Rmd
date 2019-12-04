@@ -1637,7 +1637,7 @@ make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
 ```{r bucket_cultural_data}
 bucket_culture_scores <- function(dat) {
   d <- dat %>%
-    mutate(score_bucket = ifelse(score >= 5, "ahigh", ifelse(score <= 2, "clow", "bmedium")))
+    mutate(score_bucket = ifelse(score >= 6, "ahigh", ifelse(score <= 2, "clow", "bmedium")))
   return(d)
 }
 
@@ -1667,7 +1667,7 @@ get_bucketed_data <- function(dat) {
 create_bucketed_bar_chart <- function(dat, gest) {
   d <- get_bucketed_data(dat)
   p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
-    geom_bar(stat="identity",position="fill")+
+    geom_bar(stat="identity",position="dodge")+
     scale_fill_manual("legend", values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
                                          "bmedium_eastern" = "steelblue2",
                                          "clow_eastern" = "palevioletred2",
@@ -1872,4 +1872,32 @@ ggsave("eg4-barcomp.png", plot=eg4_comp)
 knitr::include_graphics("eg4-barcomp.png")
 kable(eg4_difference_table)
 kable(eg4_summary_stats)
+```
+
+
+### Questions from Stacy:
+Q: How do we tell whether people HAD an interpretation, or if it was uniform confusion?
+A: Let's see a pie chart of things rated "high" maybe?
+```{r}
+d <- wg1_summary_stats %>%
+  mutate("strong_intp"= ahigh + clow) %>%
+  gather("score_bucket", "interpretation", 4:6, 9) %>%
+  filter(score_bucket == "bmedium" | score_bucket == "strong_intp") %>%
+  mutate("culture_bucket"=paste(viewer_culture, score_bucket, sep="_"))
+
+ggplot(d,aes(x=condition,y=interpretation,fill=factor(culture_bucket)))+
+  geom_bar(stat="identity",position="dodge")+
+  scale_fill_manual("legend", values=c("eastern_strong_intp" = "palegreen3",  # rosybrown1, 3, 4
+                                     "eastern_bmedium" = "steelblue2",
+                                     "western_bmedium" = "steelblue4",
+                                     "western_strong_intp" = "palevioletred4")) +
+  # scale_fill_manual("legend", values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
+  #                                      "bmedium_eastern" = "steelblue2",
+  #                                      "clow_eastern" = "palevioletred2",
+  #                                      "ahigh_western" = "palegreen4", # steelblue1, 3, 4
+  #                                      "bmedium_western" = "steelblue4",
+  #                                      "clow_western" = "palevioletred4")) +
+  xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
+  ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+  facet_wrap("group")
 ```
