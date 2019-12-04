@@ -1878,26 +1878,41 @@ kable(eg4_summary_stats)
 ### Questions from Stacy:
 Q: How do we tell whether people HAD an interpretation, or if it was uniform confusion?
 A: Let's see a pie chart of things rated "high" maybe?
-```{r}
-d <- wg1_summary_stats %>%
+```{r strong_interpretation_buckets}
+
+get_strong_interpretation_graphs <- function(dat) {
+  d <- dat %>%
   mutate("strong_intp"= ahigh + clow) %>%
   gather("score_bucket", "interpretation", 4:6, 9) %>%
   filter(score_bucket == "bmedium" | score_bucket == "strong_intp") %>%
   mutate("culture_bucket"=paste(viewer_culture, score_bucket, sep="_"))
 
-ggplot(d,aes(x=condition,y=interpretation,fill=factor(culture_bucket)))+
-  geom_bar(stat="identity",position="dodge")+
-  scale_fill_manual("legend", values=c("eastern_strong_intp" = "palegreen3",  # rosybrown1, 3, 4
-                                     "eastern_bmedium" = "steelblue2",
-                                     "western_bmedium" = "steelblue4",
-                                     "western_strong_intp" = "palevioletred4")) +
-  # scale_fill_manual("legend", values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
-  #                                      "bmedium_eastern" = "steelblue2",
-  #                                      "clow_eastern" = "palevioletred2",
-  #                                      "ahigh_western" = "palegreen4", # steelblue1, 3, 4
-  #                                      "bmedium_western" = "steelblue4",
-  #                                      "clow_western" = "palevioletred4")) +
-  xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
-  ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
-  facet_wrap("group")
+  g <- ggplot(d,aes(x=condition,y=interpretation,fill=factor(culture_bucket)))+
+    geom_bar(stat="identity",position="dodge")+
+    scale_fill_manual("legend", values=c("eastern_strong_intp" = "palevioletred2",
+                                       "eastern_bmedium" = "steelblue2",
+                                       "western_bmedium" = "steelblue4",
+                                       "western_strong_intp" = "palevioletred4")) +
+    xlab("Gesture Condition")+ylab("Number of participants whose score was within bucket")+
+    ggtitle(paste("Bucketed scores (strong vs weak interpretation) for", gest, sep=" ")) + 
+    facet_wrap("group")
+  return(g)
+}
+t <- get_strong_interpretation_graphs(wg1_summary_stats)
+```
+
+The way to interpret this graph is the blues are the medium values, the pinks are the extreme (high+ low) values. The light is eastern, the dark is western. The blue being higher than the pinks indicate that there was NOT a strong interpretation -- that is, more people ranked it 3,4,5 than EITHER 1,2 or 6,7 -- that is to say, they chose a weaker rather than stronger interpretation. This is particularly clear in the case of the conflict condition for westerners in WG1 -- note that there is a very strong clear interpretation for westerners, but not at all for easterners. 
+
+```{r display_strong_interpretation_buckets}
+wg1_strong_int_graph <- get_strong_interpretation_graphs(wg1_summary_stats)
+wg2_strong_int_graph <- get_strong_interpretation_graphs(wg2_summary_stats)
+wg3_strong_int_graph <- get_strong_interpretation_graphs(wg3_summary_stats)
+wg4_strong_int_graph <- get_strong_interpretation_graphs(wg4_summary_stats)
+wg5_strong_int_graph <- get_strong_interpretation_graphs(wg5_summary_stats)
+
+eg1_strong_int_graph <- get_strong_interpretation_graphs(eg1_summary_stats)
+eg2_strong_int_graph <- get_strong_interpretation_graphs(eg2_summary_stats)
+eg3_strong_int_graph <- get_strong_interpretation_graphs(eg3_summary_stats)
+eg4_strong_int_graph <- get_strong_interpretation_graphs(eg4_summary_stats)
+
 ```
