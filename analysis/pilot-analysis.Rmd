@@ -14,6 +14,7 @@ library(ordinal)
 library(gridExtra)
 library(RColorBrewer)
 library(knitr)
+library(rlist)
 library(scales)
 ```
 
@@ -83,7 +84,7 @@ wg3.2.w <- xcdata %>%
 
 
 Also load these buggerinos (from psytoolkit template)
-```{r}
+```{r load_western_gestures}
 psydata <- rbind(read.csv('psytoolkit_pilot.csv'), 
                  read.csv('psytoolkit_pilot2.csv'),
                  read.csv('w-part-e-gest-pilot.csv'),
@@ -195,7 +196,7 @@ eg4.2.w <- psydata %>%
 
 
 ### Eastern Participants
-```{r}
+```{r load_eastern_participants}
 j_psydata <- rbind(read.csv('japanese-pilot-data.csv'), 
                    read.csv('japanese-west-1-2-3.csv'),
                    read.csv('japanese-west-1-4-5.csv'),
@@ -379,7 +380,7 @@ many <--> members
 
 So now we group the metaphor measures by group and facet wrap by that. EZ
 
-```{r}
+```{r add_groups}
 add_groups <- function(data) {
   data$group <- ""
   for(row in 1:nrow(data)) {
@@ -419,7 +420,7 @@ add_groups <- function(data) {
 
 
 Create grouped overlay of correlated questions. Violin plot of question correlations by group (for single conditions of a single gesture)
-```{r}
+```{r create_overlay_graphs}
 create_grouped_overlay <- function(data) {
   p <- ggplot(data) + 
     aes(x=factor(nrow(data)),y=score,fill=metaphor_measure)+
@@ -436,7 +437,7 @@ Really could have correlation plot w Q1 on X and Q2 on Y but those don't look gr
 
 ### Correlation Matrix of questions
 Get wrapped plot of correlations across conditions for same gesture
-```{r}
+```{r correlation_matrices}
 ## Go through and populate with metaphors and difference values
 create_difference_matrix <- function(data) {
   difference_table <- data.frame(
@@ -482,7 +483,7 @@ create_difference_matrix <- function(data) {
 }
 ```
 
-```{r}
+```{r plot_difference_matrices}
 plot_diff_matrix <- function(matrix, low_col, high_col, mid_col, title) {
   p <- ggplot(data=matrix, aes(x=Question1, y=Question2, fill=Rsq)) + 
     geom_tile(color="white") +
@@ -507,7 +508,7 @@ plot_diff_matrix_pretty <- function(matrix, t="") {
 
 
 ### Violin plots of responses to questions
-```{r}
+```{r violin_density}
 plot_violin_density <- function(d0, d1, d2) {
   g <- ggplot(rbind(d0, d1, d2), aes(vid, score)) + 
     geom_violin(aes(fill=vid, alpha=0.5), scale="count", draw_quantiles = c(0.25, 0.5, 0.75)) +
@@ -566,7 +567,7 @@ plot_question_density <- function(d0, d1, d2) {
 
 
 #### Put it together and how do you do? Bibbity Bobbity BAM.
-```{r}
+```{r big_correlational_matrices}
 ## random helpers
 gather_select <- function(d) {
   d <- d %>%
@@ -764,7 +765,7 @@ if you want to plot all of the overlays nicely you can do this:
 
 ## Stats
 Pretty, but what does it mean? Well, to determine whether any of these differences are significant (aka, did people interpret different things from each of the different gesture conditions, which, because we, too, are people, we know they did) we need to see what the significant differences between rankings in each gesture and condition are.
-```{r}
+```{r single_culture_anovas}
 ## gather the bad larries
 gather_clean <- function(d, n="") {
   ret <- d %>%
@@ -1013,7 +1014,7 @@ Let's do this with a **PIE CHART** BAYBEEEEE
 - people who ranked X highly (but not Y)
 - people who ranked Y highly (but not X)
 - people who did neither
-```{r}
+```{r individual_bucket_pie_charts}
 ##  group      value (count)
 ##  X + Y   
 ##  X
@@ -1102,7 +1103,7 @@ p_wg1.2.e <- p_maker(wg1.2.e, "conflict", "unity", "unpolite", "collide")
 
 ```
 
-```{r}
+```{r wg_wp_only}
 all_wg1_data$violin_density_grouped_overlay
 grid.arrange(p_wg1.0.w, p_wg1.1.w, p_wg1.2.w, ncol=3)
 all_wg2_data$violin_density_grouped_overlay
@@ -1199,17 +1200,6 @@ So here are our ranked ones
 ```{r}
 grid.arrange(p_wg1.0.w, p_wg1.0_ranked, p_wg1.1.w, p_wg1.1_ranked, p_wg1.2.w, p_wg1.2_ranked, nrow=3, ncol=2)
 ```
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1670,7 +1660,9 @@ get_bucketed_data <- function(dat) {
     dfs[[i]] <- d
     i = i + 1
   }
-  full_dat <- bind_rows(dfs, .id = "column_label")
+  full_dat <- bind_rows(dfs, .id = "column_label") 
+  full_dat[is.na(full_dat)] <- 0
+  return(full_dat)
 }
 
 create_bucketed_bar_chart <- function(dat, gest) {
@@ -1683,7 +1675,7 @@ create_bucketed_bar_chart <- function(dat, gest) {
                                          "ahigh_western" = "palegreen4", # steelblue1, 3, 4
                                          "bmedium_western" = "steelblue4",
                                          "clow_western" = "palevioletred4")) +
-    xlab("Gesture Condition")+ylab("Score")+
+    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
     ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
     facet_wrap("group")
   return(p)
@@ -1713,6 +1705,7 @@ get_summary_stats <- function(dat) {
     summarise(sd=sd(score), avg=mean(score))
   
   tt <- right_join(t, sum_stats, by=c("group", "viewer_culture", "condition"))
+  tt[is.na(tt)] <- 0
   return(tt)
 }
 
@@ -1737,8 +1730,11 @@ test_bucketed_significance <- function(dat) {
   condition <- c()
   group <- c()
   high_comp <- c()
+  adjusted_high_comp <- c()
   med_comp <- c()
+  adjusted_med_comp <- c()
   low_comp <- c()
+  adjusted_low_comp <- c()
   groups <- c("certainty", "conflict", "control", "unity", "openness", "size")
   cs <- c("cond1", "cond2", "original")
   c1 <- dat %>%
@@ -1765,11 +1761,15 @@ test_bucketed_significance <- function(dat) {
       condition <- list.append(condition, c)
       group <- list.append(group, g)
       high_comp <- list.append(high_comp, paste(round(z.test.high$p.value, digits=4), get_sig(z.test.high$p.value), sep=" "))
+      adjusted_high_comp <- list.append(adjusted_high_comp, get_sig(p.adjust(z.test.high$p.value, method="bonferroni", n=3)))
       med_comp <- list.append(med_comp, paste(round(z.test.med$p.value, digits=4), get_sig(z.test.med$p.value), sep=" "))
+      adjusted_med_comp <- list.append(adjusted_med_comp, get_sig(p.adjust(z.test.med$p.value, method="bonferroni", n=3)))
       low_comp <- list.append(low_comp, paste(round(z.test.low$p.value, digits=4), get_sig(z.test.low$p.value), sep=" "))
+      adjusted_low_comp <- list.append(adjusted_low_comp, get_sig(p.adjust(z.test.low$p.value, method="bonferroni", n=3)))
     } 
   }
-  df <- data.frame(condition, group, high_comp, med_comp, low_comp)
+  df <- data.frame(condition, group, high_comp, adjusted_high_comp, med_comp, adjusted_med_comp, low_comp, adjusted_low_comp) %>%
+    group_by(group)
   return(df)
 }
 
@@ -1787,63 +1787,63 @@ get_sig <- function(val) {
   return(sig)
 }
 
-wg1_diffrence_table <- test_bucketed_significance(wg1_summary_stats)
-wg2_diffrence_table <- test_bucketed_significance(wg2_summary_stats)
-wg3_diffrence_table <- test_bucketed_significance(wg3_summary_stats)
-wg4_diffrence_table <- test_bucketed_significance(wg4_summary_stats)
-wg5_diffrence_table <- test_bucketed_significance(wg5_summary_stats)
+wg1_difference_table <- test_bucketed_significance(wg1_summary_stats)
+wg2_difference_table <- test_bucketed_significance(wg2_summary_stats)
+wg3_difference_table <- test_bucketed_significance(wg3_summary_stats)
+wg4_difference_table <- test_bucketed_significance(wg4_summary_stats)
+wg5_difference_table <- test_bucketed_significance(wg5_summary_stats)
 
-eg1_diffrence_table <- test_bucketed_significance(eg1_summary_stats)
-eg2_diffrence_table <- test_bucketed_significance(eg2_summary_stats)
-eg3_diffrence_table <- test_bucketed_significance(eg3_summary_stats)
-eg4_diffrence_table <- test_bucketed_significance(eg4_summary_stats)
+eg1_difference_table <- test_bucketed_significance(eg1_summary_stats)
+eg2_difference_table <- test_bucketed_significance(eg2_summary_stats)
+eg3_difference_table <- test_bucketed_significance(eg3_summary_stats)
+eg4_difference_table <- test_bucketed_significance(eg4_summary_stats)
 ```
 
 Display these bad puppies now
 ```{r}
 ggsave("wg1-barcomp.png", plot=wg1_comp)
 knitr::include_graphics("wg1-barcomp.png")
+kable(wg1_difference_table)
 kable(wg1_summary_stats)
-kable(wg1_diffrence_table)
 
 ggsave("wg2-barcomp.png", plot=wg2_comp)
 knitr::include_graphics("wg2-barcomp.png")
+kable(wg2_difference_table)
 kable(wg2_summary_stats)
-kable(wg2_diffrence_table)
 
 ggsave("wg3-barcomp.png", plot=wg3_comp)
 knitr::include_graphics("wg3-barcomp.png")
+kable(wg3_difference_table)
 kable(wg3_summary_stats)
-kable(wg3_diffrence_table)
 
 ggsave("wg4-barcomp.png", plot=wg4_comp)
 knitr::include_graphics("wg4-barcomp.png")
+kable(wg4_difference_table)
 kable(wg4_summary_stats)
-kable(wg4_diffrence_table)
 
 ggsave("wg5-barcomp.png", plot=wg5_comp)
 knitr::include_graphics("wg5-barcomp.png")
+kable(wg5_difference_table)
 kable(wg5_summary_stats)
-kable(wg5_diffrence_table)
 
 ## EAST
 ggsave("eg1-barcomp.png", plot=eg1_comp)
 knitr::include_graphics("eg1-barcomp.png")
-kable(eg1_summary_stats)
 kable(eg1_difference_table)
+kable(eg1_summary_stats)
 
 ggsave("eg2-barcomp.png", plot=eg2_comp)
 knitr::include_graphics("eg2-barcomp.png")
-kable(eg2_summary_stats)
 kable(eg2_difference_table)
+kable(eg2_summary_stats)
 
 ggsave("eg3-barcomp.png", plot=eg3_comp)
 knitr::include_graphics("eg3-barcomp.png")
-kable(eg3_summary_stats)
 kable(eg3_difference_table)
+kable(eg3_summary_stats)
 
 ggsave("eg4-barcomp.png", plot=eg4_comp)
 knitr::include_graphics("eg4-barcomp.png")
-kable(eg4_summary_stats)
 kable(eg4_difference_table)
+kable(eg4_summary_stats)
 ```
