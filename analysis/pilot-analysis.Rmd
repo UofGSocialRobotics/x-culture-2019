@@ -726,7 +726,7 @@ all_eastern_correlational_data.e
 ```
 
 To get the individual ones (per gesture, say) you can do this to position the w/e side by side.
-```{r plot_indiv_diff_matrix echo=FALSE, out.width='50%'}
+```{r plot_indiv_diff_matrix, out.width='50%'}
 plot1 <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.w), 
                                        create_difference_matrix(wg4.1.w), 
                                        create_difference_matrix(wg4.2.w)))
@@ -1634,10 +1634,10 @@ make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
 
 
 ## Now analyze high/med/low
-```{r bucket_cultural_data}
+```{r shitshow_of_bucketing_cultural_data}
 bucket_culture_scores <- function(dat) {
   d <- dat %>%
-    mutate(score_bucket = ifelse(score >= 6, "ahigh", ifelse(score <= 2, "clow", "bmedium")))
+    mutate(score_bucket = ifelse(score >= 5, "ahigh", ifelse(score <= 2, "clow", "bmedium")))
   return(d)
 }
 
@@ -1698,12 +1698,6 @@ get_bucketed_data <- function(dat) {
   full_dat[is.na(full_dat)] <- 0
   return(full_dat)
 }
-
-### delete area
-t3 <- get_bucketed_data(eg2_total)
-
-###
-
 
 
 create_bucketed_bar_chart <- function(dat, gest) {
@@ -1766,7 +1760,7 @@ eg4_summary_stats <- get_summary_stats(eg4_total)
 
 ### Do some STATS on these puppies.
 1. Tell if proportion between groups are sig.
-```{r calculate_bucket_stats include=FALSE}
+```{r calculate_bucket_stats, include=FALSE}
 test_bucketed_significance <- function(dat) {
   #new_col_names <- c("condition", "group", "high_comp", "med_comp", "low_comp")
   #names(newdf) <- new_col_names
