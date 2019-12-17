@@ -1922,5 +1922,83 @@ eg1_strong_int_graph <- get_strong_interpretation_graphs(eg1_summary_stats, "EG1
 eg2_strong_int_graph <- get_strong_interpretation_graphs(eg2_summary_stats, "EG2")
 eg3_strong_int_graph <- get_strong_interpretation_graphs(eg3_summary_stats, "EG3")
 eg4_strong_int_graph <- get_strong_interpretation_graphs(eg4_summary_stats, "EG4")
+```
+
+
+Display these bad puppies now
+```{r display_cultural_bucket_bars_strong_interpret}
+knitr::include_graphics("../gesture_imgs/wg1-0.png")
+knitr::include_graphics("../gesture_imgs/wg1-1.png")
+knitr::include_graphics("../gesture_imgs/wg1-2.png")
+ggsave("wg1-barcomp.png", plot=wg1_comp)
+knitr::include_graphics("wg1-barcomp.png")
+kable(wg1_difference_table)
+kable(wg1_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/wg2-0.png")
+knitr::include_graphics("../gesture_imgs/wg2-1.png")
+knitr::include_graphics("../gesture_imgs/wg2-2.png")
+ggsave("wg2-barcomp.png", plot=wg2_comp)
+knitr::include_graphics("wg2-barcomp.png")
+kable(wg2_difference_table)
+kable(wg2_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/wg3-0.png")
+knitr::include_graphics("../gesture_imgs/wg3-1.png")
+knitr::include_graphics("../gesture_imgs/wg3-2.png")
+ggsave("wg3-barcomp.png", plot=wg3_comp)
+knitr::include_graphics("wg3-barcomp.png")
+kable(wg3_difference_table)
+kable(wg3_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/wg4-0.png")
+knitr::include_graphics("../gesture_imgs/wg4-1.png")
+knitr::include_graphics("../gesture_imgs/wg4-2.png")
+ggsave("wg4-barcomp.png", plot=wg4_comp)
+knitr::include_graphics("wg4-barcomp.png")
+kable(wg4_difference_table)
+kable(wg4_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/wg5-0.png")
+knitr::include_graphics("../gesture_imgs/wg5-1.png")
+knitr::include_graphics("../gesture_imgs/wg5-2.png")
+ggsave("wg5-barcomp.png", plot=wg5_comp)
+knitr::include_graphics("wg5-barcomp.png")
+kable(wg5_difference_table)
+kable(wg5_summary_stats)
+
+## EAST
+knitr::include_graphics("../gesture_imgs/eg1-0.png")
+knitr::include_graphics("../gesture_imgs/eg1-1.png")
+knitr::include_graphics("../gesture_imgs/eg1-2.png")
+ggsave("eg1-barcomp.png", plot=eg1_comp)
+knitr::include_graphics("eg1-barcomp.png")
+kable(eg1_difference_table)
+kable(eg1_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/eg2-0.png")
+knitr::include_graphics("../gesture_imgs/eg2-1.png")
+knitr::include_graphics("../gesture_imgs/eg2-2.png")
+ggsave("eg2-barcomp.png", plot=eg2_comp)
+knitr::include_graphics("eg2-barcomp.png")
+kable(eg2_difference_table)
+kable(eg2_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/eg3-0.png")
+knitr::include_graphics("../gesture_imgs/eg3-1.png")
+knitr::include_graphics("../gesture_imgs/eg3-2.png")
+ggsave("eg3-barcomp.png", plot=eg3_comp)
+knitr::include_graphics("eg3-barcomp.png")
+kable(eg3_difference_table)
+kable(eg3_summary_stats)
+
+knitr::include_graphics("../gesture_imgs/eg4-0.png")
+knitr::include_graphics("../gesture_imgs/eg4-1.png")
+knitr::include_graphics("../gesture_imgs/eg4-2.png")
+ggsave("eg4-barcomp.png", plot=eg4_comp)
+knitr::include_graphics("eg4-barcomp.png")
+kable(eg4_difference_table)
+kable(eg4_summary_stats)
+```
 
 ```
