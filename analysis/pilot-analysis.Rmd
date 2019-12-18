@@ -1262,12 +1262,12 @@ metaphor measures, or for a single metaphor measure then visualize across condit
 ```{r}
 violin_compare_cultures_across_meta_groups <- function(data, cond="original", gesture_name="unknown") {
   g <- ggplot(filter(data)) + 
-    aes(x=condition,y=score,fill=viewer_culture) +
-    geom_violin(alpha=0.1,position="identity", adjust=1) +
-    #scale_fill_brewer(palette="PiYG") +
+    aes(x=condition,y=score,fill=viewer_culture, position="dodge") +
+    geom_violin(alpha=0.4,position="dodge", adjust=1) +
     scale_fill_manual(values=c("palevioletred3", "steelblue3")) +
     facet_wrap("group") +
-    geom_dotplot(binaxis='y', position="identity", stackdir='center', dotsize=0.9, stackratio=0.25, alpha=0.5) +
+    geom_boxplot(position="dodge", alpha=0.8, width=0.1) +
+    geom_jitter(shape=16, alpha=1, position=position_jitterdodge(jitter.width=0.3, jitter.height=0.3), aes(alpha=1, color=viewer_culture)) +
     labs(
       title = paste("Comparison across cultures for", gesture_name, " -- ", cond, "Condition")
     ) 
