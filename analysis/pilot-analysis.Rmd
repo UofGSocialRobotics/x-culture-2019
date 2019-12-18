@@ -1320,41 +1320,46 @@ bi_culture_t_test <- function(g1, g2) {
 }
 
 # data comes in as already filtered out by gesture/condition
-make_table_per_gesturecondition_by_culture <- function(dat) {
+make_table_per_gesture_condition_by_culture <- function(dat) {
   groups <- c("openness",
             "conflict",
             "control", 
             "size",
             "certainty",
             "unity")
+  conditions <- c("cond1", "cond2", "original")
   western_mean <- c()
   eastern_mean <- c()
   p <- c()
   sig <- c()
+  cons <- c()
   ## it's not tricky or pretty but it's readable so get off my back, R coding purist h8rs
-  for(g in groups) {
-    w_only <- dat %>%
-      filter(viewer_culture=="western", group==g)
-    e_only <- dat %>%
-      filter(viewer_culture=="eastern", group==g)
-    
-    western_mean <- append(western_mean, mean(w_only$score))
-    eastern_mean <- append(eastern_mean, mean(e_only$score))
-    p_v <- bi_culture_t_test(w_only$score, e_only$score)
-    p <- append(p, p_v)
-    sig <- append(sig,
-                  get_sig_val(p_v))
+  for(co in conditions) {
+    cons <- append(cons, co)
+    for(g in groups) {
+      w_only <- dat %>%
+        filter(viewer_culture=="western", group==g)
+      e_only <- dat %>%
+        filter(viewer_culture=="eastern", group==g)
+      
+      western_mean <- append(western_mean, mean(w_only$score))
+      eastern_mean <- append(eastern_mean, mean(e_only$score))
+      p_v <- bi_culture_t_test(w_only$score, e_only$score)
+      p <- append(p, p_v)
+      sig <- append(sig,
+                    get_sig_val(p_v))
+    }
   }
 
-  df <- data.frame(groups, western_mean, eastern_mean, p, sig)   
+  df <- data.frame(groups, cons, western_mean, eastern_mean, p, sig)   
   return(df)
 } 
 
 
 do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
-  c0 <- make_table_per_gesturecondition_by_culture(filter(dat, condition=="original"))
-  c1 <- make_table_per_gesturecondition_by_culture(filter(dat, condition==cond1))
-  c2 <- make_table_per_gesturecondition_by_culture(filter(dat, condition==cond2))
+  c0 <- make_table_per_gesture_condition_by_culture(filter(dat, condition=="original"))
+  c1 <- make_table_per_gesture_condition_by_culture(filter(dat, condition==cond1))
+  c2 <- make_table_per_gesture_condition_by_culture(filter(dat, condition==cond2))
   
   return_list <- list("c0_comparison"=c0, 
                       "c1_comparison"=c1,
@@ -1394,7 +1399,8 @@ ggsave("eg4_violin_jitter.png", plot=eg4_violin_culture_comparisons$c0_violin_co
 ```
 
 ### WG1
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r wg1_violin}
 kable(wg1_total_cultural_comparison_tables$c0_comparison)
 kable(wg1_total_cultural_comparison_tables$c1_comparison)
 kable(wg1_total_cultural_comparison_tables$c2_comparison)
@@ -1402,7 +1408,8 @@ knitr::include_graphics("wg1_violin_jitter.png")
 ```
 
 ### WG2
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r wg2_violin}
 kable(wg2_total_cultural_comparison_tables$c0_comparison)
 kable(wg2_total_cultural_comparison_tables$c1_comparison)
 kable(wg2_total_cultural_comparison_tables$c2_comparison)
@@ -1410,7 +1417,8 @@ knitr::include_graphics("wg2_violin_jitter.png")
 ```
 
 ### WG3
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r wg3_violin}
 kable(wg3_total_cultural_comparison_tables$c0_comparison)
 kable(wg3_total_cultural_comparison_tables$c1_comparison)
 kable(wg3_total_cultural_comparison_tables$c2_comparison)
@@ -1418,7 +1426,8 @@ knitr::include_graphics("wg3_violin_jitter.png")
 ```
 
 ### WG4
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r wg4_violin}
 kable(wg4_total_cultural_comparison_tables$c0_comparison)
 kable(wg4_total_cultural_comparison_tables$c1_comparison)
 kable(wg4_total_cultural_comparison_tables$c2_comparison)
@@ -1426,7 +1435,8 @@ knitr::include_graphics("wg4_violin_jitter.png")
 ```
 
 ### WG5
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r wg5_violin}
 kable(wg5_total_cultural_comparison_tables$c0_comparison)
 kable(wg5_total_cultural_comparison_tables$c1_comparison)
 kable(wg5_total_cultural_comparison_tables$c2_comparison)
@@ -1435,7 +1445,8 @@ knitr::include_graphics("wg5_violin_jitter.png")
 
 
 ### EG1
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r eg1_violin}
 kable(eg1_total_cultural_comparison_tables$c0_comparison)
 kable(eg1_total_cultural_comparison_tables$c1_comparison)
 kable(eg1_total_cultural_comparison_tables$c2_comparison)
@@ -1443,7 +1454,8 @@ knitr::include_graphics("eg1_violin_jitter.png")
 ```
 
 ### EG2
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r eg2_violin}
 kable(eg2_total_cultural_comparison_tables$c0_comparison)
 kable(eg2_total_cultural_comparison_tables$c1_comparison)
 kable(eg2_total_cultural_comparison_tables$c2_comparison)
@@ -1451,7 +1463,8 @@ knitr::include_graphics("eg2_violin_jitter.png")
 ```
 
 ### EG3
-```{r, out.width='50%'}
+Original, Cond1, Cond2
+```{r eg3_violin}
 kable(eg3_total_cultural_comparison_tables$c0_comparison)
 kable(eg3_total_cultural_comparison_tables$c1_comparison)
 kable(eg3_total_cultural_comparison_tables$c2_comparison)
@@ -1459,7 +1472,8 @@ knitr::include_graphics("eg3_violin_jitter.png")
 ```
 
 ### EG4
-```{r eg4_violin_comparisons, out.width='50%'}
+Original, Cond1, Cond2
+```{r eg4_violin}
 kable(eg4_total_cultural_comparison_tables$c0_comparison)
 kable(eg4_total_cultural_comparison_tables$c1_comparison)
 kable(eg4_total_cultural_comparison_tables$c2_comparison)
