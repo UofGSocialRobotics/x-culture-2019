@@ -1260,13 +1260,19 @@ Easy enough to do stats on means between cultures but baby I wanna see those VIO
 Can only plot by one thing at a time (i.e. for a single gesture condition then visualize across 
 metaphor measures, or for a single metaphor measure then visualize across conditions. The second doesn't make sense though....)
 ```{r}
+median.quartile <- function(x){
+  out <- quantile(x, probs = c(0.25,0.5,0.75))
+  names(out) <- c("ymin","y","ymax")
+  return(out) 
+}
+
 violin_compare_cultures_across_meta_groups <- function(data, cond="original", gesture_name="unknown") {
   g <- ggplot(filter(data)) + 
     aes(x=condition,y=score,fill=viewer_culture, position="dodge") +
-    geom_violin(alpha=0.4,position="dodge", adjust=1) +
+    geom_violin(alpha=0.4,position="dodge", adjust=1, draw_quantiles=c(0.25, 0.5, 0.75)) +
     scale_fill_manual(values=c("palevioletred3", "steelblue3")) +
     facet_wrap("group") +
-    geom_boxplot(position="dodge", alpha=0.8, width=0.1) +
+    # geom_boxplot(position="dodge", alpha=0.8, width=0.1) +
     geom_jitter(shape=16, alpha=1, position=position_jitterdodge(jitter.width=0.3, jitter.height=0.3), aes(alpha=1, color=viewer_culture)) +
     labs(
       title = paste("Comparison across cultures for", gesture_name, " -- ", cond, "Condition")
@@ -1301,16 +1307,6 @@ eg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg4_total, 
 #eg5_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg5_total, "cond1", "cond2", "eg5")
 ```
 Now the plots live in things like `wg1_violin_culture_comparisons$c0_violin_comparison`
-
-
-
-```{r combine_violin_plots}
-g <- wg1_violin_culture_comparisons$c0_violin_comparison + 
-     wg1_violin_culture_comparisons$c1_violin_comparison + 
-     wg1_violin_culture_comparisons$c2_violin_comparison
-
-
-```
 
 Cool now across I actually don't think the other comparison makes sense because you're comparing things across different gestures which defeats the purpose of the visualizations. 
 
@@ -1387,125 +1383,89 @@ WG1-0 (this name isn't here in the actual version, we just know from the naming 
 
 ```{r save everything, include=FALSE}
 # Western
-ggsave("wg1-0.png", plot=wg1_violin_culture_comparisons$c0_volin_comparison)
-ggsave("wg1-1.png", plot=wg1_violin_culture_comparisons$c1_violin_comparison)
-ggsave("wg1-2.png", plot=wg1_violin_culture_comparisons$c2_violin_comparison)
-ggsave("wg2-0.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg2-1.png", plot=wg2_violin_culture_comparisons$c1_violin_comparison)
-ggsave("wg2-2.png", plot=wg2_violin_culture_comparisons$c2_violin_comparison)
-ggsave("wg3-0.png", plot=wg3_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg3-1.png", plot=wg3_violin_culture_comparisons$c1_violin_comparison)
-ggsave("wg3-2.png", plot=wg3_violin_culture_comparisons$c2_violin_comparison)
-ggsave("wg4-0.png", plot=wg4_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg4-1.png", plot=wg4_violin_culture_comparisons$c1_violin_comparison)
-ggsave("wg4-2.png", plot=wg4_violin_culture_comparisons$c2_violin_comparison)
-ggsave("wg5-0.png", plot=wg5_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg5-1.png", plot=wg5_violin_culture_comparisons$c1_violin_comparison)
-ggsave("wg5-2.png", plot=wg5_violin_culture_comparisons$c2_violin_comparison)
+ggsave("wg1_violin_jitter.png", plot=wg1_violin_culture_comparisons$c0_volin_comparison)
+ggsave("wg2_violin_jitter.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
+ggsave("wg3_violin_jitter.png", plot=wg3_violin_culture_comparisons$c0_violin_comparison)
+ggsave("wg4_violin_jitter.png", plot=wg4_violin_culture_comparisons$c0_violin_comparison)
+ggsave("wg5_violin_jitter.png", plot=wg5_violin_culture_comparisons$c0_violin_comparison)
 # Eastern
-ggsave("eg1-0.png", plot=eg1_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg1-1.png", plot=eg1_violin_culture_comparisons$c1_violin_comparison)
-ggsave("eg1-2.png", plot=eg1_violin_culture_comparisons$c2_violin_comparison)
-ggsave("eg2-0.png", plot=eg2_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg2-1.png", plot=eg2_violin_culture_comparisons$c1_violin_comparison)
-ggsave("eg2-2.png", plot=eg2_violin_culture_comparisons$c2_violin_comparison)
-ggsave("eg3-0.png", plot=eg3_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg3-1.png", plot=eg3_violin_culture_comparisons$c1_violin_comparison)
-ggsave("eg3-2.png", plot=eg3_violin_culture_comparisons$c2_violin_comparison)
-ggsave("eg4-0.png", plot=eg4_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg4-1.png", plot=eg4_violin_culture_comparisons$c1_violin_comparison)
-ggsave("eg4-2.png", plot=eg4_violin_culture_comparisons$c2_violin_comparison)
+ggsave("eg1_violin_jitter.png", plot=eg1_violin_culture_comparisons$c0_violin_comparison)
+ggsave("eg2_violin_jitter.png", plot=eg2_violin_culture_comparisons$c0_violin_comparison)
+ggsave("eg3_violin_jitter.png", plot=eg3_violin_culture_comparisons$c0_violin_comparison)
+ggsave("eg4_violin_jitter.png", plot=eg4_violin_culture_comparisons$c0_violin_comparison)
 ```
 
 ### WG1
 ```{r, out.width='50%'}
 kable(wg1_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("wg1-0.png")
 kable(wg1_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("wg1-1.png")
-kable(wg1_total_cultural_comparison_tables$c2_compariso)
-knitr::include_graphics("wg1-2.png")
+kable(wg1_total_cultural_comparison_tables$c2_comparison)
+knitr::include_graphics("wg1_violin_jitter.png")
 ```
 
 ### WG2
 ```{r, out.width='50%'}
 kable(wg2_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("wg2-0.png")
 kable(wg2_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("wg2-1.png")
 kable(wg2_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("wg2-2.png")
+knitr::include_graphics("wg2_violin_jitter.png")
 ```
 
 ### WG3
 ```{r, out.width='50%'}
 kable(wg3_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("wg3-0.png")
 kable(wg3_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("wg3-1.png")
 kable(wg3_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("wg3-2.png")
+knitr::include_graphics("wg3_violin_jitter.png")
 ```
 
 ### WG4
 ```{r, out.width='50%'}
 kable(wg4_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("wg4-0.png")
 kable(wg4_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("wg4-1.png")
 kable(wg4_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("wg4-2.png")
+knitr::include_graphics("wg4_violin_jitter.png")
 ```
 
 ### WG5
 ```{r, out.width='50%'}
 kable(wg5_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("wg5-0.png")
 kable(wg5_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("wg5-1.png")
 kable(wg5_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("wg5-2.png")
+knitr::include_graphics("wg5_violin_jitter.png")
 ```
 
 
 ### EG1
 ```{r, out.width='50%'}
 kable(eg1_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("eg1-0.png")
 kable(eg1_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("eg1-1.png")
 kable(eg1_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("eg1-2.png")
+knitr::include_graphics("eg1_violin_jitter.png")
 ```
 
 ### EG2
 ```{r, out.width='50%'}
 kable(eg2_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("eg2-0.png")
 kable(eg2_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("eg2-1.png")
 kable(eg2_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("eg2-2.png")
+knitr::include_graphics("eg2_violin_jitter.png")
 ```
 
 ### EG3
 ```{r, out.width='50%'}
 kable(eg3_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("eg3-0.png")
 kable(eg3_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("eg3-1.png")
 kable(eg3_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("eg3-2.png")
+knitr::include_graphics("eg3_violin_jitter.png")
 ```
 
 ### EG4
 ```{r eg4_violin_comparisons, out.width='50%'}
 kable(eg4_total_cultural_comparison_tables$c0_comparison)
-knitr::include_graphics("eg4-0.png")
 kable(eg4_total_cultural_comparison_tables$c1_comparison)
-knitr::include_graphics("eg4-1.png")
 kable(eg4_total_cultural_comparison_tables$c2_comparison)
-knitr::include_graphics("eg4-2.png")
+knitr::include_graphics("eg4_violin_jitter.png")
 ```
 
 
