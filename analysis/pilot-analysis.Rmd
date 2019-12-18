@@ -1287,12 +1287,10 @@ violin_prep_data_get_plot <- function(data, cond="original", gesture_name="unkno
 
 get_violin_comparisons_per_gesture <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
   c0 <- violin_prep_data_get_plot(dat, "original", gesture_name)
-  c1 <- violin_prep_data_get_plot(dat, cond1, gesture_name)
-  c2 <- violin_prep_data_get_plot(dat, cond2, gesture_name)
-  return_list <- list("c0_violin_comparison"=c0, 
-                      "c1_violin_comparison"=c1,
-                      "c2_violin_comparison"=c2)
+  return_list <- list("c0_violin_comparison"=c0)
 }
+
+t <- get_violin_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
 
 wg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
 wg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg2_total, "cond1", "cond2", "wg2")
@@ -1383,7 +1381,7 @@ WG1-0 (this name isn't here in the actual version, we just know from the naming 
 
 ```{r save everything, include=FALSE}
 # Western
-ggsave("wg1_violin_jitter.png", plot=wg1_violin_culture_comparisons$c0_volin_comparison)
+ggsave("wg1_violin_jitter.png", plot=wg1_violin_culture_comparisons$c0_violin_comparison)
 ggsave("wg2_violin_jitter.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
 ggsave("wg3_violin_jitter.png", plot=wg3_violin_culture_comparisons$c0_violin_comparison)
 ggsave("wg4_violin_jitter.png", plot=wg4_violin_culture_comparisons$c0_violin_comparison)
