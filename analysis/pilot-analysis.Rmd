@@ -1,7 +1,7 @@
 ---
-title: "XC Analysis 2019 (fixed questions)"
+title: "XC Analysis 2019"
 author: "csaund"
-date: "6/27/2019"
+date: "20/12/2019"
 output: html_document
 ---
 
@@ -1331,16 +1331,18 @@ make_table_per_gesture_condition_by_culture <- function(dat) {
   western_mean <- c()
   eastern_mean <- c()
   p <- c()
+  gs <- c()
   sig <- c()
   cons <- c()
   ## it's not tricky or pretty but it's readable so get off my back, R coding purist h8rs
-  for(co in conditions) {
-    cons <- append(cons, co)
-    for(g in groups) {
+  for(g in groups) {
+    for(co in conditions) {
+      gs <- append(gs, g)
+      cons <- append(cons, co)
       w_only <- dat %>%
-        filter(viewer_culture=="western", group==g)
+        filter(viewer_culture=="western", group==g, condition==co)
       e_only <- dat %>%
-        filter(viewer_culture=="eastern", group==g)
+        filter(viewer_culture=="eastern", group==g, condition==co)
       
       western_mean <- append(western_mean, mean(w_only$score))
       eastern_mean <- append(eastern_mean, mean(e_only$score))
@@ -1351,16 +1353,15 @@ make_table_per_gesture_condition_by_culture <- function(dat) {
     }
   }
 
-  df <- data.frame(groups, cons, western_mean, eastern_mean, p, sig)   
+  df <- data.frame(gs, cons, western_mean, eastern_mean, p, sig)   
   return(df)
 } 
 
 
 do_t_culture_groups <- function(dat, cond1="cond1", cond2="cond2", gesture_name="unknown") {
-  c0 <- make_table_per_gesture_condition_by_culture(filter(dat, condition=="original"))
-  c1 <- make_table_per_gesture_condition_by_culture(filter(dat, condition==cond1))
-  c2 <- make_table_per_gesture_condition_by_culture(filter(dat, condition==cond2))
-  
+  c0 <- make_table_per_gesture_condition_by_culture(dat)
+  c1 <- make_table_per_gesture_condition_by_culture(dat)
+  c2 <- make_table_per_gesture_condition_by_culture(dat)
   return_list <- list("c0_comparison"=c0, 
                       "c1_comparison"=c1,
                       "c2_comparison"=c2)
@@ -1400,84 +1401,67 @@ ggsave("eg4_violin_jitter.png", plot=eg4_violin_culture_comparisons$c0_violin_co
 
 ### WG1
 Original, Cond1, Cond2
+Basically, "were there significant differences between western and eastern viewers in this set of conditions?"
 ```{r wg1_violin}
-kable(wg1_total_cultural_comparison_tables$c0_comparison)
-kable(wg1_total_cultural_comparison_tables$c1_comparison)
-kable(wg1_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("wg1_violin_jitter.png")
+kable(wg1_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### WG2
 Original, Cond1, Cond2
 ```{r wg2_violin}
-kable(wg2_total_cultural_comparison_tables$c0_comparison)
-kable(wg2_total_cultural_comparison_tables$c1_comparison)
-kable(wg2_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("wg2_violin_jitter.png")
+kable(wg2_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### WG3
 Original, Cond1, Cond2
 ```{r wg3_violin}
-kable(wg3_total_cultural_comparison_tables$c0_comparison)
-kable(wg3_total_cultural_comparison_tables$c1_comparison)
-kable(wg3_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("wg3_violin_jitter.png")
+kable(wg3_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### WG4
 Original, Cond1, Cond2
 ```{r wg4_violin}
-kable(wg4_total_cultural_comparison_tables$c0_comparison)
-kable(wg4_total_cultural_comparison_tables$c1_comparison)
-kable(wg4_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("wg4_violin_jitter.png")
+kable(wg4_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### WG5
 Original, Cond1, Cond2
 ```{r wg5_violin}
-kable(wg5_total_cultural_comparison_tables$c0_comparison)
-kable(wg5_total_cultural_comparison_tables$c1_comparison)
-kable(wg5_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("wg5_violin_jitter.png")
+kable(wg5_total_cultural_comparison_tables$c0_comparison)
 ```
 
 
 ### EG1
 Original, Cond1, Cond2
 ```{r eg1_violin}
-kable(eg1_total_cultural_comparison_tables$c0_comparison)
-kable(eg1_total_cultural_comparison_tables$c1_comparison)
-kable(eg1_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("eg1_violin_jitter.png")
+kable(eg1_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### EG2
 Original, Cond1, Cond2
 ```{r eg2_violin}
-kable(eg2_total_cultural_comparison_tables$c0_comparison)
-kable(eg2_total_cultural_comparison_tables$c1_comparison)
-kable(eg2_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("eg2_violin_jitter.png")
+kable(eg2_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### EG3
 Original, Cond1, Cond2
 ```{r eg3_violin}
-kable(eg3_total_cultural_comparison_tables$c0_comparison)
-kable(eg3_total_cultural_comparison_tables$c1_comparison)
-kable(eg3_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("eg3_violin_jitter.png")
+kable(eg3_total_cultural_comparison_tables$c0_comparison)
 ```
 
 ### EG4
 Original, Cond1, Cond2
 ```{r eg4_violin}
-kable(eg4_total_cultural_comparison_tables$c0_comparison)
-kable(eg4_total_cultural_comparison_tables$c1_comparison)
-kable(eg4_total_cultural_comparison_tables$c2_comparison)
 knitr::include_graphics("eg4_violin_jitter.png")
+kable(eg4_total_cultural_comparison_tables$c0_comparison)
 ```
 
 
@@ -1577,7 +1561,7 @@ make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
 ```{r shitshow_of_bucketing_cultural_data}
 bucket_culture_scores <- function(dat) {
   d <- dat %>%
-    mutate(score_bucket = ifelse(score >= 6, "ahigh", ifelse(score <= 2, "clow", "bmedium")))
+    mutate(score_bucket = ifelse(score >= 5, "ahigh", ifelse(score <= 3, "clow", "bmedium")))
   return(d)
 }
 
@@ -1670,7 +1654,7 @@ eg3_comp <- create_bucketed_bar_chart(eg3_total, "EG3")
 eg4_comp <- create_bucketed_bar_chart(eg4_total, "EG4")
 
 
-get_summary_stats <- function(dat) {
+get_summary_stats <- function(dat) {?pwr.anova.test
   t <- get_bucketed_data(dat) %>%
     select(group, condition, viewer_culture, score_bucket, count_bucket) %>%
     group_by(condition, group, viewer_culture) %>%
@@ -1712,6 +1696,9 @@ test_bucketed_significance <- function(dat) {
   adjusted_med_comp <- c()
   low_comp <- c()
   adjusted_low_comp <- c()
+  western_avg <- c()
+  eastern_avg <- c()
+  higher <- c()
   groups <- c("certainty", "conflict", "control", "unity", "openness", "size")
   cs <- c("cond1", "cond2", "original")
   c1 <- dat %>%
@@ -1730,6 +1717,13 @@ test_bucketed_significance <- function(dat) {
         filter(viewer_culture=="western")
       e <- g_dat %>%
         filter(viewer_culture=="eastern")
+      western_avg <- list.append(western_avg, w$avg)
+      eastern_avg <- list.append(eastern_avg, e$avg)
+      cult <- "eastern"
+      if(w$avg > e$avg) {
+        cult <- "western"
+      }
+      higher <- list.append(higher, cult)
       wsum <- w$ahigh + w$bmedium + w$clow
       esum <- e$ahigh + e$bmedium + e$clow
       z.test.high <- prop.test(x=c(w$ahigh, e$ahigh), n=c(wsum, esum))
@@ -1745,7 +1739,7 @@ test_bucketed_significance <- function(dat) {
       adjusted_low_comp <- list.append(adjusted_low_comp, get_sig(p.adjust(z.test.low$p.value, method="bonferroni", n=3)))
     } 
   }
-  df <- data.frame(condition, group, high_comp, adjusted_high_comp, med_comp, adjusted_med_comp, low_comp, adjusted_low_comp) %>%
+  df <- data.frame(condition, group, high_comp, adjusted_high_comp, med_comp, adjusted_med_comp, low_comp, adjusted_low_comp, western_avg, eastern_avg, higher) %>%
     group_by(group)
   return(df)
 }
@@ -1979,4 +1973,59 @@ kable(eg4_difference_table)
 kable(eg4_summary_stats)
 ```
 
+
+### X-Culture Scale Corrections
+So for all of this, we are definitely using *parceling*, which is the process of combining individual scores to produce a new score (we combine two survey questions to form the category groups we analyze).
+
+*Ipsatization* is the process of taking the mean of individual's response for every question, and subtracting it from all of their responses, then using that dataset as that individual's response. This doesn't necessarily work for us because we specifically observe "extreme" responses -- our Western participants rated things both higher and lower than eastern, whereas eastern stayed towards the mean. This means that this will probably not affect our results so much... but might be worth a try anyways? 
+
+Otherwise, we could try *GRS construction and correction*. 
+
+First let's measure the extent to which we're experiencing ARS/ERS. 
+```{r}
+all_w_dat <- rbind(wg1_total, wg2_total, wg3_total, wg4_total, wg5_total)
+all_e_dat <- rbind(eg1_total, eg2_total, eg3_total, eg4_total)
+all_dat <- rbind(all_w_dat, all_e_dat)
+
+all_w_viewer_dat <- all_dat %>%
+  filter(viewer_culture == "western")
+
+all_e_viewer_dat <- all_dat %>%
+  filter(viewer_culture == "eastern")
+
+num_w_high_responses <- nrow(filter(all_w_viewer_dat, score==7))
+num_w_med_responses <- nrow(filter(all_w_viewer_dat, score==4))
+num_w_low_responses <- nrow(filter(all_w_viewer_dat, score==1))
+num_e_high_responses <- nrow(filter(all_e_viewer_dat, score==7))
+num_e_med_responses <- nrow(filter(all_e_viewer_dat, score==4))
+num_e_low_responses <- nrow(filter(all_e_viewer_dat, score==1))
+
+prop_w_high <- num_w_high_responses / nrow(all_w_viewer_dat)
+prop_w_med <- num_w_med_responses / nrow(all_w_viewer_dat)
+prop_w_low <- num_w_low_responses / nrow(all_w_viewer_dat)
+prop_e_high <- num_e_high_responses / nrow(all_e_viewer_dat)
+prop_e_med <- num_e_med_responses / nrow(all_e_viewer_dat)
+prop_e_low <- num_e_low_responses / nrow(all_e_viewer_dat)
+
+w_exp <- 1/7
+e_exp <- 1/7
+
+w_stdev <- summarise(all_w_viewer_dat, std = sd(score))[[1]]
+e_stdev <- summarise(all_e_viewer_dat, std = sd(score))[[1]]
 ```
+Interestingly, we find a narrow range of responses for *both* western and eastern viewers (stdev=1.69 and 1.54 respectively). Both have significantly higher proportation of mid-scale responses (W=21.4%, E=25.3%) than expected.
+
+However this still leaves open the possibility of within-subject correction... but that still doesn't necessarily capture what we want to know. We're specifically testing for cross-cultural differences, so correcting based on the mean doesn't work, and stdevs aren't sig diff. Therefore, it's reasonable to assume the differences we observe are due to true differences in the cultural interpretations of these gestures.
+
+### Random questions
+Q: Are westerners more likely overall to interpret conflict? 
+```{r}
+w_group_avg <- all_w_viewer_dat %>%
+  group_by(group) %>%
+  summarise(avg=mean(score))
+
+e_group_avg <- all_e_viewer_dat %>%
+  group_by(group) %>%
+  summarise(avg=mean(score))
+```
+A: No. Actually, western avg for conflict = 3.94, whereas eastern = 3.97.
