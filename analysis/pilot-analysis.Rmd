@@ -1626,9 +1626,12 @@ get_bucketed_data <- function(dat) {
 
 create_bucketed_bar_chart <- function(dat, gest) {
   d <- get_bucketed_data(dat)
+  test_comparisons <- list(c("ahigh_eastern","ahigh_western"),c("bmedium_eastern", "bmedium_western"),c("clow_eastern", "clow_western"))
   p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
     geom_bar(stat="identity",position="dodge")+
-    scale_fill_manual("legend", values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
+    scale_fill_manual("Viewer Culture Score Bucket", 
+                      labels=c("Eastern 5-7", "Western 5-7", "Eastern 4", "Western 4", "Eastern 1-3", "Western 1-3"),
+                      values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
                                          "bmedium_eastern" = "steelblue2",
                                          "clow_eastern" = "palevioletred2",
                                          "ahigh_western" = "palegreen4", # steelblue1, 3, 4
@@ -1636,11 +1639,35 @@ create_bucketed_bar_chart <- function(dat, gest) {
                                          "clow_western" = "palevioletred4")) +
     xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
     ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+    theme(text=element_text(size=12, 
+                            family="serif")) + 
     facet_wrap("group")
   return(p)
 }
 
-t2 <- get_bucketed_data(eg2_total)
+
+### GOING OFF THE RAILS OF THE CRAZY TRAIN BABY
+create_bucketed_bar_chart_INVERSE <- function(dat, gest) {
+  d <- get_bucketed_data(dat)
+  test_comparisons <- list(c("ahigh_eastern","ahigh_western"),c("bmedium_eastern", "bmedium_western"),c("clow_eastern", "clow_western"))
+  p <- ggplot(d,aes(x=group,y=bucket_percent,fill=factor(culture_bucket)))+
+    geom_bar(stat="identity",position="dodge")+
+    stat_compare_means(comparisons = test_comparisons, label = "p.signif", method="kruskal.test") +
+    scale_fill_manual(values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
+                                         "bmedium_eastern" = "steelblue2",
+                                         "clow_eastern" = "palevioletred2",
+                                         "ahigh_western" = "palegreen4", # steelblue1, 3, 4
+                                         "bmedium_western" = "steelblue4",
+                                         "clow_western" = "palevioletred4")) +
+    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
+    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+    theme(text=element_text(size=12, 
+                            family="serif")) + 
+    facet_wrap("condition")
+  return(p)
+}
+t <- create_bucketed_bar_chart_INVERSE(wg1_total, "WG1")
+###
 
 wg1_comp <- create_bucketed_bar_chart(wg1_total, "WG1")
 wg2_comp <- create_bucketed_bar_chart(wg2_total, "WG2")
@@ -1696,6 +1723,12 @@ test_bucketed_significance <- function(dat) {
   adjusted_med_comp <- c()
   low_comp <- c()
   adjusted_low_comp <- c()
+  w_high <- c()
+  e_high <- c()
+  w_med <- c()
+  e_med <- c()
+  w_low <- c()
+  e_low <- c()
   western_avg <- c()
   eastern_avg <- c()
   higher <- c()
@@ -1723,6 +1756,12 @@ test_bucketed_significance <- function(dat) {
       if(w$avg > e$avg) {
         cult <- "western"
       }
+      w_high <- list.append(w_high, w$ahigh)
+      e_high <- list.append(e_high, e$ahigh)
+      w_med <- list.append(w_med, w$bmedium)
+      e_med <- list.append(e_med, e$bmedium)
+      w_low <- list.append(w_low, w$clow)
+      e_low <- list.append(e_low, e$clow)
       higher <- list.append(higher, cult)
       wsum <- w$ahigh + w$bmedium + w$clow
       esum <- e$ahigh + e$bmedium + e$clow
@@ -1739,7 +1778,7 @@ test_bucketed_significance <- function(dat) {
       adjusted_low_comp <- list.append(adjusted_low_comp, get_sig(p.adjust(z.test.low$p.value, method="bonferroni", n=3)))
     } 
   }
-  df <- data.frame(condition, group, high_comp, adjusted_high_comp, med_comp, adjusted_med_comp, low_comp, adjusted_low_comp, western_avg, eastern_avg, higher) %>%
+  df <- data.frame(condition, group, high_comp, adjusted_high_comp, med_comp, adjusted_med_comp, low_comp, adjusted_low_comp, w_high, e_high, w_med, e_med, w_low, e_low) %>%
     group_by(group)
   return(df)
 }
@@ -1778,7 +1817,6 @@ knitr::include_graphics("../gesture_imgs/wg1-2.png")
 ggsave("wg1-barcomp.png", plot=wg1_comp)
 knitr::include_graphics("wg1-barcomp.png")
 kable(wg1_difference_table)
-kable(wg1_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg2-0.png")
 knitr::include_graphics("../gesture_imgs/wg2-1.png")
@@ -1786,7 +1824,6 @@ knitr::include_graphics("../gesture_imgs/wg2-2.png")
 ggsave("wg2-barcomp.png", plot=wg2_comp)
 knitr::include_graphics("wg2-barcomp.png")
 kable(wg2_difference_table)
-kable(wg2_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg3-0.png")
 knitr::include_graphics("../gesture_imgs/wg3-1.png")
@@ -1794,7 +1831,6 @@ knitr::include_graphics("../gesture_imgs/wg3-2.png")
 ggsave("wg3-barcomp.png", plot=wg3_comp)
 knitr::include_graphics("wg3-barcomp.png")
 kable(wg3_difference_table)
-kable(wg3_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg4-0.png")
 knitr::include_graphics("../gesture_imgs/wg4-1.png")
@@ -1802,7 +1838,6 @@ knitr::include_graphics("../gesture_imgs/wg4-2.png")
 ggsave("wg4-barcomp.png", plot=wg4_comp)
 knitr::include_graphics("wg4-barcomp.png")
 kable(wg4_difference_table)
-kable(wg4_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg5-0.png")
 knitr::include_graphics("../gesture_imgs/wg5-1.png")
@@ -1810,7 +1845,6 @@ knitr::include_graphics("../gesture_imgs/wg5-2.png")
 ggsave("wg5-barcomp.png", plot=wg5_comp)
 knitr::include_graphics("wg5-barcomp.png")
 kable(wg5_difference_table)
-kable(wg5_summary_stats)
 
 ## EAST
 knitr::include_graphics("../gesture_imgs/eg1-0.png")
@@ -1819,7 +1853,6 @@ knitr::include_graphics("../gesture_imgs/eg1-2.png")
 ggsave("eg1-barcomp.png", plot=eg1_comp)
 knitr::include_graphics("eg1-barcomp.png")
 kable(eg1_difference_table)
-kable(eg1_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/eg2-0.png")
 knitr::include_graphics("../gesture_imgs/eg2-1.png")
@@ -1827,7 +1860,6 @@ knitr::include_graphics("../gesture_imgs/eg2-2.png")
 ggsave("eg2-barcomp.png", plot=eg2_comp)
 knitr::include_graphics("eg2-barcomp.png")
 kable(eg2_difference_table)
-kable(eg2_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/eg3-0.png")
 knitr::include_graphics("../gesture_imgs/eg3-1.png")
@@ -1835,7 +1867,6 @@ knitr::include_graphics("../gesture_imgs/eg3-2.png")
 ggsave("eg3-barcomp.png", plot=eg3_comp)
 knitr::include_graphics("eg3-barcomp.png")
 kable(eg3_difference_table)
-kable(eg3_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/eg4-0.png")
 knitr::include_graphics("../gesture_imgs/eg4-1.png")
@@ -1843,7 +1874,6 @@ knitr::include_graphics("../gesture_imgs/eg4-2.png")
 ggsave("eg4-barcomp.png", plot=eg4_comp)
 knitr::include_graphics("eg4-barcomp.png")
 kable(eg4_difference_table)
-kable(eg4_summary_stats)
 ```
 
 
