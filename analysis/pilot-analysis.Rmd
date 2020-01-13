@@ -492,7 +492,9 @@ plot_diff_matrix <- function(matrix, low_col, high_col, mid_col, title) {
     theme_minimal() +
     coord_fixed() +
     theme_bw() +
-    theme(axis.text.x=element_text(angle=90),
+    theme(text=element_text(size=12, 
+                            family="serif"),
+        axis.text.x=element_text(angle=90),
         axis.ticks=element_blank(),
         axis.line=element_blank(),
         panel.border=element_blank(),
@@ -634,70 +636,78 @@ all_wg3_data <- do_the_thing(wg3.0.w, wg3.1.w, wg3.2.w)
 all_wg4_data <- do_the_thing(wg4.0.w, wg4.1.w, wg4.2.w)
 all_wg5_data <- do_the_thing(wg5.0.w, wg5.1.w, wg5.2.w)
 
-all_western_correlational_data.w <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.w), 
-                                                        create_difference_matrix(wg1.1.w), 
-                                                        create_difference_matrix(wg1.2.w),
-                                                        create_difference_matrix(wg2.0.w), 
-                                                        create_difference_matrix(wg2.1.w), 
-                                                        create_difference_matrix(wg2.2.w),
-                                                        create_difference_matrix(wg4.0.w), 
-                                                        create_difference_matrix(wg4.1.w), 
-                                                        create_difference_matrix(wg4.2.w),
-                                                        create_difference_matrix(wg5.0.w), 
-                                                        create_difference_matrix(wg5.1.w),
-                                                        create_difference_matrix(wg5.2.w),
-                                                        create_difference_matrix(wg3.0.w), 
-                                                        create_difference_matrix(wg3.1.w), 
-                                                        create_difference_matrix(wg3.2.w)), 
+w_gests_correlational.w <- rbind(create_difference_matrix(wg1.0.w), 
+                            create_difference_matrix(wg1.1.w), 
+                            create_difference_matrix(wg1.2.w),
+                            create_difference_matrix(wg2.0.w), 
+                            create_difference_matrix(wg2.1.w), 
+                            create_difference_matrix(wg2.2.w),
+                            create_difference_matrix(wg4.0.w), 
+                            create_difference_matrix(wg4.1.w), 
+                            create_difference_matrix(wg4.2.w),
+                            create_difference_matrix(wg5.0.w), 
+                            create_difference_matrix(wg5.1.w),
+                            create_difference_matrix(wg5.2.w),
+                            create_difference_matrix(wg3.0.w), 
+                            create_difference_matrix(wg3.1.w), 
+                            create_difference_matrix(wg3.2.w))
+
+w_gests_correlational.e <- rbind(create_difference_matrix(wg1.0.e), 
+                            create_difference_matrix(wg1.1.e), 
+                            create_difference_matrix(wg1.2.e),
+                            create_difference_matrix(wg2.0.e), 
+                            create_difference_matrix(wg2.1.e), 
+                            create_difference_matrix(wg2.2.e),
+                            create_difference_matrix(wg4.0.e), 
+                            create_difference_matrix(wg4.1.e), 
+                            create_difference_matrix(wg4.2.e),
+                            create_difference_matrix(wg5.0.e), 
+                            create_difference_matrix(wg5.1.e),
+                            create_difference_matrix(wg5.2.e),
+                            create_difference_matrix(wg3.0.e), 
+                            create_difference_matrix(wg3.1.e), 
+                            create_difference_matrix(wg3.2.e))
+
+e_gests_correlational.w <- rbind(create_difference_matrix(eg1.0.w),
+                            create_difference_matrix(eg1.1.w),
+                            create_difference_matrix(eg1.2.w),
+                            create_difference_matrix(eg2.0.w),
+                            create_difference_matrix(eg2.1.w),
+                            create_difference_matrix(eg2.2.w),
+                            create_difference_matrix(eg4.0.w),
+                            create_difference_matrix(eg4.1.w),
+                            create_difference_matrix(eg4.2.w),
+                            create_difference_matrix(eg3.0.w),
+                            create_difference_matrix(eg3.1.w),
+                            create_difference_matrix(eg3.2.w))
+
+e_gests_correlational.e <- rbind(create_difference_matrix(eg1.0.e),
+                            create_difference_matrix(eg1.1.e),
+                            create_difference_matrix(eg1.2.e),
+                            create_difference_matrix(eg2.0.e),
+                            create_difference_matrix(eg2.1.e),
+                            create_difference_matrix(eg2.2.e),
+                            create_difference_matrix(eg4.0.e),
+                            create_difference_matrix(eg4.1.e),
+                            create_difference_matrix(eg4.2.e),
+                            create_difference_matrix(eg3.0.e),
+                            create_difference_matrix(eg3.1.e),
+                            create_difference_matrix(eg3.2.e))
+
+
+all_western_correlational_data.w <- plot_diff_matrix_pretty(w_gests_correlational.w, 
     "Correlation of questions across all gesture conditions for western participants")
 
-
-all_western_correlational_data.e <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg1.0.e), 
-                                                        create_difference_matrix(wg1.1.e), 
-                                                        create_difference_matrix(wg1.2.e),
-                                                        create_difference_matrix(wg2.0.e), 
-                                                        create_difference_matrix(wg2.1.e), 
-                                                        create_difference_matrix(wg2.2.e),
-                                                        create_difference_matrix(wg4.0.e), 
-                                                        create_difference_matrix(wg4.1.e), 
-                                                        create_difference_matrix(wg4.2.e),
-                                                        create_difference_matrix(wg5.0.e), 
-                                                        create_difference_matrix(wg5.1.e),
-                                                        create_difference_matrix(wg5.2.e),
-                                                        create_difference_matrix(wg3.0.e), 
-                                                        create_difference_matrix(wg3.1.e), 
-                                                        create_difference_matrix(wg3.2.e)), 
+all_western_correlational_data.e <- plot_diff_matrix_pretty(w_gests_correlational.e, 
     "Correlation of questions across all gesture conditions for western participants") 
 
 
-all_eastern_correlational_data.w <- plot_diff_matrix_pretty(rbind(create_difference_matrix(eg1.0.w), 
-                                                        create_difference_matrix(eg1.1.w), 
-                                                        create_difference_matrix(eg1.2.w),
-                                                        create_difference_matrix(eg2.0.w), 
-                                                        create_difference_matrix(eg2.1.w), 
-                                                        create_difference_matrix(eg2.2.w),
-                                                        create_difference_matrix(eg4.0.w), 
-                                                        create_difference_matrix(eg4.1.w), 
-                                                        create_difference_matrix(eg4.2.w),
-                                                        create_difference_matrix(eg3.0.w), 
-                                                        create_difference_matrix(eg3.1.w), 
-                                                        create_difference_matrix(eg3.2.w)), 
+all_eastern_correlational_data.w <- plot_diff_matrix_pretty(e_gests_correlational.w, 
     "Correlation of questions across all gesture conditions for western participants")
 
 
-all_eastern_correlational_data.e <- plot_diff_matrix_pretty(rbind(create_difference_matrix(eg1.0.e), 
-                                                        create_difference_matrix(eg1.1.e), 
-                                                        create_difference_matrix(eg1.2.e),
-                                                        create_difference_matrix(eg2.0.e), 
-                                                        create_difference_matrix(eg2.1.e), 
-                                                        create_difference_matrix(eg2.2.e),
-                                                        create_difference_matrix(eg4.0.e), 
-                                                        create_difference_matrix(eg4.1.e), 
-                                                        create_difference_matrix(eg4.2.e),
-                                                        create_difference_matrix(eg3.0.e), 
-                                                        create_difference_matrix(eg3.1.e), 
-                                                        create_difference_matrix(eg3.2.e)), 
-    "Correlation of questions across all gesture conditions for western participants") 
+all_eastern_correlational_data.e <- plot_diff_matrix_pretty(e_gests_correlational.e, 
+    "Correlation of questions across all gesture conditions for eastern participants") 
 
 
 
@@ -714,8 +724,11 @@ ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg
 Western Gestures, Western/Eastern Participants
 
 ```{r display_correlational_data, out.width='50%'}
-all_western_correlational_data.w
-all_western_correlational_data.e
+grid.arrange(all_western_correlational_data.w,
+             all_western_correlational_data.e)
+
+corr_list <- c(all_western_correlational_data.w)
+ggsave("question_correlations.png")
 ```
 
 Eastern Gestures, Western/Eastern Participants
@@ -1647,26 +1660,26 @@ create_bucketed_bar_chart <- function(dat, gest) {
 
 
 ### GOING OFF THE RAILS OF THE CRAZY TRAIN BABY
-create_bucketed_bar_chart_INVERSE <- function(dat, gest) {
-  d <- get_bucketed_data(dat)
-  test_comparisons <- list(c("ahigh_eastern","ahigh_western"),c("bmedium_eastern", "bmedium_western"),c("clow_eastern", "clow_western"))
-  p <- ggplot(d,aes(x=group,y=bucket_percent,fill=factor(culture_bucket)))+
-    geom_bar(stat="identity",position="dodge")+
-    stat_compare_means(comparisons = test_comparisons, label = "p.signif", method="kruskal.test") +
-    scale_fill_manual(values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
-                                         "bmedium_eastern" = "steelblue2",
-                                         "clow_eastern" = "palevioletred2",
-                                         "ahigh_western" = "palegreen4", # steelblue1, 3, 4
-                                         "bmedium_western" = "steelblue4",
-                                         "clow_western" = "palevioletred4")) +
-    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
-    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
-    theme(text=element_text(size=12, 
-                            family="serif")) + 
-    facet_wrap("condition")
-  return(p)
-}
-t <- create_bucketed_bar_chart_INVERSE(wg1_total, "WG1")
+# create_bucketed_bar_chart_INVERSE <- function(dat, gest) {
+#   d <- get_bucketed_data(dat)
+#   test_comparisons <- list(c("ahigh_eastern","ahigh_western"),c("bmedium_eastern", "bmedium_western"),c("clow_eastern", # "clow_western"))
+#   p <- ggplot(d,aes(x=group,y=bucket_percent,fill=factor(culture_bucket)))+
+#     geom_bar(stat="identity",position="dodge")+
+#     stat_compare_means(comparisons = test_comparisons, label = "p.signif", method="kruskal.test") +
+#     scale_fill_manual(values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
+#                                          "bmedium_eastern" = "steelblue2",
+#                                          "clow_eastern" = "palevioletred2",
+#                                          "ahigh_western" = "palegreen4", # steelblue1, 3, 4
+#                                          "bmedium_western" = "steelblue4",
+#                                          "clow_western" = "palevioletred4")) +
+#     xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
+#     ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+#     theme(text=element_text(size=12, 
+#                             family="serif")) + 
+#     facet_wrap("condition")
+#   return(p)
+# }
+# t <- create_bucketed_bar_chart_INVERSE(wg1_total, "WG1")
 ###
 
 wg1_comp <- create_bucketed_bar_chart(wg1_total, "WG1")
@@ -1935,7 +1948,6 @@ knitr::include_graphics("../gesture_imgs/wg1-2.png")
 ggsave("wg1-barcomp.png", plot=wg1_comp)
 knitr::include_graphics("wg1-barcomp.png")
 kable(wg1_difference_table)
-kable(wg1_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg2-0.png")
 knitr::include_graphics("../gesture_imgs/wg2-1.png")
@@ -1943,7 +1955,6 @@ knitr::include_graphics("../gesture_imgs/wg2-2.png")
 ggsave("wg2-barcomp.png", plot=wg2_comp)
 knitr::include_graphics("wg2-barcomp.png")
 kable(wg2_difference_table)
-kable(wg2_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg3-0.png")
 knitr::include_graphics("../gesture_imgs/wg3-1.png")
@@ -1951,7 +1962,6 @@ knitr::include_graphics("../gesture_imgs/wg3-2.png")
 ggsave("wg3-barcomp.png", plot=wg3_comp)
 knitr::include_graphics("wg3-barcomp.png")
 kable(wg3_difference_table)
-kable(wg3_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg4-0.png")
 knitr::include_graphics("../gesture_imgs/wg4-1.png")
@@ -1959,7 +1969,6 @@ knitr::include_graphics("../gesture_imgs/wg4-2.png")
 ggsave("wg4-barcomp.png", plot=wg4_comp)
 knitr::include_graphics("wg4-barcomp.png")
 kable(wg4_difference_table)
-kable(wg4_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/wg5-0.png")
 knitr::include_graphics("../gesture_imgs/wg5-1.png")
@@ -1967,7 +1976,6 @@ knitr::include_graphics("../gesture_imgs/wg5-2.png")
 ggsave("wg5-barcomp.png", plot=wg5_comp)
 knitr::include_graphics("wg5-barcomp.png")
 kable(wg5_difference_table)
-kable(wg5_summary_stats)
 
 ## EAST
 knitr::include_graphics("../gesture_imgs/eg1-0.png")
@@ -1976,7 +1984,6 @@ knitr::include_graphics("../gesture_imgs/eg1-2.png")
 ggsave("eg1-barcomp.png", plot=eg1_comp)
 knitr::include_graphics("eg1-barcomp.png")
 kable(eg1_difference_table)
-kable(eg1_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/eg2-0.png")
 knitr::include_graphics("../gesture_imgs/eg2-1.png")
@@ -1984,7 +1991,6 @@ knitr::include_graphics("../gesture_imgs/eg2-2.png")
 ggsave("eg2-barcomp.png", plot=eg2_comp)
 knitr::include_graphics("eg2-barcomp.png")
 kable(eg2_difference_table)
-kable(eg2_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/eg3-0.png")
 knitr::include_graphics("../gesture_imgs/eg3-1.png")
@@ -1992,7 +1998,6 @@ knitr::include_graphics("../gesture_imgs/eg3-2.png")
 ggsave("eg3-barcomp.png", plot=eg3_comp)
 knitr::include_graphics("eg3-barcomp.png")
 kable(eg3_difference_table)
-kable(eg3_summary_stats)
 
 knitr::include_graphics("../gesture_imgs/eg4-0.png")
 knitr::include_graphics("../gesture_imgs/eg4-1.png")
@@ -2000,7 +2005,6 @@ knitr::include_graphics("../gesture_imgs/eg4-2.png")
 ggsave("eg4-barcomp.png", plot=eg4_comp)
 knitr::include_graphics("eg4-barcomp.png")
 kable(eg4_difference_table)
-kable(eg4_summary_stats)
 ```
 
 
@@ -2059,3 +2063,281 @@ e_group_avg <- all_e_viewer_dat %>%
   summarise(avg=mean(score))
 ```
 A: No. Actually, western avg for conflict = 3.94, whereas eastern = 3.97.
+
+Q: In what categories did the differences occur? 
+```{r}
+count_all_differences <- function(dat){
+  diffs_only <- dat %>%
+    group_by(group) %>%
+    summarise(sig_high_diffs=sum(adjusted_high_comp!=""), sig_med_diffs=sum(adjusted_med_comp!=""), 
+              sig_low_diffs=sum(adjusted_low_comp!="")) %>%
+    mutate(total=rowSums(.[2:4]))
+  return(diffs_only)
+}
+
+all_diff_tables <- rbind(wg1_difference_table, wg2_difference_table, wg3_difference_table, wg4_difference_table, 
+                         wg5_difference_table, eg1_difference_table, eg2_difference_table, eg3_difference_table,
+                         eg4_difference_table)
+
+diff_counts <- count_all_differences(all_diff_tables)
+kable(diff_counts)
+```
+A: `{r}diff_counts`
+
+Q: Did one cultural gesture result in more differences than the other?
+```{r}
+all_w_diffs <- rbind(wg1_difference_table, wg2_difference_table, wg3_difference_table, wg4_difference_table, 
+                         wg5_difference_table) 
+all_e_diffs <- rbind(eg1_difference_table, eg2_difference_table, eg3_difference_table, eg4_difference_table)
+
+total_w_diffs <- count_all_differences(all_w_diffs)
+total_e_diffs <- count_all_differences(all_e_diffs)
+
+```
+total differences in W gestures: `{r}sum(total_w_diffs$total)`
+total differences in E gestures: `{r}sum(total_e_diffs$total)`
+
+Q: But who was higher? 
+```{r}
+wg1j <- left_join(wg1_difference_table, wg1_summary_stats, by=c("condition" = "condition", "group" = "group"))
+wg2j <- left_join(wg2_difference_table, wg2_summary_stats, by=c("condition" = "condition", "group" = "group"))
+wg3j <- left_join(wg3_difference_table, wg3_summary_stats, by=c("condition" = "condition", "group" = "group"))
+wg4j <- left_join(wg4_difference_table, wg4_summary_stats, by=c("condition" = "condition", "group" = "group"))
+wg5j <- left_join(wg5_difference_table, wg5_summary_stats, by=c("condition" = "condition", "group" = "group"))
+eg1j <- left_join(eg1_difference_table, eg1_summary_stats, by=c("condition" = "condition", "group" = "group"))
+eg2j <- left_join(eg2_difference_table, eg2_summary_stats, by=c("condition" = "condition", "group" = "group"))
+eg3j <- left_join(eg3_difference_table, eg3_summary_stats, by=c("condition" = "condition", "group" = "group"))
+eg4j <- left_join(eg4_difference_table, eg4_summary_stats, by=c("condition" = "condition", "group" = "group"))
+
+j <- rbind(wg1j,
+           wg2j,
+           wg3j,
+           wg4j,
+           wg5j,
+           eg1j,
+           eg2j,
+           eg3j,
+           eg4j)
+toDelete <- seq(0, nrow(j), 2)
+toDelete
+n <-  j[-toDelete, ]
+
+diffs_only <- n %>%
+  filter((nchar(as.character(adjusted_high_comp)) + 
+         nchar(as.character(adjusted_low_comp)) + 
+         nchar(as.character(adjusted_med_comp))) != 0)
+
+c <- diffs_only %>%
+  group_by(group) %>%
+  summarise(w_high_culture=sum(higher=="western"), e_high_culture=sum(higher=="eastern"))
+
+# cert <- diffs_only %>%
+  filter(group=="certainty")
+```
+tbh I didn't figure out how to automate, just did this and counted by hand
+
+this doesn't make any sense though -- our western viewers are always higher than our eastern basically, but they don't show significant ARS or ERS... 
+
+I guess I'll try normalizing results anyway?
+```{r}
+t <- wg1_total %>%
+  filter(viewer_culture == "western") %>%
+  group_by(group)
+
+unchanged <- t %>%
+  summarise(mean=mean(score), sd=sd(score))
+```
+
+general distributions
+```{r}
+compare_dists <- function(d1, d2, gesture="") {
+  w <- d1 %>%
+    summarise('1'=sum(score==1), '2'=sum(score==2), '3'=sum(score==3), 
+              '4'=sum(score==4), '5'=sum(score==5), '6'=sum(score==6), '7'=sum(score==7)) %>%
+    gather("score_cat", "count", 1:7) %>%
+    mutate(viewer_culture="western") 
+  
+  
+  e <- d2 %>%
+    summarise('1'=sum(score==1), '2'=sum(score==2), '3'=sum(score==3), 
+              '4'=sum(score==4), '5'=sum(score==5), '6'=sum(score==6), '7'=sum(score==7)) %>%
+    gather("score_cat", "count", 1:7) %>%
+    mutate(viewer_culture="eastern")
+  
+  difference <- w$count - e$count
+  diff_df <- data.frame(score_cat=seq(1,7), count=difference, viewer_culture="difference")
+  wed <- rbind(w,e,diff_df) 
+    
+  g <- ggplot(wed, aes(x=score_cat, y=count, fill=viewer_culture)) + 
+    geom_bar(stat="identity", position="dodge") + 
+    ggtitle(paste("Overall Score Distributions ", gesture)) +
+    theme(text=element_text(size=12, family="serif")) +
+    scale_fill_manual("Viewer Culture", 
+                  labels=c("Difference", "Eastern", "Western"),
+                  values=c("eastern" = "palegreen3",  # rosybrown1, 3, 4
+                           "western" = "steelblue2",
+                           "difference" = "palevioletred2")) +
+    labs(x="Score", y="Score Frequency")
+  
+  return(g)
+}
+
+overall_distribution <- compare_dists(all_w_dat, all_e_dat) 
+ggsave("overall_distribution.png", overall_distribution)
+```
+So yeah, the overal general distribution of scores is basically the same... Furthermore, the difference should be a uniform distribution... and it is. 
+
+Maybe break it down by gestures?
+```{r}
+get_comparable_data <- function(dat, g_name) {
+  wdat <- dat %>% 
+    filter(viewer_culture=="western") %>%
+    mutate(gesture=g_name)
+  edat <- dat %>% 
+    filter(viewer_culture=="eastern") %>%
+    mutate(gesture=g_name)
+  
+  out <- list()
+  out$w <- wdat
+  out$e <- edat
+  return(out)
+}
+
+wg1_compdat <- get_comparable_data(wg1_total, "wg1")
+wg2_compdat <- get_comparable_data(wg2_total, "wg2")
+wg3_compdat <- get_comparable_data(wg3_total, "wg3")
+wg4_compdat <- get_comparable_data(wg4_total, "wg4")
+wg5_compdat <- get_comparable_data(wg5_total, "wg5")
+
+eg1_compdat <- get_comparable_data(eg1_total, "eg1")
+eg2_compdat <- get_comparable_data(eg2_total, "eg2")
+eg3_compdat <- get_comparable_data(eg3_total, "eg3")
+eg4_compdat <- get_comparable_data(eg4_total, "eg4")
+
+wg1_dist_plot <- compare_dists(wg1_compdat$w, wg1_compdat$e, "wg1")
+wg2_dist_plot <- compare_dists(wg2_compdat$w, wg2_compdat$e, "wg2")
+wg3_dist_plot <- compare_dists(wg3_compdat$w, wg3_compdat$e, "wg3")
+wg4_dist_plot <- compare_dists(wg4_compdat$w, wg4_compdat$e, "wg4")
+wg5_dist_plot <- compare_dists(wg5_compdat$w, wg5_compdat$e, "wg5")
+
+eg1_dist_plot <- compare_dists(eg1_compdat$w, eg1_compdat$e, "eg1")
+eg2_dist_plot <- compare_dists(eg2_compdat$w, eg2_compdat$e, "eg2")
+eg3_dist_plot <- compare_dists(eg3_compdat$w, eg3_compdat$e, "eg3")
+eg4_dist_plot <- compare_dists(eg4_compdat$w, eg4_compdat$e, "eg4")
+
+grid.arrange(wg1_dist_plot, 
+             wg2_dist_plot, 
+             wg3_dist_plot, 
+             wg4_dist_plot,
+             eg1_dist_plot, 
+             eg2_dist_plot,
+             eg3_dist_plot,
+             eg4_dist_plot)
+```
+
+I see....... it could be the case that although overall averages are the same, the gestures in which eastern folks had interpretations were fewer? 
+
+It's a real pain in the keister to look at each individual distribution, and frankly I don't think that'll help us much. What I'm more interested in is the overall pattern.
+
+### Within-culture differences
+Q: did our manipulations result in sig diffs within cultures? 
+```{r}
+create_bucketed_bar_chart_western_only <- function(dat, gest) {
+  d <- get_bucketed_data(dat) %>%
+    filter(viewer_culture=="western")
+  test_comparisons <- list(c("cond1","cond2"),c("cond1", "original"),c("cond2", "original"))
+  p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
+    geom_bar(stat="identity",position="dodge")+
+    scale_fill_manual("Score Bucket", 
+                      labels=c("Western 5-7", "Western 4", "Western 1-3"),
+                      values=c("ahigh_western" = "palegreen3", # steelblue1, 3, 4
+                               "bmedium_western" = "steelblue3",
+                               "clow_western" = "palevioletred3")) +
+    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
+    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+    theme(text=element_text(size=12, 
+                            family="serif")) + 
+    facet_wrap("group")
+  return(p)
+}
+
+create_bucketed_bar_chart_eastern_only <- function(dat, gest) {
+  d <- get_bucketed_data(dat) %>%
+    filter(viewer_culture=="eastern")
+  test_comparisons <- list(c("cond1","cond2"),c("cond1", "original"),c("cond2", "original"))
+  p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
+    geom_bar(stat="identity",position="dodge")+
+    scale_fill_manual("Score Bucket", 
+                      labels=c("Eastern 5-7", "Eastern 4", "Eastern 1-3"),
+                      values=c("ahigh_eastern" = "palegreen3", # steelblue1, 3, 4
+                               "bmedium_eastern" = "steelblue3",
+                               "clow_eastern" = "palevioletred3")) +
+    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
+    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
+    theme(text=element_text(size=12, 
+                            family="serif")) + 
+    facet_wrap("group")
+  return(p)
+}
+
+wg1_w_viewers_only_bar <- create_bucketed_bar_chart_western_only(wg1_total, "WG1")
+wg1_e_viewers_only_bar <- create_bucketed_bar_chart_eastern_only(wg1_total, "WG1")
+```
+
+Test that significance (within-culture)
+```{r}
+test_significance_within_culture <- function(dat, culture="western") {
+  d <- dat %>%
+    filter(viewer_culture==culture)
+  groups = c("certainty", "conflict", "control", "openness", "size", "unity")
+  t <- c()
+  cond2_1 <- c()
+  sig_cond2_1 <- c()
+  original_cond1 <- c()
+  sig_original_cond1 <- c()
+  original_cond2 <- c()
+  sig_original_cond2 <- c()
+  for(g in groups) {
+    d_t <- d %>%
+      filter(group==g)
+    av <- aov(score ~ condition, data=d_t)
+    tukey <- as.data.frame(TukeyHSD(av)$condition)
+    cond2_1 <- list.append(cond2_1, tukey$`p adj`[1])
+    sig_cond2_1 <- list.append(sig_cond2_1, get_sig(tukey$`p adj`[1]))
+    original_cond1 <- list.append(original_cond1, tukey$`p adj`[2])
+    sig_original_cond1 <- list.append(sig_original_cond1, get_sig(tukey$`p adj`[2]))
+    original_cond2 <- list.append(original_cond2, tukey$`p adj`[3])
+    sig_original_cond2 <- list.append(sig_original_cond2, get_sig(tukey$`p adj`[3]))
+  }
+  s <- d %>%
+    group_by(group, condition) %>%
+    summarise(avg=mean(score))
+  
+  s$cond1_2_diff <- cond2_1
+  s$original_1_diff <- original_cond1
+  s$original_2_diff <- original_cond2
+  s$sig_cond2_1 <- sig_cond2_1
+  s$sig_original_cond1 <- sig_original_cond1
+  s$sig_original_cond2 <- sig_original_cond2
+  
+  return(s)
+}
+
+wg1_diff_w_viewers_only <- test_significance_within_culture(wg1_total, "western")
+wg1_diff_e_viewers_only <- test_significance_within_culture(wg1_total, "eastern")
+
+grid.arrange(wg1_w_viewers_only_bar, wg1_e_viewers_only_bar)
+```
+A: Yes, the different gesture conditions led to differences within-culture that were often in the same direction, but sometimes different. Compare them like this: 
+```{r}
+wg1_w_diff <- wg1_diff_w_viewers_only %>%
+  mutate(viewer_culture="western")
+wg1_e_diff <- wg1_diff_e_viewers_only %>%
+  mutate(viewer_culture="eastern")
+
+wg1_viewer_within_diffs <- rbind(wg1_w_diff, wg1_e_diff)
+```
+A2: so, our manipulations were generally effective, especially in the direction we expected for western culture, but sometimes for eastern as well. However, it makes sense that they won't always be the same because the overall picture is showing us that the atomic motion features of a gesture are interpreted differently by different cultures.
+
+
+Q: how much did individual interpretations differ between cultures? 
