@@ -423,7 +423,6 @@ Create grouped overlay of correlated questions. Violin plot of question correlat
 ```{r create_overlay_graphs}
 create_grouped_overlay <- function(data) {
   p <- ggplot(data) + 
-    aes(x=factor(nrow(data)),y=score,fill=metaphor_measure)+
     geom_violin(alpha=0.3,position="identity") +
     facet_wrap("group")  
   return(p)    
@@ -701,18 +700,21 @@ all_western_correlational_data.w <- plot_diff_matrix_pretty(w_gests_correlationa
 all_western_correlational_data.e <- plot_diff_matrix_pretty(w_gests_correlational.e, 
     "Correlation of questions across all gesture conditions for western participants") 
 
-
 all_eastern_correlational_data.w <- plot_diff_matrix_pretty(e_gests_correlational.w, 
     "Correlation of questions across all gesture conditions for western participants")
-
 
 all_eastern_correlational_data.e <- plot_diff_matrix_pretty(e_gests_correlational.e, 
     "Correlation of questions across all gesture conditions for eastern participants") 
 
+all_correlational_data.w <- plot_diff_matrix_pretty(rbind(w_gests_correlational.w, e_gests_correlational.w)) 
+all_correlational_data.e <- plot_diff_matrix_pretty(rbind(w_gests_correlational.e, e_gests_correlational.e))
+
+all_correlational_data.we <- plot_diff_matrix_pretty(rbind(w_gests_correlational.w, e_gests_correlational.w,
+                                                           w_gests_correlational.e, e_gests_correlational.e)) 
 
 
 ## save some other things too why not
-ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg1_data$violin_density_grouped_overlay)
+# ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg1_data$violin_density_grouped_overlay)
 # ggsave(filename = "all_entity_data--violin_density_grouped.png", plot = all_wg2_data$violin_density_grouped_overlay)
 # ggsave(filename = "all_audience_data--violin_density_grouped.png", plot = all_wg3_data$violin_density_grouped_overlay)
 # ggsave(filename = "all_protected_data--violin_density_grouped.png", plot = all_wg4_data$violin_density_grouped_overlay)
@@ -724,11 +726,14 @@ ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg
 Western Gestures, Western/Eastern Participants
 
 ```{r display_correlational_data, out.width='50%'}
-grid.arrange(all_western_correlational_data.w,
-             all_western_correlational_data.e)
+grid.arrange(all_correlational_data.w,
+             all_correlational_data.e)
 
-corr_list <- c(all_western_correlational_data.w)
-ggsave("question_correlations.png")
+corr_list <- list(all_correlational_data.w,
+               all_correlational_data.e)
+ggsave("question_correlations.png", arrangeGrob(grobs = corr_list, ncol=2))
+
+ggsave("question_correlations_combined.pdf", plot=all_correlational_data.we)
 ```
 
 Eastern Gestures, Western/Eastern Participants
@@ -890,7 +895,7 @@ do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
   p <- as.numeric(t.test(
             get_vals(cond1, statement, d),
             get_vals(cond2, statement, d))[3])
-  p_adjusted <- round(p.adjust(p, method="bonferroni", n=18), digits=5)
+  p_adjusted <- round(p.adjust(p, method="bonferroni", n=540), digits=5)
   return(p_adjusted)
 }
 
@@ -2092,13 +2097,12 @@ all_e_diffs <- rbind(eg1_difference_table, eg2_difference_table, eg3_difference_
 
 total_w_diffs <- count_all_differences(all_w_diffs)
 total_e_diffs <- count_all_differences(all_e_diffs)
-
 ```
 total differences in W gestures: `{r}sum(total_w_diffs$total)`
 total differences in E gestures: `{r}sum(total_e_diffs$total)`
 
 Q: But who was higher? 
-```{r}
+```
 wg1j <- left_join(wg1_difference_table, wg1_summary_stats, by=c("condition" = "condition", "group" = "group"))
 wg2j <- left_join(wg2_difference_table, wg2_summary_stats, by=c("condition" = "condition", "group" = "group"))
 wg3j <- left_join(wg3_difference_table, wg3_summary_stats, by=c("condition" = "condition", "group" = "group"))
@@ -2184,6 +2188,37 @@ compare_dists <- function(d1, d2, gesture="") {
 
 overall_distribution <- compare_dists(all_w_dat, all_e_dat) 
 ggsave("overall_distribution.png", overall_distribution)
+
+
+## now again but with violin
+compare_dists_violin <- function(d1, d2, gesture="") {
+  w <- d1 %>%
+    mutate(viewer_culture="western") 
+  e <- d2 %>%
+    mutate(viewer_culture="eastern")
+  
+  wed <- rbind(w,e) 
+  g <- ggplot(wed, aes(x=viewer_culture, y=score)) + 
+    geom_dotplot(aes(fill=viewer_culture, alpha=0.9), 
+                position="identity",
+                stackdir='center',
+                binaxis='y',
+                stackratio = 0.02,
+                dotsize=0.5) + 
+    ggtitle(paste("Overall Score Distributions ", gesture)) +
+    theme(text=element_text(size=12, family="serif")) +
+    scale_fill_manual("Viewer Culture", 
+                  labels=c("Eastern", "Western"),
+                  values=c("eastern" = "palegreen3",  # rosybrown1, 3, 4
+                           "western" = "steelblue2",
+                           "difference" = "palevioletred2")) +
+    labs(x="Score", y="Score Frequency")
+  return(g)
+  
+  # GO BACK
+}
+compare_dists_violin(all_w_dat, all_e_dat) 
+ggsave("overall_distribution_violin.png", overall_distribution)
 ```
 So yeah, the overal general distribution of scores is basically the same... Furthermore, the difference should be a uniform distribution... and it is. 
 
@@ -2340,4 +2375,45 @@ wg1_viewer_within_diffs <- rbind(wg1_w_diff, wg1_e_diff)
 A2: so, our manipulations were generally effective, especially in the direction we expected for western culture, but sometimes for eastern as well. However, it makes sense that they won't always be the same because the overall picture is showing us that the atomic motion features of a gesture are interpreted differently by different cultures.
 
 
-Q: how much did individual interpretations differ between cultures? 
+Q: how did our manipulations influence each culture? 
+
+
+
+
+
+
+
+## Just some regular old checks. 
+Compare means of each culture in each group. 
+```{r}
+wg1.w.viewers <- wg1_total %>%
+  filter(viewer_culture=="western") 
+wg1.e.viewers <- wg1_total %>%
+  filter(viewer_culture=="eastern") 
+wg1.w.viewers$viewer_culture <- NULL
+wg1.e.viewers$viewer_culture <- NULL
+
+wg1.w.certainty <- wg1.w.viewers %>% filter(group=="certainty", condition=="original")
+wg1.w.conflict <- wg1.w.viewers %>% filter(group=="conflict", condition=="original")
+wg1.w.control <- wg1.w.viewers %>% filter(group=="control", condition=="original")
+wg1.w.unity <- wg1.w.viewers %>% filter(group=="unity", condition=="original")
+wg1.w.openness <- wg1.w.viewers %>% filter(group=="openness", condition=="original")
+wg1.w.size <- wg1.w.viewers %>% filter(group=="size", condition=="original")
+
+wg1.e.certainty <- wg1.e.viewers %>% filter(group=="certainty", condition=="original")
+wg1.e.conflict <- wg1.e.viewers %>% filter(group=="conflict", condition=="original")
+wg1.e.control <- wg1.e.viewers %>% filter(group=="control", condition=="original")
+wg1.e.unity <- wg1.e.viewers %>% filter(group=="unity", condition=="original")
+wg1.e.openness <- wg1.e.viewers %>% filter(group=="openness", condition=="original")
+wg1.e.size <- wg1.e.viewers %>% filter(group=="size", condition=="original")
+
+t.test(wg1.w.certainty$score, wg1.e.certainty$score)
+t.test(wg1.w.conflict$score, wg1.e.conflict$score)
+t.test(wg1.w.control$score, wg1.e.control$score)
+t.test(wg1.w.unity$score, wg1.e.unity$score)
+t.test(wg1.w.openness$score, wg1.e.openness$score)
+t.test(wg1.w.size$score, wg1.e.size$score)
+
+```
+
+Fucks sake I just need to do an anova on the scores by condition. 
