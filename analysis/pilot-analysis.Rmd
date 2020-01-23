@@ -2379,10 +2379,6 @@ Q: how did our manipulations influence each culture?
 
 
 
-
-
-
-
 ## Just some regular old checks. 
 Compare means of each culture in each group. 
 ```{r}
@@ -2390,11 +2386,29 @@ wg1.w.viewers <- wg1_total %>%
   filter(viewer_culture=="western") 
 wg1.e.viewers <- wg1_total %>%
   filter(viewer_culture=="eastern") 
+
 wg1.w.viewers$viewer_culture <- NULL
 wg1.e.viewers$viewer_culture <- NULL
 
-wg1.w.certainty <- wg1.w.viewers %>% filter(group=="certainty", condition=="original")
+wg1.w.certainty0 <- wg1.w.viewers %>% filter(group=="certainty", condition=="original")
+wg1.w.certainty1 <- wg1.w.viewers %>% filter(group=="certainty", condition=="cond1")
+wg1.w.certainty2 <- wg1.w.viewers %>% filter(group=="certainty", condition=="cond2")
+
+t.test(wg1.w.certainty0$score, wg1.w.certainty1$score)
+t.test(wg1.w.certainty0$score, wg1.w.certainty2$score)
+
 wg1.w.conflict <- wg1.w.viewers %>% filter(group=="conflict", condition=="original")
+
+wg1.w.conflict0 <- wg1.w.viewers %>% filter(group=="conflict", condition=="original")
+wg1.w.conflict1 <- wg1.w.viewers %>% filter(group=="conflict", condition=="cond1")
+wg1.w.conflict2 <- wg1.w.viewers %>% filter(group=="conflict", condition=="cond2")
+
+t.test(wg1.w.conflict0$score, wg1.w.conflict1$score)
+t.test(wg1.w.conflict0$score, wg1.w.conflict2$score)
+
+
+
+
 wg1.w.control <- wg1.w.viewers %>% filter(group=="control", condition=="original")
 wg1.w.unity <- wg1.w.viewers %>% filter(group=="unity", condition=="original")
 wg1.w.openness <- wg1.w.viewers %>% filter(group=="openness", condition=="original")
@@ -2407,7 +2421,7 @@ wg1.e.unity <- wg1.e.viewers %>% filter(group=="unity", condition=="original")
 wg1.e.openness <- wg1.e.viewers %>% filter(group=="openness", condition=="original")
 wg1.e.size <- wg1.e.viewers %>% filter(group=="size", condition=="original")
 
-t.test(wg1.w.certainty$score, wg1.e.certainty$score)
+t.test(wg1.w.certainty$score, wg1.e.certainty$score)$p.value
 t.test(wg1.w.conflict$score, wg1.e.conflict$score)
 t.test(wg1.w.control$score, wg1.e.control$score)
 t.test(wg1.w.unity$score, wg1.e.unity$score)
@@ -2417,3 +2431,84 @@ t.test(wg1.w.size$score, wg1.e.size$score)
 ```
 
 Fucks sake I just need to do an anova on the scores by condition. 
+
+
+
+I have a crazy idea about correlation matrices
+          Western
+eastern   c0  c1  c2
+        c0
+        c1
+        c2
+dat needs to look like
+culture condition   group p
+
+
+```{r}
+
+get_within_culture_diffs_by_group <- function(g){
+  dt <- data.frame(
+    culture = rep(c("western", "eastern"), each=3),
+    condition = rep(c("original", "cond1", "cond2"), times=2),
+    group = rep(g, times=6),
+    means = c(""),
+    p.within.culture = c(""),
+    stringsAsFactors=FALSE
+  )
+  
+  wg1.w.g0 <- wg1.w.viewers %>% filter(group==g, condition=="original")
+  wg1.w.g1 <- wg1.w.viewers %>% filter(group==g, condition=="cond1")
+  wg1.w.g2 <- wg1.w.viewers %>% filter(group==g, condition=="cond2")
+  
+  dt[1:3,]$means <- c(round(mean(wg1.w.g0$score), 2),
+                      round(mean(wg1.w.g1$score), 2),
+                      round(mean(wg1.w.g2$score), 2))
+  
+  dt[1:3,]$p.within.culture <- c(round(t.test(wg1.w.g0$score, wg1.w.g0$score)$p.value, 3),
+                                 round(t.test(wg1.w.g0$score, wg1.w.g1$score)$p.value, 3),
+                                 round(t.test(wg1.w.g0$score, wg1.w.g2$score)$p.value, 3))
+  
+  wg1.e.g0 <- wg1.e.viewers %>% filter(group==g, condition=="original")
+  wg1.e.g1 <- wg1.e.viewers %>% filter(group==g, condition=="cond1")
+  wg1.e.g2 <- wg1.e.viewers %>% filter(group==g, condition=="cond2")
+  
+  dt[4:6,]$means <- c(round(mean(wg1.e.g0$score), 3),
+                      round(mean(wg1.e.g1$score), 3),
+                      round(mean(wg1.e.g2$score), 3))
+  
+  dt[4:6,]$p.within.culture <- c(round(t.test(wg1.e.g0$score, wg1.e.g0$score)$p.value, 3),
+                                 round(t.test(wg1.e.g0$score, wg1.e.g1$score)$p.value, 3),
+                                 round(t.test(wg1.e.g0$score, wg1.e.g2$score)$p.value, 3))  
+  return(dt)
+}
+
+get_all_within_culture_diffs <- function() {
+  cot <- get_within_culture_diffs_by_group("control")
+  con <- get_within_culture_diffs_by_group("conflict")
+  cer <- get_within_culture_diffs_by_group("certainty")
+  opn <- get_within_culture_diffs_by_group("openness")
+  siz <- get_within_culture_diffs_by_group("size")
+  uni <- get_within_culture_diffs_by_group("unity")
+  ret <- rbind(cer, con, cot, opn, siz, uni)
+  return(ret)
+}
+
+c <- get_all_within_culture_diffs()
+
+c$condition <- factor(c$condition, levels = c$condition)
+c$culture <- factor(c$culture, levels = c$culture)
+
+g <- ggplot(c, aes(y=means, x=culture)) + 
+  geom_bar(position="dodge", stat="identity") + 
+  aes(fill=condition) + 
+  facet_wrap("group")
+```
+
+Try it with a violin plot
+```{r}
+ggplot(wg1_total, aes(viewer_culture, score)) + 
+  geom_violin(aes(fill=condition, alpha=0.3), position="identity") +
+  facet_wrap(~group)
+```
+
+my god it looks horrible, nevermind. 
