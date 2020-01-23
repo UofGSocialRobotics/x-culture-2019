@@ -2427,23 +2427,9 @@ t.test(wg1.w.control$score, wg1.e.control$score)
 t.test(wg1.w.unity$score, wg1.e.unity$score)
 t.test(wg1.w.openness$score, wg1.e.openness$score)
 t.test(wg1.w.size$score, wg1.e.size$score)
-
 ```
 
-Fucks sake I just need to do an anova on the scores by condition. 
-
-
-
-I have a crazy idea about correlation matrices
-          Western
-eastern   c0  c1  c2
-        c0
-        c1
-        c2
-dat needs to look like
-culture condition   group p
-
-
+Compare the within-culture differences caused by the manipulations.
 ```{r}
 
 get_within_culture_diffs_by_group <- function(g){
@@ -2504,11 +2490,70 @@ g <- ggplot(c, aes(y=means, x=culture)) +
   facet_wrap("group")
 ```
 
-Try it with a violin plot
+
+Ok ok ok I got it. Table to look like
+viewer_culture |  original.mean   |   group    |   condition1  | condition 2 |  p.diff.1  | p.diff.2
+  w                    4.92             cert          5.17          4.62          0.284       0.259
+  e                    4.27             cert          3.775         4.18          0.05        0.739
+
+but also need to check directionality of differences
 ```{r}
-ggplot(wg1_total, aes(viewer_culture, score)) + 
-  geom_violin(aes(fill=condition, alpha=0.3), position="identity") +
-  facet_wrap(~group)
+get_within_culture_diffs_by_group2 <- function(dat, g){
+  wg1.w.viewers <- dat %>%
+    filter(viewer_culture=="western") 
+  wg1.e.viewers <- dat %>%
+    filter(viewer_culture=="eastern") 
+  
+  wg1.w.g0 <- wg1.w.viewers %>% filter(group==g, condition=="original")
+  wg1.w.g1 <- wg1.w.viewers %>% filter(group==g, condition=="cond1")
+  wg1.w.g2 <- wg1.w.viewers %>% filter(group==g, condition=="cond2")
+  wg1.e.g0 <- wg1.e.viewers %>% filter(group==g, condition=="original")
+  wg1.e.g1 <- wg1.e.viewers %>% filter(group==g, condition=="cond1")
+  wg1.e.g2 <- wg1.e.viewers %>% filter(group==g, condition=="cond2")
+  
+  dt <- data.frame(
+    viewer_culture = c("western", "eastern"),
+    original.mean = c(round(mean(wg1.w.g0$score), 3), round(mean(wg1.e.g0$score), 3)),
+    group = rep(g, times=2),
+    condition.1.mean = c(round(mean(wg1.w.g1$score), 3), round(mean(wg1.e.g1$score), 3)),
+    condition.2.mean = c(round(mean(wg1.w.g2$score), 3), round(mean(wg1.e.g2$score), 3)),
+    p.1 = c(round(t.test(wg1.w.g0$score, wg1.w.g1$score)$p.value, 3),
+            round(t.test(wg1.w.g0$score, wg1.w.g2$score)$p.value, 3)),
+    p.2 = c(round(t.test(wg1.e.g0$score, wg1.e.g1$score)$p.value, 3),
+                                 round(t.test(wg1.e.g0$score, wg1.e.g2$score)$p.value, 3)),
+    stringsAsFactors=FALSE
+  )
+  
+  dt <- dt %>%
+    mutate(p1.sig.diff=ifelse(p.1 <= 0.05, '*', ' ')) %>%
+    mutate(p1.diff=ifelse(condition.1.mean <= original.mean, "v", "^")) %>%
+    mutate(p2.sig.diff=ifelse(p.2 <= 0.05, '*', ' ')) %>%
+    mutate(p2.diff=ifelse(condition.2.mean <= original.mean, "v", "^")) 
+  
+  return(dt)
+}
+
+get_all_within_culture_diffs2 <- function(dat, name) {
+  cot <- get_within_culture_diffs_by_group2(dat, "control")
+  con <- get_within_culture_diffs_by_group2(dat, "conflict")
+  cer <- get_within_culture_diffs_by_group2(dat, "certainty")
+  opn <- get_within_culture_diffs_by_group2(dat, "openness")
+  siz <- get_within_culture_diffs_by_group2(dat, "size")
+  uni <- get_within_culture_diffs_by_group2(dat, "unity")
+  ret <- rbind(cer, con, cot, opn, siz, uni) %>%
+    mutate("gesture_name" = name)
+  return(ret)
+}
+
+compare_manipulations_between_cultures <- rbind( get_all_within_culture_diffs2(wg1_total, "wg1"), 
+                                                 get_all_within_culture_diffs2(wg2_total, "wg2"), 
+                                                 get_all_within_culture_diffs2(wg3_total, "wg3"), 
+                                                 get_all_within_culture_diffs2(wg4_total, "wg4"), 
+                                                 get_all_within_culture_diffs2(wg5_total, "wg5"), 
+                                                 get_all_within_culture_diffs2(eg1_total, "eg1"), 
+                                                 get_all_within_culture_diffs2(eg2_total, "eg2"), 
+                                                 get_all_within_culture_diffs2(eg3_total, "eg3"), 
+                                                 get_all_within_culture_diffs2(eg4_total, "eg4"))
 ```
 
-my god it looks horrible, nevermind. 
+Hey now this is an interesting table!! Shows that our manipulations only occasionally caused significant differences from the original gesture, and sometimes even that was in opposite directions!! 
