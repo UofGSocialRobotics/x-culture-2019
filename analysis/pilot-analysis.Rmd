@@ -18,17 +18,16 @@ library(rlist)
 library(scales)
 ```
 
-
 ### Naming scheme
 wg1.0.e == "western gesture 1, condition 0, eastern viewer culture"
 eg4.2.w == "eastern gesture 4 condition 2, western viewer culture"
 
-# Part One: Overlapping Metaphors!?!?
+## Part One: Overlapping Metaphors
 
-## Load 'N' Wrangle
+### Load the data
 
-### Western Participants
-Load these bad larrys (straight from mTurk template)
+#### Western Participants
+Load this straight from AMT template. 
 ```{r load_data_1}
 xcdata <- rbind(read.csv('xc_pilot_fixed_questions.csv'), read.csv('xc_pilot_fixed_questions2.csv')) %>%
   select(Answer.accessible, Answer.confident, Answer.conflict, Answer.control, 
@@ -82,8 +81,7 @@ wg3.2.w <- xcdata %>%
   select(-Answer.vid_id)
 ```
 
-
-Also load these buggerinos (from psytoolkit template)
+Load this from psytoolkit template. 
 ```{r load_western_gestures}
 psydata <- rbind(read.csv('psytoolkit_pilot.csv'), 
                  read.csv('psytoolkit_pilot2.csv'),
@@ -130,7 +128,6 @@ wg5.2.w <- psydata %>%
  
 
 ## once more for eastern gestures
-
 eg1.0.w <- psydata %>%
   filter(vid_id == 
            "334668817") %>%
@@ -193,9 +190,7 @@ eg4.2.w <- psydata %>%
 
 ```
 
-
-
-### Eastern Participants
+#### Eastern Participants
 ```{r load_eastern_participants}
 j_psydata <- rbind(read.csv('japanese-pilot-data.csv'), 
                    read.csv('japanese-west-1-2-3.csv'),
@@ -368,8 +363,9 @@ eg4.2.e <- j_psydata %>%
 #   select(-vid_id, -rand, -participantID, -t_start, -t_end, -t_total, -endcode, -free_response)
 ```
 
+### Individual resposne graphs. 
 
-### Spot checks 
+####Checking correlations for question pooling to form response domains. 
 some things should correlate, others should not. IE the questions that go together should correlate. 
 accessible <--> open
 confident <--> sure
@@ -378,8 +374,7 @@ dominant <--> control
 goal <--> worktogether
 many <--> members
 
-So now we group the metaphor measures by group and facet wrap by that. EZ
-
+So now we group the metaphor measures by group and facet wrap by that.
 ```{r add_groups}
 add_groups <- function(data) {
   data$group <- ""
@@ -418,26 +413,9 @@ add_groups <- function(data) {
 }
 ```
 
-
-Create grouped overlay of correlated questions. Violin plot of question correlations by group (for single conditions of a single gesture)
-```{r create_overlay_graphs}
-create_grouped_overlay <- function(data) {
-  p <- ggplot(data) + 
-    geom_violin(alpha=0.3,position="identity") +
-    facet_wrap("group")  
-  return(p)    
-}
-```
-
-This graph shows the correlation of the grouped variables. We want them to be highly correlated with each other, and preferably not super correlated with one another. This should hold moreso for the extreme versions of the gestures.
-
-
-Really could have correlation plot w Q1 on X and Q2 on Y but those don't look great and we shouldn't expect them to... 
-
-### Correlation Matrix of questions
+#### Correlation Matrix of questions
 Get wrapped plot of correlations across conditions for same gesture
 ```{r correlation_matrices}
-## Go through and populate with metaphors and difference values
 create_difference_matrix <- function(data) {
   difference_table <- data.frame(
     Question1 = c(""),
@@ -446,8 +424,6 @@ create_difference_matrix <- function(data) {
     stringsAsFactors=FALSE
   )
   
-  ### TEMP -- RENAME THINGS SO THEY'RE NEXT TO THE RIGHT ONES
-  ### THIS COULD BE DISASTEROUS!!!!
   colnames(data)[colnames(data)=="Answer.worktogether"] <- "unity.worktogether"
   colnames(data)[colnames(data)=="Answer.goal"] <- "unity.goal"
   colnames(data)[colnames(data)=="Answer.tension"] <- "conflict.tension"
@@ -460,10 +436,6 @@ create_difference_matrix <- function(data) {
   colnames(data)[colnames(data)=="Answer.accessible"] <- "openness.accessible"
   colnames(data)[colnames(data)=="Answer.sure"] <- "certainty.sure"
   colnames(data)[colnames(data)=="Answer.confident"] <- "certainty.confident"
-
-  
-  
-  ###
   
   metas = colnames(data)
   
@@ -508,7 +480,7 @@ plot_diff_matrix_pretty <- function(matrix, t="") {
 ```
 
 
-### Violin plots of responses to questions
+#### Violin plots of responses to questions
 ```{r violin_density}
 plot_violin_density <- function(d0, d1, d2) {
   g <- ggplot(rbind(d0, d1, d2), aes(vid, score)) + 
@@ -542,14 +514,18 @@ plot_violin_density_group_overlay <- function(d0, d1, d2) {
     )
   return(g)
 }
+
+# Create grouped overlay of correlated questions. Violin plot of question correlations by group (for single conditions of a single gesture). This turns out to not be the best or even most honest visualization, as the data is not actually continuous. 
+create_grouped_overlay <- function(data) {
+  p <- ggplot(data) + 
+    geom_violin(alpha=0.3,position="identity") +
+    facet_wrap("group")  
+  return(p)    
+}
 ```
 
 
-### Density plot? 
-Regrouping data in a potentially horrifying way. Need to make sure questions make sense...
-
-Group it all together and do it by group but you can also just do it by groups and facet wrap by metaphor measure for 
-indiv question results. 
+#### Density plot
 ```{r density_plot_coding}
 plot_group_density <- function(d0, d1, d2) {
   p <- ggplot(rbind(d0, d1, d2), aes(x=score, fill=vid)) + 
@@ -567,7 +543,7 @@ plot_question_density <- function(d0, d1, d2) {
 ```
 
 
-#### Put it together and how do you do? Bibbity Bobbity BAM.
+#### Putting it all together. 
 ```{r big_correlational_matrices}
 ## random helpers
 gather_select <- function(d) {
@@ -586,7 +562,7 @@ wrangle_data <- function(d, name="data") {
   return(list_of_returns)
 }
 
-do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = "z_condition2", gesture = "single") {
+get_all_density_graphs <- function(d0, d1, d2, n0 = "original", n1 = "cond1", n2 = "cond2", gesture = "N/A") {
   d0_data <- wrangle_data(d0, n0)
   d1_data <- wrangle_data(d1, n1)
   d2_data <- wrangle_data(d2, n2)
@@ -629,12 +605,40 @@ do_the_thing <- function(d0, d1, d2, n0 = "original", n1 = "a_condition1", n2 = 
                      "density_question" = density_question)
 }
 
-all_wg1_data <- do_the_thing(wg1.0.w, wg1.1.w, wg1.2.w, "original", "intertwine", "collide")
-all_wg2_data <- do_the_thing(wg2.0.w, wg2.1.w, wg2.2.w)
-all_wg3_data <- do_the_thing(wg3.0.w, wg3.1.w, wg3.2.w)
-all_wg4_data <- do_the_thing(wg4.0.w, wg4.1.w, wg4.2.w)
-all_wg5_data <- do_the_thing(wg5.0.w, wg5.1.w, wg5.2.w)
+# can do all of this with eastern gestures as well. 
+all_wg1_data.w <- get_all_density_graphs(wg1.0.w, wg1.1.w, wg1.2.w)
+all_wg2_data.w <- get_all_density_graphs(wg2.0.w, wg2.1.w, wg2.2.w)
+all_wg3_data.w <- get_all_density_graphs(wg3.0.w, wg3.1.w, wg3.2.w)
+all_wg4_data.w <- get_all_density_graphs(wg4.0.w, wg4.1.w, wg4.2.w)
+all_wg5_data.w <- get_all_density_graphs(wg5.0.w, wg5.1.w, wg5.2.w)
 
+all_wg1_data.e <- get_all_density_graphs(wg1.0.e, wg1.1.e, wg1.2.e)
+all_wg2_data.e <- get_all_density_graphs(wg2.0.e, wg2.1.e, wg2.2.e)
+all_wg3_data.e <- get_all_density_graphs(wg3.0.e, wg3.1.e, wg3.2.e)
+all_wg4_data.e <- get_all_density_graphs(wg4.0.e, wg4.1.e, wg4.2.e)
+all_wg5_data.e <- get_all_density_graphs(wg5.0.e, wg5.1.e, wg5.2.e)
+```
+
+Now we can access all of the cultural-independent responses through the variables from above:
+`all_dat$overlays[["d0_overlay"]]`: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
+`all_dat$correlation_matrix`: the correlation matrices that visualize the above as well.
+`all_dat$violin_density_question`: the violin plot of all question distributions across gesture conditions.
+`all_dat$violin_density_grouped_overlay`: the violin plot of all group distributions across gesture conditions, but overlayed.
+`all_dat$violin_density_grouped`: the violin plot of group distributions across gesture conditions.
+`all_dat$density_grouped`: density plot of group distributions (density of responses for likert category) across gesture conditions.
+`all_dat$density_question`: density plot of all question distributions (density of responses for likert category) across gesture conditions.
+
+if you want to plot all of the overlays nicely you can do this:
+```{r plot_overlays}
+#p1 <- all_wg1_data$overlays[["d0_overlay"]]
+#p2 <- all_wg2_data$overlays[["d1_overlay"]]
+#p3 <- all_wg3_data$overlays[["d2_overlay"]]
+#grid.arrange(p1, p2, p3, ncol=3)
+```
+
+#### Build and review the group correlations. 
+We are correlating how well the questions map to one another in order to determine whether it is appropriate to pool the responses into the response domains through which we can analyze the cross-cultural results. 
+```{r build_correlations}
 w_gests_correlational.w <- rbind(create_difference_matrix(wg1.0.w), 
                             create_difference_matrix(wg1.1.w), 
                             create_difference_matrix(wg1.2.w),
@@ -711,20 +715,9 @@ all_correlational_data.e <- plot_diff_matrix_pretty(rbind(w_gests_correlational.
 
 all_correlational_data.we <- plot_diff_matrix_pretty(rbind(w_gests_correlational.w, e_gests_correlational.w,
                                                            w_gests_correlational.e, e_gests_correlational.e)) 
-
-
-## save some other things too why not
-# ggsave(filename = "all_unpolite_data--violin_density_grouped.png", plot = all_wg1_data$violin_density_grouped_overlay)
-# ggsave(filename = "all_entity_data--violin_density_grouped.png", plot = all_wg2_data$violin_density_grouped_overlay)
-# ggsave(filename = "all_audience_data--violin_density_grouped.png", plot = all_wg3_data$violin_density_grouped_overlay)
-# ggsave(filename = "all_protected_data--violin_density_grouped.png", plot = all_wg4_data$violin_density_grouped_overlay)
-# ggsave(filename = "all_bowl_data--violin_density_grouped.png", plot = all_wg5_data$violin_density_grouped_overlay)
-# 
-# ggsave(filename = "all_western_correlational_data.png", plot = all_western_correlational_data)
 ```
-## Correlations
+And the result is a correlation matrix of the questions for the different groups of participants. 
 Western Gestures, Western/Eastern Participants
-
 ```{r display_correlational_data, out.width='50%'}
 grid.arrange(all_correlational_data.w,
              all_correlational_data.e)
@@ -732,12 +725,10 @@ grid.arrange(all_correlational_data.w,
 corr_list <- list(all_correlational_data.w,
                all_correlational_data.e)
 ggsave("question_correlations.png", arrangeGrob(grobs = corr_list, ncol=2))
-
 ggsave("question_correlations_combined.pdf", plot=all_correlational_data.we)
 ```
 
 Eastern Gestures, Western/Eastern Participants
-
 ```{r display_east_corr_dat, out.width='50%'}
 all_eastern_correlational_data.w
 all_eastern_correlational_data.e
@@ -745,46 +736,26 @@ all_eastern_correlational_data.e
 
 To get the individual ones (per gesture, say) you can do this to position the w/e side by side.
 ```{r plot_indiv_diff_matrix, out.width='50%'}
-plot1 <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.w), 
-                                       create_difference_matrix(wg4.1.w), 
-                                       create_difference_matrix(wg4.2.w)))
+wg4.w.correlations <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.w), 
+                                                    create_difference_matrix(wg4.1.w), 
+                                                    create_difference_matrix(wg4.2.w)))
 
-plot2 <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.e), 
-                                       create_difference_matrix(wg4.1.e), 
-                                       create_difference_matrix(wg4.2.e)))
-
-plot1
-plot2
+wg4.e.coorelations <- plot_diff_matrix_pretty(rbind(create_difference_matrix(wg4.0.e), 
+                                                    create_difference_matrix(wg4.1.e), 
+                                                    create_difference_matrix(wg4.2.e)))
+grid.arrange(wg4.w.correlations,
+             wg4.e.coorelations)
 ```
 
-Cool now access everything as follows:
-`all_dat$overlays[["d0_overlay"]]`: the overlayed violin plot of related questions. Illustrates density overlay aka a nice vis of correlation of questions
-
-`all_dat$correlation_matrix`: the correlation matrices that visualize the above as well.
-
-`all_dat$violin_density_question`: the violin plot of all question distributions across gesture conditions.
-
-`all_dat$violin_density_grouped_overlay`: the violin plot of all question distributions across gesture conditions, but overlayed.
-
-`all_dat$violin_density_grouped`: the violin plot of group distributions across gesture conditions.
-
-`all_dat$density_grouped`: density plot of group distributions across gesture conditions.
-
-`all_dat$density_question`: density plot of all question distributions across gesture conditions.
-
-if you want to plot all of the overlays nicely you can do this:
-```{r}
-#p1 <- all_wg1_data$overlays[["d0_overlay"]]
-#p2 <- all_wg2_data$overlays[["d1_overlay"]]
-#p3 <- all_wg3_data$overlays[["d2_overlay"]]
-#grid.arrange(p1, p2, p3, ncol=3)
+And finally, see all of them together with 
+```{r total_correlational_data}
+all_correlational_data.we
 ```
 
 
 ## Stats
-Pretty, but what does it mean? Well, to determine whether any of these differences are significant (aka, did people interpret different things from each of the different gesture conditions, which, because we, too, are people, we know they did) we need to see what the significant differences between rankings in each gesture and condition are.
+In order to determine whether any of these differences are significant (aka, did people interpret different things from each of the different gesture conditions, which, because we, too, are people, we know they did) we need to see what the significant differences between rankings in each gesture and condition are.
 ```{r single_culture_anovas}
-## gather the bad larries
 gather_clean <- function(d, n="") {
   ret <- d %>%
     gather("metaphor_measure", "score", 1:12) %>%
@@ -1025,24 +996,14 @@ The above shows that t tests and mann-whitney-wilcox have the same significance 
 Cool so we have all this but what do *individuals* actually perceive -- multiple interpretations, or one predominant one? Only likert will tell us. 
 
 Let's do this with a **PIE CHART** BAYBEEEEE
-
--- highly is top 3 for ranked
 -- highly is 5,6,7 for likert
 - people who ranked X & Y highly 
 - people who ranked X highly (but not Y)
 - people who ranked Y highly (but not X)
 - people who did neither
 ```{r individual_bucket_pie_charts}
-##  group      value (count)
-##  X + Y   
-##  X
-##  Y
-##  neither
-
-
 ## Get data for this pie chart. Double since we're adding to 14 here
 likert_upper_cutoff <- 10
-
 
 get_pie_data <- function(dat, group1, group2) {
   ## this requires a whole new analysis of data of individuals...
@@ -1648,7 +1609,7 @@ create_bucketed_bar_chart <- function(dat, gest) {
   p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
     geom_bar(stat="identity",position="dodge")+
     scale_fill_manual("Viewer Culture Score Bucket", 
-                      labels=c("Eastern 5-7", "Western 5-7", "Eastern 4", "Western 4", "Eastern 1-3", "Western 1-3"),
+                      labels=c("Eastern High", "Western High", "Eastern Medium", "Western Medium", "Eastern Low", "Western Low"),
                       values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
                                          "bmedium_eastern" = "steelblue2",
                                          "clow_eastern" = "palevioletred2",
@@ -1663,29 +1624,6 @@ create_bucketed_bar_chart <- function(dat, gest) {
   return(p)
 }
 
-
-### GOING OFF THE RAILS OF THE CRAZY TRAIN BABY
-# create_bucketed_bar_chart_INVERSE <- function(dat, gest) {
-#   d <- get_bucketed_data(dat)
-#   test_comparisons <- list(c("ahigh_eastern","ahigh_western"),c("bmedium_eastern", "bmedium_western"),c("clow_eastern", # "clow_western"))
-#   p <- ggplot(d,aes(x=group,y=bucket_percent,fill=factor(culture_bucket)))+
-#     geom_bar(stat="identity",position="dodge")+
-#     stat_compare_means(comparisons = test_comparisons, label = "p.signif", method="kruskal.test") +
-#     scale_fill_manual(values=c("ahigh_eastern" = "palegreen3",  # rosybrown1, 3, 4
-#                                          "bmedium_eastern" = "steelblue2",
-#                                          "clow_eastern" = "palevioletred2",
-#                                          "ahigh_western" = "palegreen4", # steelblue1, 3, 4
-#                                          "bmedium_western" = "steelblue4",
-#                                          "clow_western" = "palevioletred4")) +
-#     xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
-#     ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
-#     theme(text=element_text(size=12, 
-#                             family="serif")) + 
-#     facet_wrap("condition")
-#   return(p)
-# }
-# t <- create_bucketed_bar_chart_INVERSE(wg1_total, "WG1")
-###
 
 wg1_comp <- create_bucketed_bar_chart(wg1_total, "WG1")
 wg2_comp <- create_bucketed_bar_chart(wg2_total, "WG2")
@@ -2087,7 +2025,7 @@ all_diff_tables <- rbind(wg1_difference_table, wg2_difference_table, wg3_differe
 diff_counts <- count_all_differences(all_diff_tables)
 kable(diff_counts)
 ```
-A: `{r}diff_counts`
+A: `r diff_counts`
 
 Q: Did one cultural gesture result in more differences than the other?
 ```{r}
@@ -2098,11 +2036,12 @@ all_e_diffs <- rbind(eg1_difference_table, eg2_difference_table, eg3_difference_
 total_w_diffs <- count_all_differences(all_w_diffs)
 total_e_diffs <- count_all_differences(all_e_diffs)
 ```
-total differences in W gestures: `{r}sum(total_w_diffs$total)`
-total differences in E gestures: `{r}sum(total_e_diffs$total)`
+
+total differences in W gestures: `r sum(total_w_diffs$total)`
+total differences in E gestures: `r sum(total_e_diffs$total)`
 
 Q: But who was higher? 
-```
+```{r}
 wg1j <- left_join(wg1_difference_table, wg1_summary_stats, by=c("condition" = "condition", "group" = "group"))
 wg2j <- left_join(wg2_difference_table, wg2_summary_stats, by=c("condition" = "condition", "group" = "group"))
 wg3j <- left_join(wg3_difference_table, wg3_summary_stats, by=c("condition" = "condition", "group" = "group"))
@@ -2190,6 +2129,24 @@ overall_distribution <- compare_dists(all_w_dat, all_e_dat)
 ggsave("overall_distribution.png", overall_distribution)
 
 
+## see if difference is sig diff from uniform
+w_viewer_sum <- all_w_dat %>%
+    summarise('1'=sum(score==1), '2'=sum(score==2), '3'=sum(score==3), 
+              '4'=sum(score==4), '5'=sum(score==5), '6'=sum(score==6), '7'=sum(score==7))
+e_viewer_sum <- all_e_dat %>%
+    summarise('1'=sum(score==1), '2'=sum(score==2), '3'=sum(score==3), 
+              '4'=sum(score==4), '5'=sum(score==5), '6'=sum(score==6), '7'=sum(score==7))
+total_diff_raw_scores = data.frame('1'=w_viewer_sum$`1` - e_viewer_sum$`1`, 
+                                   '2'=w_viewer_sum$`2` - e_viewer_sum$`2`, 
+                                   '3'=w_viewer_sum$`3` - e_viewer_sum$`3`, 
+                                   '4'=w_viewer_sum$`4` - e_viewer_sum$`4`, 
+                                   '5'=w_viewer_sum$`5` - e_viewer_sum$`5`, 
+                                   '6'=w_viewer_sum$`6` - e_viewer_sum$`6`, 
+                                   '7'=w_viewer_sum$`7` - e_viewer_sum$`7`)
+# theoretically we have 401 in each category, bc 2808 fewer participants for eastern. 
+tdrw <- c(204, 540, 375, 499, 449, 330, 411)
+ks.test(tdrw, "punif", 360, 440)
+
 ## now again but with violin
 compare_dists_violin <- function(d1, d2, gesture="") {
   w <- d1 %>%
@@ -2276,219 +2233,13 @@ It's a real pain in the keister to look at each individual distribution, and fra
 
 ### Within-culture differences
 Q: did our manipulations result in sig diffs within cultures? 
-```{r}
-create_bucketed_bar_chart_western_only <- function(dat, gest) {
-  d <- get_bucketed_data(dat) %>%
-    filter(viewer_culture=="western")
-  test_comparisons <- list(c("cond1","cond2"),c("cond1", "original"),c("cond2", "original"))
-  p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
-    geom_bar(stat="identity",position="dodge")+
-    scale_fill_manual("Score Bucket", 
-                      labels=c("Western 5-7", "Western 4", "Western 1-3"),
-                      values=c("ahigh_western" = "palegreen3", # steelblue1, 3, 4
-                               "bmedium_western" = "steelblue3",
-                               "clow_western" = "palevioletred3")) +
-    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
-    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
-    theme(text=element_text(size=12, 
-                            family="serif")) + 
-    facet_wrap("group")
-  return(p)
-}
+A: Yes, the different gesture conditions led to differences within-culture that were often in the same direction, but sometimes different. Compare them like this:
 
-create_bucketed_bar_chart_eastern_only <- function(dat, gest) {
-  d <- get_bucketed_data(dat) %>%
-    filter(viewer_culture=="eastern")
-  test_comparisons <- list(c("cond1","cond2"),c("cond1", "original"),c("cond2", "original"))
-  p <- ggplot(d,aes(x=condition,y=bucket_percent,fill=factor(culture_bucket)))+
-    geom_bar(stat="identity",position="dodge")+
-    scale_fill_manual("Score Bucket", 
-                      labels=c("Eastern 5-7", "Eastern 4", "Eastern 1-3"),
-                      values=c("ahigh_eastern" = "palegreen3", # steelblue1, 3, 4
-                               "bmedium_eastern" = "steelblue3",
-                               "clow_eastern" = "palevioletred3")) +
-    xlab("Gesture Condition")+ylab("Score bucket as proportional to total scores")+
-    ggtitle(paste("Bucketed scores for", gest, sep=" ")) + 
-    theme(text=element_text(size=12, 
-                            family="serif")) + 
-    facet_wrap("group")
-  return(p)
-}
-
-wg1_w_viewers_only_bar <- create_bucketed_bar_chart_western_only(wg1_total, "WG1")
-wg1_e_viewers_only_bar <- create_bucketed_bar_chart_eastern_only(wg1_total, "WG1")
-```
-
-Test that significance (within-culture)
-```{r}
-test_significance_within_culture <- function(dat, culture="western") {
-  d <- dat %>%
-    filter(viewer_culture==culture)
-  groups = c("certainty", "conflict", "control", "openness", "size", "unity")
-  t <- c()
-  cond2_1 <- c()
-  sig_cond2_1 <- c()
-  original_cond1 <- c()
-  sig_original_cond1 <- c()
-  original_cond2 <- c()
-  sig_original_cond2 <- c()
-  for(g in groups) {
-    d_t <- d %>%
-      filter(group==g)
-    av <- aov(score ~ condition, data=d_t)
-    tukey <- as.data.frame(TukeyHSD(av)$condition)
-    cond2_1 <- list.append(cond2_1, tukey$`p adj`[1])
-    sig_cond2_1 <- list.append(sig_cond2_1, get_sig(tukey$`p adj`[1]))
-    original_cond1 <- list.append(original_cond1, tukey$`p adj`[2])
-    sig_original_cond1 <- list.append(sig_original_cond1, get_sig(tukey$`p adj`[2]))
-    original_cond2 <- list.append(original_cond2, tukey$`p adj`[3])
-    sig_original_cond2 <- list.append(sig_original_cond2, get_sig(tukey$`p adj`[3]))
-  }
-  s <- d %>%
-    group_by(group, condition) %>%
-    summarise(avg=mean(score))
-  
-  s$cond1_2_diff <- cond2_1
-  s$original_1_diff <- original_cond1
-  s$original_2_diff <- original_cond2
-  s$sig_cond2_1 <- sig_cond2_1
-  s$sig_original_cond1 <- sig_original_cond1
-  s$sig_original_cond2 <- sig_original_cond2
-  
-  return(s)
-}
-
-wg1_diff_w_viewers_only <- test_significance_within_culture(wg1_total, "western")
-wg1_diff_e_viewers_only <- test_significance_within_culture(wg1_total, "eastern")
-
-grid.arrange(wg1_w_viewers_only_bar, wg1_e_viewers_only_bar)
-```
-A: Yes, the different gesture conditions led to differences within-culture that were often in the same direction, but sometimes different. Compare them like this: 
-```{r}
-wg1_w_diff <- wg1_diff_w_viewers_only %>%
-  mutate(viewer_culture="western")
-wg1_e_diff <- wg1_diff_e_viewers_only %>%
-  mutate(viewer_culture="eastern")
-
-wg1_viewer_within_diffs <- rbind(wg1_w_diff, wg1_e_diff)
-```
 A2: so, our manipulations were generally effective, especially in the direction we expected for western culture, but sometimes for eastern as well. However, it makes sense that they won't always be the same because the overall picture is showing us that the atomic motion features of a gesture are interpreted differently by different cultures.
 
 
 Q: how did our manipulations influence each culture? 
-
-
-
 ## Just some regular old checks. 
-Compare means of each culture in each group. 
-```{r}
-wg1.w.viewers <- wg1_total %>%
-  filter(viewer_culture=="western") 
-wg1.e.viewers <- wg1_total %>%
-  filter(viewer_culture=="eastern") 
-
-wg1.w.viewers$viewer_culture <- NULL
-wg1.e.viewers$viewer_culture <- NULL
-
-wg1.w.certainty0 <- wg1.w.viewers %>% filter(group=="certainty", condition=="original")
-wg1.w.certainty1 <- wg1.w.viewers %>% filter(group=="certainty", condition=="cond1")
-wg1.w.certainty2 <- wg1.w.viewers %>% filter(group=="certainty", condition=="cond2")
-
-t.test(wg1.w.certainty0$score, wg1.w.certainty1$score)
-t.test(wg1.w.certainty0$score, wg1.w.certainty2$score)
-
-wg1.w.conflict <- wg1.w.viewers %>% filter(group=="conflict", condition=="original")
-
-wg1.w.conflict0 <- wg1.w.viewers %>% filter(group=="conflict", condition=="original")
-wg1.w.conflict1 <- wg1.w.viewers %>% filter(group=="conflict", condition=="cond1")
-wg1.w.conflict2 <- wg1.w.viewers %>% filter(group=="conflict", condition=="cond2")
-
-t.test(wg1.w.conflict0$score, wg1.w.conflict1$score)
-t.test(wg1.w.conflict0$score, wg1.w.conflict2$score)
-
-
-
-
-wg1.w.control <- wg1.w.viewers %>% filter(group=="control", condition=="original")
-wg1.w.unity <- wg1.w.viewers %>% filter(group=="unity", condition=="original")
-wg1.w.openness <- wg1.w.viewers %>% filter(group=="openness", condition=="original")
-wg1.w.size <- wg1.w.viewers %>% filter(group=="size", condition=="original")
-
-wg1.e.certainty <- wg1.e.viewers %>% filter(group=="certainty", condition=="original")
-wg1.e.conflict <- wg1.e.viewers %>% filter(group=="conflict", condition=="original")
-wg1.e.control <- wg1.e.viewers %>% filter(group=="control", condition=="original")
-wg1.e.unity <- wg1.e.viewers %>% filter(group=="unity", condition=="original")
-wg1.e.openness <- wg1.e.viewers %>% filter(group=="openness", condition=="original")
-wg1.e.size <- wg1.e.viewers %>% filter(group=="size", condition=="original")
-
-t.test(wg1.w.certainty$score, wg1.e.certainty$score)$p.value
-t.test(wg1.w.conflict$score, wg1.e.conflict$score)
-t.test(wg1.w.control$score, wg1.e.control$score)
-t.test(wg1.w.unity$score, wg1.e.unity$score)
-t.test(wg1.w.openness$score, wg1.e.openness$score)
-t.test(wg1.w.size$score, wg1.e.size$score)
-```
-
-Compare the within-culture differences caused by the manipulations.
-```{r}
-
-get_within_culture_diffs_by_group <- function(g){
-  dt <- data.frame(
-    culture = rep(c("western", "eastern"), each=3),
-    condition = rep(c("original", "cond1", "cond2"), times=2),
-    group = rep(g, times=6),
-    means = c(""),
-    p.within.culture = c(""),
-    stringsAsFactors=FALSE
-  )
-  
-  wg1.w.g0 <- wg1.w.viewers %>% filter(group==g, condition=="original")
-  wg1.w.g1 <- wg1.w.viewers %>% filter(group==g, condition=="cond1")
-  wg1.w.g2 <- wg1.w.viewers %>% filter(group==g, condition=="cond2")
-  
-  dt[1:3,]$means <- c(round(mean(wg1.w.g0$score), 2),
-                      round(mean(wg1.w.g1$score), 2),
-                      round(mean(wg1.w.g2$score), 2))
-  
-  dt[1:3,]$p.within.culture <- c(round(t.test(wg1.w.g0$score, wg1.w.g0$score)$p.value, 3),
-                                 round(t.test(wg1.w.g0$score, wg1.w.g1$score)$p.value, 3),
-                                 round(t.test(wg1.w.g0$score, wg1.w.g2$score)$p.value, 3))
-  
-  wg1.e.g0 <- wg1.e.viewers %>% filter(group==g, condition=="original")
-  wg1.e.g1 <- wg1.e.viewers %>% filter(group==g, condition=="cond1")
-  wg1.e.g2 <- wg1.e.viewers %>% filter(group==g, condition=="cond2")
-  
-  dt[4:6,]$means <- c(round(mean(wg1.e.g0$score), 3),
-                      round(mean(wg1.e.g1$score), 3),
-                      round(mean(wg1.e.g2$score), 3))
-  
-  dt[4:6,]$p.within.culture <- c(round(t.test(wg1.e.g0$score, wg1.e.g0$score)$p.value, 3),
-                                 round(t.test(wg1.e.g0$score, wg1.e.g1$score)$p.value, 3),
-                                 round(t.test(wg1.e.g0$score, wg1.e.g2$score)$p.value, 3))  
-  return(dt)
-}
-
-get_all_within_culture_diffs <- function() {
-  cot <- get_within_culture_diffs_by_group("control")
-  con <- get_within_culture_diffs_by_group("conflict")
-  cer <- get_within_culture_diffs_by_group("certainty")
-  opn <- get_within_culture_diffs_by_group("openness")
-  siz <- get_within_culture_diffs_by_group("size")
-  uni <- get_within_culture_diffs_by_group("unity")
-  ret <- rbind(cer, con, cot, opn, siz, uni)
-  return(ret)
-}
-
-c <- get_all_within_culture_diffs()
-
-c$condition <- factor(c$condition, levels = c$condition)
-c$culture <- factor(c$culture, levels = c$culture)
-
-g <- ggplot(c, aes(y=means, x=culture)) + 
-  geom_bar(position="dodge", stat="identity") + 
-  aes(fill=condition) + 
-  facet_wrap("group")
-```
 
 
 Ok ok ok I got it. Table to look like
@@ -2557,3 +2308,64 @@ compare_manipulations_between_cultures <- rbind( get_all_within_culture_diffs2(w
 ```
 
 Hey now this is an interesting table!! Shows that our manipulations only occasionally caused significant differences from the original gesture, and sometimes even that was in opposite directions!! 
+
+
+
+
+I just wanna see these things side by side now
+```{r}
+knitr::include_graphics("../gesture_imgs/wg1-0.png")
+knitr::include_graphics("../gesture_imgs/wg1-1.png")
+knitr::include_graphics("../gesture_imgs/wg1-2.png")
+knitr::include_graphics("wg1-barcomp.png")
+kable(get_all_within_culture_diffs2(wg1_total, "wg1"))
+
+knitr::include_graphics("../gesture_imgs/wg2-0.png")
+knitr::include_graphics("../gesture_imgs/wg2-1.png")
+knitr::include_graphics("../gesture_imgs/wg2-2.png")
+knitr::include_graphics("wg2-barcomp.png")
+kable(get_all_within_culture_diffs2(wg2_total, "wg2"))
+
+knitr::include_graphics("../gesture_imgs/wg3-0.png")
+knitr::include_graphics("../gesture_imgs/wg3-1.png")
+knitr::include_graphics("../gesture_imgs/wg3-2.png")
+knitr::include_graphics("wg3-barcomp.png")
+kable(get_all_within_culture_diffs2(wg3_total, "wg3"))
+
+knitr::include_graphics("../gesture_imgs/wg4-0.png")
+knitr::include_graphics("../gesture_imgs/wg4-1.png")
+knitr::include_graphics("../gesture_imgs/wg4-2.png")
+knitr::include_graphics("wg4-barcomp.png")
+kable(get_all_within_culture_diffs2(wg4_total, "wg4"))
+
+knitr::include_graphics("../gesture_imgs/wg5-0.png")
+knitr::include_graphics("../gesture_imgs/wg5-1.png")
+knitr::include_graphics("../gesture_imgs/wg5-2.png")
+knitr::include_graphics("wg5-barcomp.png")
+kable(get_all_within_culture_diffs2(wg5_total, "wg5"))
+
+knitr::include_graphics("../gesture_imgs/eg1-0.png")
+knitr::include_graphics("../gesture_imgs/eg1-1.png")
+knitr::include_graphics("../gesture_imgs/eg1-2.png")
+knitr::include_graphics("eg1-barcomp.png")
+kable(get_all_within_culture_diffs2(eg1_total, "eg1"))
+
+knitr::include_graphics("../gesture_imgs/eg2-0.png")
+knitr::include_graphics("../gesture_imgs/eg2-1.png")
+knitr::include_graphics("../gesture_imgs/eg2-2.png")
+knitr::include_graphics("eg2-barcomp.png")
+kable(get_all_within_culture_diffs2(eg2_total, "eg2"))
+
+knitr::include_graphics("../gesture_imgs/eg3-0.png")
+knitr::include_graphics("../gesture_imgs/eg3-1.png")
+knitr::include_graphics("../gesture_imgs/eg3-2.png")
+knitr::include_graphics("eg3-barcomp.png")
+kable(get_all_within_culture_diffs2(eg3_total, "eg3"))
+
+knitr::include_graphics("../gesture_imgs/eg4-0.png")
+knitr::include_graphics("../gesture_imgs/eg4-1.png")
+knitr::include_graphics("../gesture_imgs/eg4-2.png")
+knitr::include_graphics("eg4-barcomp.png")
+kable(get_all_within_culture_diffs2(eg4_total, "eg4"))
+
+```
