@@ -1615,8 +1615,8 @@ Interestingly, we find a narrow range of responses for *both* western and easter
 
 However this still leaves open the possibility of within-subject correction... but that still doesn't necessarily capture what we want to know. We're specifically testing for cross-cultural differences, so correcting based on the mean doesn't work, and stdevs aren't sig diff. Therefore, it's reasonable to assume the differences we observe are due to true differences in the cultural interpretations of these gestures.
 
-### Random questions
-Q: Are westerners more likely overall to interpret conflict? 
+### More Questions
+#### Q: Are westerners more likely overall to interpret conflict? 
 ```{r}
 w_group_avg <- all_w_viewer_dat %>%
   group_by(group) %>%
@@ -1628,7 +1628,7 @@ e_group_avg <- all_e_viewer_dat %>%
 ```
 A: No. Actually, western avg for conflict = 3.94, whereas eastern = 3.97.
 
-Q: In what categories did the differences occur? 
+#### Q: In what categories did the differences occur? 
 ```{r}
 count_all_differences <- function(dat){
   diffs_only <- dat %>%
@@ -1648,7 +1648,7 @@ kable(diff_counts)
 ```
 A: `r diff_counts`
 
-Q: Did one cultural gesture result in more differences than the other?
+#### Q: Did one cultural gesture result in more differences than the other?
 ```{r}
 all_w_diffs <- rbind(wg1_difference_table, wg2_difference_table, wg3_difference_table, wg4_difference_table, 
                          wg5_difference_table) 
@@ -1657,11 +1657,11 @@ all_e_diffs <- rbind(eg1_difference_table, eg2_difference_table, eg3_difference_
 total_w_diffs <- count_all_differences(all_w_diffs)
 total_e_diffs <- count_all_differences(all_e_diffs)
 ```
-
 total differences in W gestures: `r sum(total_w_diffs$total)`
 total differences in E gestures: `r sum(total_e_diffs$total)`
+A: Yes, the western gestures, but there's no objective "correct" interpretation so who cares.
 
-Q: But who was higher? 
+#### Q: But who was higher? 
 ```{r}
 wg1j <- left_join(wg1_difference_table, wg1_summary_stats, by=c("condition" = "condition", "group" = "group"))
 wg2j <- left_join(wg2_difference_table, wg2_summary_stats, by=c("condition" = "condition", "group" = "group"))
@@ -1698,21 +1698,8 @@ c <- diffs_only %>%
 # cert <- diffs_only %>%
   filter(group=="certainty")
 ```
-tbh I didn't figure out how to automate, just did this and counted by hand
 
-this doesn't make any sense though -- our western viewers are always higher than our eastern basically, but they don't show significant ARS or ERS... 
-
-I guess I'll try normalizing results anyway?
-```{r}
-t <- wg1_total %>%
-  filter(viewer_culture == "western") %>%
-  group_by(group)
-
-unchanged <- t %>%
-  summarise(mean=mean(score), sd=sd(score))
-```
-
-general distributions
+#### Q: What did our score distributions actually look like? 
 ```{r}
 compare_dists <- function(d1, d2, gesture="") {
   w <- d1 %>%
@@ -1745,12 +1732,16 @@ compare_dists <- function(d1, d2, gesture="") {
   
   return(g)
 }
-
+```
+A: Like this, aka not too different: 
+```{r score_distribution}
 overall_distribution <- compare_dists(all_w_dat, all_e_dat) 
 ggsave("overall_distribution.png", overall_distribution)
+overall_distribution
+```
 
-
-## see if difference is sig diff from uniform
+#### Q: Was there a significant difference from uniform distribution in terms of differences between groups? 
+```{r}
 w_viewer_sum <- all_w_dat %>%
     summarise('1'=sum(score==1), '2'=sum(score==2), '3'=sum(score==3), 
               '4'=sum(score==4), '5'=sum(score==5), '6'=sum(score==6), '7'=sum(score==7))
@@ -1767,40 +1758,12 @@ total_diff_raw_scores = data.frame('1'=w_viewer_sum$`1` - e_viewer_sum$`1`,
 # theoretically we have 401 in each category, bc 2808 fewer participants for eastern. 
 tdrw <- c(204, 540, 375, 499, 449, 330, 411)
 ks.test(tdrw, "punif", 360, 440)
-
-## now again but with violin
-compare_dists_violin <- function(d1, d2, gesture="") {
-  w <- d1 %>%
-    mutate(viewer_culture="western") 
-  e <- d2 %>%
-    mutate(viewer_culture="eastern")
-  
-  wed <- rbind(w,e) 
-  g <- ggplot(wed, aes(x=viewer_culture, y=score)) + 
-    geom_dotplot(aes(fill=viewer_culture, alpha=0.9), 
-                position="identity",
-                stackdir='center',
-                binaxis='y',
-                stackratio = 0.02,
-                dotsize=0.5) + 
-    ggtitle(paste("Overall Score Distributions ", gesture)) +
-    theme(text=element_text(size=12, family="serif")) +
-    scale_fill_manual("Viewer Culture", 
-                  labels=c("Eastern", "Western"),
-                  values=c("eastern" = "palegreen3",  # rosybrown1, 3, 4
-                           "western" = "steelblue2",
-                           "difference" = "palevioletred2")) +
-    labs(x="Score", y="Score Frequency")
-  return(g)
-  
-  # GO BACK
-}
-compare_dists_violin(all_w_dat, all_e_dat) 
 ggsave("overall_distribution_violin.png", overall_distribution)
 ```
-So yeah, the overal general distribution of scores is basically the same... Furthermore, the difference should be a uniform distribution... and it is. 
+A: Yes, the overal general distribution of scores is basically the same... Furthermore, the difference should be a uniform distribution... and it is. 
 
-Maybe break it down by gestures?
+
+#### Q: What if we break down the score distribution by gesture?
 ```{r}
 get_comparable_data <- function(dat, g_name) {
   wdat <- dat %>% 
@@ -1847,30 +1810,26 @@ grid.arrange(wg1_dist_plot,
              eg3_dist_plot,
              eg4_dist_plot)
 ```
-
 I see....... it could be the case that although overall averages are the same, the gestures in which eastern folks had interpretations were fewer? 
 
 It's a real pain in the keister to look at each individual distribution, and frankly I don't think that'll help us much. What I'm more interested in is the overall pattern.
 
 ### Within-culture differences
-Q: did our manipulations result in sig diffs within cultures? 
+#### Q: did our manipulations result in sig diffs within cultures? 
 A: Yes, the different gesture conditions led to differences within-culture that were often in the same direction, but sometimes different. Compare them like this:
 
 A2: so, our manipulations were generally effective, especially in the direction we expected for western culture, but sometimes for eastern as well. However, it makes sense that they won't always be the same because the overall picture is showing us that the atomic motion features of a gesture are interpreted differently by different cultures.
 
 
-Q: how did our manipulations influence each culture? 
-## Just some regular old checks. 
-
-
-Ok ok ok I got it. Table to look like
+#### Q: how did our manipulations influence each culture? 
+build the table to look like: 
 viewer_culture |  original.mean   |   group    |   condition1  | condition 2 |  p.diff.1  | p.diff.2
   w                    4.92             cert          5.17          4.62          0.284       0.259
   e                    4.27             cert          3.775         4.18          0.05        0.739
 
-but also need to check directionality of differences
+And also check directionality of differences
 ```{r}
-get_within_culture_diffs_by_group2 <- function(dat, g){
+get_within_culture_diffs_by_group <- function(dat, g){
   wg1.w.viewers <- dat %>%
     filter(viewer_culture=="western") 
   wg1.e.viewers <- dat %>%
@@ -1905,88 +1864,85 @@ get_within_culture_diffs_by_group2 <- function(dat, g){
   return(dt)
 }
 
-get_all_within_culture_diffs2 <- function(dat, name) {
-  cot <- get_within_culture_diffs_by_group2(dat, "control")
-  con <- get_within_culture_diffs_by_group2(dat, "conflict")
-  cer <- get_within_culture_diffs_by_group2(dat, "certainty")
-  opn <- get_within_culture_diffs_by_group2(dat, "openness")
-  siz <- get_within_culture_diffs_by_group2(dat, "size")
-  uni <- get_within_culture_diffs_by_group2(dat, "unity")
+get_all_within_culture_diffs <- function(dat, name) {
+  cot <- get_within_culture_diffs_by_group(dat, "control")
+  con <- get_within_culture_diffs_by_group(dat, "conflict")
+  cer <- get_within_culture_diffs_by_group(dat, "certainty")
+  opn <- get_within_culture_diffs_by_group(dat, "openness")
+  siz <- get_within_culture_diffs_by_group(dat, "size")
+  uni <- get_within_culture_diffs_by_group(dat, "unity")
   ret <- rbind(cer, con, cot, opn, siz, uni) %>%
     mutate("gesture_name" = name)
   return(ret)
 }
 
-compare_manipulations_between_cultures <- rbind( get_all_within_culture_diffs2(wg1_total, "wg1"), 
-                                                 get_all_within_culture_diffs2(wg2_total, "wg2"), 
-                                                 get_all_within_culture_diffs2(wg3_total, "wg3"), 
-                                                 get_all_within_culture_diffs2(wg4_total, "wg4"), 
-                                                 get_all_within_culture_diffs2(wg5_total, "wg5"), 
-                                                 get_all_within_culture_diffs2(eg1_total, "eg1"), 
-                                                 get_all_within_culture_diffs2(eg2_total, "eg2"), 
-                                                 get_all_within_culture_diffs2(eg3_total, "eg3"), 
-                                                 get_all_within_culture_diffs2(eg4_total, "eg4"))
+compare_manipulations_between_cultures <- rbind( get_all_within_culture_diffs(wg1_total, "wg1"), 
+                                                 get_all_within_culture_diffs(wg2_total, "wg2"), 
+                                                 get_all_within_culture_diffs(wg3_total, "wg3"), 
+                                                 get_all_within_culture_diffs(wg4_total, "wg4"), 
+                                                 get_all_within_culture_diffs(wg5_total, "wg5"), 
+                                                 get_all_within_culture_diffs(eg1_total, "eg1"), 
+                                                 get_all_within_culture_diffs(eg2_total, "eg2"), 
+                                                 get_all_within_culture_diffs(eg3_total, "eg3"), 
+                                                 get_all_within_culture_diffs(eg4_total, "eg4"))
 ```
-
-Hey now this is an interesting table!! Shows that our manipulations only occasionally caused significant differences from the original gesture, and sometimes even that was in opposite directions!! 
-
+This is quite interesting! It shows that our manipulations only occasionally caused significant differences from the original gesture, and sometimes even that was in opposite directions!! 
 
 
-
-I just wanna see these things side by side now
+Let's look at a few of them side-by-side
 ```{r}
 knitr::include_graphics("../gesture_imgs/wg1-0.png")
 knitr::include_graphics("../gesture_imgs/wg1-1.png")
 knitr::include_graphics("../gesture_imgs/wg1-2.png")
 knitr::include_graphics("wg1-barcomp.png")
-kable(get_all_within_culture_diffs2(wg1_total, "wg1"))
+kable(get_all_within_culture_diffs(wg1_total, "wg1"))
 
 knitr::include_graphics("../gesture_imgs/wg2-0.png")
 knitr::include_graphics("../gesture_imgs/wg2-1.png")
 knitr::include_graphics("../gesture_imgs/wg2-2.png")
 knitr::include_graphics("wg2-barcomp.png")
-kable(get_all_within_culture_diffs2(wg2_total, "wg2"))
+kable(get_all_within_culture_diffs(wg2_total, "wg2"))
 
 knitr::include_graphics("../gesture_imgs/wg3-0.png")
 knitr::include_graphics("../gesture_imgs/wg3-1.png")
 knitr::include_graphics("../gesture_imgs/wg3-2.png")
 knitr::include_graphics("wg3-barcomp.png")
-kable(get_all_within_culture_diffs2(wg3_total, "wg3"))
+kable(get_all_within_culture_diffs(wg3_total, "wg3"))
 
 knitr::include_graphics("../gesture_imgs/wg4-0.png")
 knitr::include_graphics("../gesture_imgs/wg4-1.png")
 knitr::include_graphics("../gesture_imgs/wg4-2.png")
 knitr::include_graphics("wg4-barcomp.png")
-kable(get_all_within_culture_diffs2(wg4_total, "wg4"))
+kable(get_all_within_culture_diffs(wg4_total, "wg4"))
 
 knitr::include_graphics("../gesture_imgs/wg5-0.png")
 knitr::include_graphics("../gesture_imgs/wg5-1.png")
 knitr::include_graphics("../gesture_imgs/wg5-2.png")
 knitr::include_graphics("wg5-barcomp.png")
-kable(get_all_within_culture_diffs2(wg5_total, "wg5"))
+kable(get_all_within_culture_diffs(wg5_total, "wg5"))
 
 knitr::include_graphics("../gesture_imgs/eg1-0.png")
 knitr::include_graphics("../gesture_imgs/eg1-1.png")
 knitr::include_graphics("../gesture_imgs/eg1-2.png")
 knitr::include_graphics("eg1-barcomp.png")
-kable(get_all_within_culture_diffs2(eg1_total, "eg1"))
+kable(get_all_within_culture_diffs(eg1_total, "eg1"))
 
 knitr::include_graphics("../gesture_imgs/eg2-0.png")
 knitr::include_graphics("../gesture_imgs/eg2-1.png")
 knitr::include_graphics("../gesture_imgs/eg2-2.png")
 knitr::include_graphics("eg2-barcomp.png")
-kable(get_all_within_culture_diffs2(eg2_total, "eg2"))
+kable(get_all_within_culture_diffs(eg2_total, "eg2"))
 
 knitr::include_graphics("../gesture_imgs/eg3-0.png")
 knitr::include_graphics("../gesture_imgs/eg3-1.png")
 knitr::include_graphics("../gesture_imgs/eg3-2.png")
 knitr::include_graphics("eg3-barcomp.png")
-kable(get_all_within_culture_diffs2(eg3_total, "eg3"))
+kable(get_all_within_culture_diffs(eg3_total, "eg3"))
 
 knitr::include_graphics("../gesture_imgs/eg4-0.png")
 knitr::include_graphics("../gesture_imgs/eg4-1.png")
 knitr::include_graphics("../gesture_imgs/eg4-2.png")
 knitr::include_graphics("eg4-barcomp.png")
-kable(get_all_within_culture_diffs2(eg4_total, "eg4"))
-
+kable(get_all_within_culture_diffs(eg4_total, "eg4"))
 ```
+A: We see that our manipulations led to changes in different areas all across the board. 
