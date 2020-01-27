@@ -755,7 +755,10 @@ all_correlational_data.we
 
 ## Stats
 In order to determine whether any of these differences are significant (aka, did people interpret different things from each of the different gesture conditions, which, because we, too, are people, we know they did) we need to see what the significant differences between rankings in each gesture and condition are.
-```{r single_culture_anovas}
+
+#### Cleaning and discerning differences using t and mann-whitney. 
+ANOVAs not necessarily appropriate because it's non-continuous, ordered categorical data. 
+```{r helpers2}
 gather_clean <- function(d, n="") {
   ret <- d %>%
     gather("metaphor_measure", "score", 1:12) %>%
@@ -763,63 +766,9 @@ gather_clean <- function(d, n="") {
     add_groups()
   return(ret)
 }
-
-do_anova_per_group <- function(data, g) {
-  group_data <- data %>%
-    filter(group==g)
-  res.aov <- aov(score ~ condition, data=group_data)
-  print(g)
-  print(summary(res.aov))
-  return(res.aov)
-}
-
-do_anova_per_data <- function(data) {
-  groups <- c("openness",
-              "conflict",
-              "control", 
-              "size",
-              "certainty",
-              "unity")
-  
-  print("==== BY GROUP ====")
-  for (g in groups) {
-    print(g)
-    a <- do_anova_per_group(data, g)
-    print(summary(a))
-    print("========================")
-  }
-}
-
-do_anova_per_gest <- function(d0, d1, d2) {
-  d <- rbind(gather_clean(d0, "original"), 
-             gather_clean(d1, "cond1"), 
-             gather_clean(d2, "cond2"))
-  do_anova_per_data(d)
-}
-
-do_all_anovas <- function() {
-  print("!!!!UNPOLITE!!!!!")
-  do_anova_per_gest(wg1.0.w, wg1.1.w, wg1.2.w)
-  print(" ")
-  print("!!!!ENTITY!!!!!")
-  do_anova_per_gest(wg2.0.w, wg2.1.w, wg2.2.w)
-  print(" ")
-  print("!!!!AUDIENCE!!!!!")
-  do_anova_per_gest(wg3.0.w, wg3.1.w, wg3.2.w)
-  print(" ")
-  print("!!!!PROTECTED!!!!!")
-  do_anova_per_gest(wg4.0.w, wg4.1.w, wg4.2.w)
-  print(" ")
-  print("!!!!BOWL!!!!!")
-  do_anova_per_gest(wg5.0.w, wg5.1.w, wg5.2.w)
-}
-
-#do_all_anovas()
 ```
 
-
-Now get those T-Tests done DID.
-
+T-tests for mean differences in averages. 
 ```{r}
 get_sig_val <- function(p) {
   if(p < 0.0005) {
@@ -834,7 +783,7 @@ get_sig_val <- function(p) {
   return ("")
 }
 
-get_nice_things <- function(d0, d1, d2, n0="original", n1="cond1", n2="cond2") {
+clean_data <- function(d0, d1, d2, n0="original", n1="cond1", n2="cond2") {
   d0_g_cl <- gather_clean(d0, n0) 
   d1_g_cl <- gather_clean(d1, n1) 
   d2_g_cl <- gather_clean(d2, n2)
@@ -842,25 +791,24 @@ get_nice_things <- function(d0, d1, d2, n0="original", n1="cond1", n2="cond2") {
   return(d_total)
 }
 
-
 ## Have to do this hacky bit for getting the data frame and I haven't figured out why but 
 ## passing the data directly just doesn't play.
 do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
   d <- data.frame()
   if(dat == "1") {
-    d <- get_nice_things(wg1.0.w, wg1.1.w, wg1.2.w)
+    d <- clean_data(wg1.0.w, wg1.1.w, wg1.2.w)
   }
   if(dat == "2") {
-    d <- get_nice_things(wg2.0.w, wg2.1.w, wg2.2.w)
+    d <- clean_data(wg2.0.w, wg2.1.w, wg2.2.w)
   }
   if(dat == "3") {
-    d <- get_nice_things(wg3.0.w, wg3.1.w, wg3.2.w)
+    d <- clean_data(wg3.0.w, wg3.1.w, wg3.2.w)
   }
   if(dat == "4") {
-    d <- get_nice_things(wg4.0.w, wg4.1.w, wg4.2.w)
+    d <- clean_data(wg4.0.w, wg4.1.w, wg4.2.w)
     }
   if(dat == "5") {
-    d <- get_nice_things(wg5.0.w, wg5.1.w, wg5.2.w)
+    d <- clean_data(wg5.0.w, wg5.1.w, wg5.2.w)
   }
   
   p <- as.numeric(t.test(
@@ -874,19 +822,19 @@ do_t_test_adjusted <- function(cond1, cond2, statement, dat) {
 do_wilcox_adjusted <- function(cond1, cond2, statement, dat) {
   d <- data.frame()
   if(dat == "1") {
-    d <- get_nice_things(wg1.0.w, wg1.1.w, wg1.2.w)
+    d <- clean_data(wg1.0.w, wg1.1.w, wg1.2.w)
   }
   if(dat == "2") {
-    d <- get_nice_things(wg2.0.w, wg2.1.w, wg2.2.w)
+    d <- clean_data(wg2.0.w, wg2.1.w, wg2.2.w)
   }
   if(dat == "3") {
-    d <- get_nice_things(wg3.0.w, wg3.1.w, wg3.2.w)
+    d <- clean_data(wg3.0.w, wg3.1.w, wg3.2.w)
   }
   if(dat == "4") {
-    d <- get_nice_things(wg4.0.w, wg4.1.w, wg4.2.w)
+    d <- clean_data(wg4.0.w, wg4.1.w, wg4.2.w)
     }
   if(dat == "5") {
-    d <- get_nice_things(wg5.0.w, wg5.1.w, wg5.2.w)
+    d <- clean_data(wg5.0.w, wg5.1.w, wg5.2.w)
   }
   
   p <- as.numeric(wilcox.test(score ~ condition, 
@@ -904,7 +852,6 @@ get_vals <- function(condition_name, g, dat) {
   ret <- ret$score  
   return(ret)
 }
-
 
 # For some reason can't generalize this to all gestures?
 make_table_per_gesture <- function(gest_name, cond1name, cond2name, dat, do_wilcox=FALSE) {
@@ -956,11 +903,9 @@ wg4_sig_table_wilcox <- make_table_per_gesture("protected", "cond1", "cond2", "4
 wg5_sig_table <- make_table_per_gesture("bowl", "cond1", "cond2", "5")
 wg5_sig_table_wilcox <- make_table_per_gesture("bowl", "cond1", "cond2", "5", do_wilcox=TRUE)
 
-
-
 #### Do spot tests below ####
 spot_test <- function(d0, d1, d2, cond1="cond1", cond2="cond2", g="openness") {
-  d <- get_nice_things(d0, d1, d2)
+  d <- clean_data(d0, d1, d2)
   g1 <- d %>%
     filter(condition==cond1, group==g)
   g2 <- d %>%
@@ -992,10 +937,10 @@ kable(filter(wg5_sig_table_wilcox, sig != ""))
 ```
 The above shows that t tests and mann-whitney-wilcox have the same significance results.
 
-## Individual Response Patterns tho
-Cool so we have all this but what do *individuals* actually perceive -- multiple interpretations, or one predominant one? Only likert will tell us. 
+## Individual Response Patterns 
+Cool so we have all this but what do *individuals* actually perceive -- multiple interpretations, or one predominant one? 
 
-Let's do this with a **PIE CHART** BAYBEEEEE
+### Looking at individual response styles through pie chart. 
 -- highly is 5,6,7 for likert
 - people who ranked X & Y highly 
 - people who ranked X highly (but not Y)
@@ -1027,7 +972,6 @@ get_pie_data <- function(dat, group1, group2) {
   both_high <- (both_high / nrow(indiv_dat)) 
   neither_high <- (neither_high / nrow(indiv_dat))
   
-  
   df <- data.frame(
     group = c("both", group1, "neither", group2),
     value = c(both_high, g1_high, neither_high, g2_high)
@@ -1056,53 +1000,30 @@ make_pie_chart <- function(dat, group1, group2, gesture_name, cond) {
   return(pie)
 }
 
-
-p_maker <- function(dat, g1, g2, c1, c2) {
+make_individual_pie_comparisons <- function(dat, g1, g2, c1, c2) {
   p <- make_pie_chart(get_pie_data(dat, g1, g2), "likert", paste(g1, g2, sep="/"), c1, c2)
 }
 
-p_wg1.0.w <- p_maker(wg1.0.w, "conflict", "unity", "unpolite", "original")
-p_wg1.1.w <- p_maker(wg1.1.w, "conflict", "unity", "unpolite", "intertwine")
-p_wg1.2.w <- p_maker(wg1.2.w, "conflict", "unity", "unpolite", "collide")
-p_wg2.0.w <- p_maker(wg2.0.w, "control", "openness", "entity", "original")
-p_wg2.1.w <- p_maker(wg2.1.w, "control", "openness", "entity", "open")
-p_wg2.2.w <- p_maker(wg2.2.w, "control", "openness", "entity", "chest")
-p_wg3.0.w <- p_maker(wg3.0.w, "openness", "unity", "audience", "original")
-p_wg3.1.w <- p_maker(wg3.1.w, "openness", "unity", "audience", "down")
-p_wg3.2.w <- p_maker(wg3.2.w, "openness", "unity", "audience", "open")
-p_wg4.0.w <- p_maker(wg4.0.w, "size", "control", "anything", "original")
-p_wg4.1.w <- p_maker(wg4.1.w, "size", "control", "anything", "frame")
-p_wg4.2.w <- p_maker(wg4.2.w, "size", "control", "anything", "surface")
-p_wg5.0.w <- p_maker(wg5.0.w, "certainty", "unity", "specific", "original")
-p_wg5.1.w <- p_maker(wg5.1.w, "certainty", "unity", "specific", "bowl")
-p_wg5.2.w <- p_maker(wg5.2.w, "certainty", "unity", "specific", "forward")
-p_wg1.0.e <- p_maker(wg1.0.e, "conflict", "unity", "unpolite", "original")
-p_wg1.1.e <- p_maker(wg1.1.e, "conflict", "unity", "unpolite", "intertwine")
-p_wg1.2.e <- p_maker(wg1.2.e, "conflict", "unity", "unpolite", "collide")
+p_wg1.0.w <- make_individual_pie_comparisons(wg1.0.w, "conflict", "unity", "unpolite", "original")
+p_wg1.1.w <- make_individual_pie_comparisons(wg1.1.w, "conflict", "unity", "unpolite", "intertwine")
+p_wg1.2.w <- make_individual_pie_comparisons(wg1.2.w, "conflict", "unity", "unpolite", "collide")
 
+p_wg1.0.e <- make_individual_pie_comparisons(wg1.0.e, "conflict", "unity", "unpolite", "original")
+p_wg1.1.e <- make_individual_pie_comparisons(wg1.1.e, "conflict", "unity", "unpolite", "intertwine")
+p_wg1.2.e <- make_individual_pie_comparisons(wg1.2.e, "conflict", "unity", "unpolite", "collide")
 ```
 
-```{r wg_wp_only}
-all_wg1_data$violin_density_grouped_overlay
-grid.arrange(p_wg1.0.w, p_wg1.1.w, p_wg1.2.w, ncol=3)
-all_wg2_data$violin_density_grouped_overlay
-grid.arrange(p_wg2.0.w, p_wg2.1.w, p_wg2.2.w, ncol=3)
-all_wg3_data$violin_density_grouped_overlay
-grid.arrange(p_wg3.0.w, p_wg3.1.w, p_wg3.2.w, ncol=3)
-all_wg4_data$violin_density_grouped_overlay
-grid.arrange(p_wg4.0.w, p_wg4.1.w, p_wg4.2.w, ncol=3)
-all_wg5_data$violin_density_grouped_overlay
-grid.arrange(p_wg5.0.w, p_wg5.1.w, p_wg5.2.w, ncol=3)
-```
-
-
-and now for comparing western and eastern:
+For example, we can visualize the difference between how individuals in western culture rated different response domains comapred to eastern cultures as below: 
+#### Comparing cultures 
 ```{r}
 grid.arrange(p_wg1.0.w, p_wg1.0.e, 
              p_wg1.1.w, p_wg1.1.e,
              p_wg1.2.w, p_wg1.2.e, 
              ncol=2)
 ```
+Notice how the amount rating "both" and "neither" changes significantly between the cultures. This indicates that the different cultures pick up different semantic cues from the gesture. 
+
+There is not a pattern in the responses in terms of one population rating "both" more often than the other. That is to say, neither culture is "more predisposed" to have multiple interpretations. 
 
 
 ## this is just messy
