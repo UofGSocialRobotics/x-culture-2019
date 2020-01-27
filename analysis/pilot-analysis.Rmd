@@ -1026,91 +1026,11 @@ Notice how the amount rating "both" and "neither" changes significantly between 
 There is not a pattern in the responses in terms of one population rating "both" more often than the other. That is to say, neither culture is "more predisposed" to have multiple interpretations. 
 
 
-## this is just messy
+# Compare interpretations between cultures
+
+#### Reorganize data to have viewer_culture 
 ```{r}
-## let's say ranking 1,2,3
-
-## oh shit let's pull in the ranking data. 
-uo <- read.csv('../../IVA2019-data-and-examples/uo_individuals.csv')
-ut <- read.csv('../../IVA2019-data-and-examples/ut_individuals.csv')
-uf <- read.csv('../../IVA2019-data-and-examples/uf_individuals.csv')
-
-## now just massage it so it looks nicer...
-clean_ranking_dat <- function(dat) {
-  dat <- dat[-1,]
-  dat <- dat %>%
-  select(Please.order.these.questions.from.most..first..to.least..last..true., 
-         X,
-         X.1,
-         X.2,
-         X.3,
-         X.4,
-         X.5,
-         X.6,
-         X.7,
-         X.8) 
-  n <- c("worktogether", "everybody", "tension", "disagree", "many", 
-             "getalong", "likes", "annoyed", "control", "feedback")
-  names(dat) <- n
-  dat <- dat[!apply(dat, 1, function(x) any(x=="")),]
-  dat$worktogether <- as.numeric(as.character(dat$worktogether))
-  dat$tension <- as.numeric(as.character(dat$tension))
-  dat$disagree <- as.numeric(as.character(dat$disagree))
-  dat$getalong <- as.numeric(as.character(dat$getalong))
-  return(dat)
-}
-
-group_ranking_dat <- function(dat) {
-  d <- dat %>%
-    mutate(conflict_high = (tension <= 3 | disagree <= 3),
-           unity_high = (worktogether <= 3 | getalong <= 3))
-}
-
-get_pie_data_ranked <- function(dat) {
-  both_high <- sum(dat$conflict_high & dat$unity_high)
-  g1_high <- sum(dat$conflict_high & !dat$unity_high)
-  g2_high <- sum(!dat$conflict_high & dat$unity_high)
-  neither_high <- sum(!dat$conflict_high & !dat$unity_high)
-  
-  df <- data.frame(
-    group = c("both", "conflict", "unity", "neither"),
-    value = c(both_high, g1_high, g2_high, neither_high)
-  )
-  
-  return(df)
-}
-
-prep_ranked_for_pie <- function(dat) {
-  d_indiv_clean <- clean_ranking_dat(dat)
-  d_grouped <- group_ranking_dat(d_indiv_clean)
-  pie_dat <- get_pie_data_ranked(d_grouped)
-  return(pie_dat)
-}
-
-p_uo_ranked <- prep_ranked_for_pie(uo)
-p_ut_ranked <- prep_ranked_for_pie(ut)
-p_uf_ranked <- prep_ranked_for_pie(uf)
-
-p_wg1.0_ranked <- make_pie_chart(p_uo_ranked, "ranked", "conflict/unity", "unpolite", "original")
-p_wg1.1_ranked <- make_pie_chart(p_ut_ranked, "ranked", "conflict/unity", "unpolite", "intertwine")
-p_wg1.2_ranked <- make_pie_chart(p_uf_ranked, "ranked", "conflict/unity", "unpolite", "collide")
-```
-
-So here are our ranked ones
-```{r}
-grid.arrange(p_wg1.0.w, p_wg1.0_ranked, p_wg1.1.w, p_wg1.1_ranked, p_wg1.2.w, p_wg1.2_ranked, nrow=3, ncol=2)
-```
-
-
-
-
-
-
-# PART TWO: BICULTURALISM AT ITS FINEST
-
-## Wrangle these bad larries
-```{r}
-wrangle_mini <- function(d, cond="data", culture="western") {
+wrangle_culture_groups <- function(d, cond="data", culture="western") {
   gathered <- gather_select(d)
   grouped <- add_groups(gathered)
   grouped$condition <- cond
@@ -1119,21 +1039,17 @@ wrangle_mini <- function(d, cond="data", culture="western") {
 }
 
 create_total_bicultural_tables <- function(wd0, wd1, wd2, ed0, ed1, ed2, cond1="cond1", cond2="cond2") {
-  d0_w <- wrangle_mini(wd0, "original", "western")
-  d1_w <- wrangle_mini(wd1, cond1, "western")
-  d2_w <- wrangle_mini(wd2, cond2, "western")
-  d0_e <- wrangle_mini(ed0, "original", "eastern")
-  d1_e <- wrangle_mini(ed1, cond1, "eastern")
-  d2_e <- wrangle_mini(ed2, cond2, "eastern")
+  d0_w <- wrangle_culture_groups(wd0, "original", "western")
+  d1_w <- wrangle_culture_groups(wd1, cond1, "western")
+  d2_w <- wrangle_culture_groups(wd2, cond2, "western")
+  d0_e <- wrangle_culture_groups(ed0, "original", "eastern")
+  d1_e <- wrangle_culture_groups(ed1, cond1, "eastern")
+  d2_e <- wrangle_culture_groups(ed2, cond2, "eastern")
   
   total <- rbind(d0_w, d1_w, d2_w, d0_e, d1_e, d2_e) 
 }
 
-## Pretending that wg4 is our eastern viewers for wg1
-## when we actually do it it'll be wg1.0.w, wg1.1.w, wg1.2.w, wg1.0.e, wg1.1.e, wg1.2.e
 wg1_total <- create_total_bicultural_tables(wg1.0.w, wg1.1.w, wg1.2.w, wg1.0.e, wg1.1.e, wg1.2.e, "cond1", "cond2")
-### could put this all in a loop but writing it out isn't so bad and it helps me see just how much data we have.
-#Uncomment for a good time [[once we have the bi-cultural data]]
 wg2_total <- create_total_bicultural_tables(wg2.0.w, wg2.1.w, wg2.2.w, wg2.0.e, wg2.1.e, wg2.2.e, "cond1", "cond2")
 wg3_total <- create_total_bicultural_tables(wg3.0.w, wg3.1.w, wg3.2.w, wg3.0.e, wg3.1.e, wg3.2.e, "cond1", "cond2")
 wg4_total <- create_total_bicultural_tables(wg4.0.w, wg4.1.w, wg4.2.w, wg4.0.e, wg4.1.e, wg4.2.e, "cond1", "cond2")
@@ -1144,21 +1060,11 @@ eg2_total <- create_total_bicultural_tables(eg2.0.w, eg2.1.w, eg2.2.w, eg2.0.e, 
 eg3_total <- create_total_bicultural_tables(eg3.0.w, eg3.1.w, eg3.2.w, eg3.0.e, eg3.1.e, eg3.2.e, "cond1", "cond2")
 eg4_total <- create_total_bicultural_tables(eg4.0.w, eg4.1.w, eg4.2.w, eg4.0.e, eg4.1.e, eg4.2.e, "cond1", "cond2")
 # eg5_total <- create_total_bicultural_tables(eg5.0.w, eg5.1.w, eg5.2.w, eg5.0.e, eg5.1.e, eg5.2.e, "cond1", "cond2")
-
-
-discretize_score <- function(data) {
-  d <- data %>%
-    mutate("score_grouping", )
-}
 ```
 
-cool now we have all that data in one place. We need to compare the western and eastern viewers across conditions. 
-
-## Plot these bad larries.
-Easy enough to do stats on means between cultures but baby I wanna see those VIOLIN PLOTSSSSSS.
-
+### Violin plot comparisons
 Can only plot by one thing at a time (i.e. for a single gesture condition then visualize across 
-metaphor measures, or for a single metaphor measure then visualize across conditions. The second doesn't make sense though....)
+metaphor measures, or for a single metaphor measure then visualize across conditions)
 ```{r}
 median.quartile <- function(x){
   out <- quantile(x, probs = c(0.25,0.5,0.75))
@@ -1190,8 +1096,6 @@ get_violin_comparisons_per_gesture <- function(dat, cond1="cond1", cond2="cond2"
   return_list <- list("c0_violin_comparison"=c0)
 }
 
-t <- get_violin_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
-
 wg1_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg1_total, "cond1", "cond2", "wg1")
 wg2_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg2_total, "cond1", "cond2", "wg2")
 wg3_violin_culture_comparisons <- get_violin_comparisons_per_gesture(wg3_total, "cond1", "cond2", "wg3")
@@ -1206,12 +1110,9 @@ eg4_violin_culture_comparisons <- get_violin_comparisons_per_gesture(eg4_total, 
 ```
 Now the plots live in things like `wg1_violin_culture_comparisons$c0_violin_comparison`
 
-Cool now across I actually don't think the other comparison makes sense because you're comparing things across different gestures which defeats the purpose of the visualizations. 
-
-So anyway, 
+These visualizations are not very useful though, because they don't do a good job of emphasizing the differences between cultures. 
 
 ### Stats
-Could do ANOVAs but it doesn't necessarily make sense since we're just comparing two groups.
 ```{r echo = FALSE}
 bi_culture_t_test <- function(g1, g2) {
   p <- t.test(g1, g2)[3]$p.value
@@ -1283,90 +1184,30 @@ eg4_total_cultural_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", 
 Now all that data lives in things like `wg1_total_cultural_comparison_tables$c0_comparison`
 that look like this:
 WG1-0 (this name isn't here in the actual version, we just know from the naming scheme)
-
-
 ```{r save everything, include=FALSE}
 # Western
 ggsave("wg1_violin_jitter.png", plot=wg1_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg2_violin_jitter.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg3_violin_jitter.png", plot=wg3_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg4_violin_jitter.png", plot=wg4_violin_culture_comparisons$c0_violin_comparison)
-ggsave("wg5_violin_jitter.png", plot=wg5_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("wg2_violin_jitter.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("wg3_violin_jitter.png", plot=wg3_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("wg4_violin_jitter.png", plot=wg4_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("wg5_violin_jitter.png", plot=wg5_violin_culture_comparisons$c0_violin_comparison)
 # Eastern
-ggsave("eg1_violin_jitter.png", plot=eg1_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg2_violin_jitter.png", plot=eg2_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg3_violin_jitter.png", plot=eg3_violin_culture_comparisons$c0_violin_comparison)
-ggsave("eg4_violin_jitter.png", plot=eg4_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("eg1_violin_jitter.png", plot=eg1_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("eg2_violin_jitter.png", plot=eg2_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("eg3_violin_jitter.png", plot=eg3_violin_culture_comparisons$c0_violin_comparison)
+#ggsave("eg4_violin_jitter.png", plot=eg4_violin_culture_comparisons$c0_violin_comparison)
 ```
 
-### WG1
+#### WG1
 Original, Cond1, Cond2
 Basically, "were there significant differences between western and eastern viewers in this set of conditions?"
 ```{r wg1_violin}
-knitr::include_graphics("wg1_violin_jitter.png")
-kable(wg1_total_cultural_comparison_tables$c0_comparison)
+# knitr::include_graphics("wg1_violin_jitter.png")
+# kable(wg1_total_cultural_comparison_tables$c0_comparison)
 ```
+As we said before, this visualization does a pretty lousy job of actually highlighting the differences between the cultures. 
 
-### WG2
-Original, Cond1, Cond2
-```{r wg2_violin}
-knitr::include_graphics("wg2_violin_jitter.png")
-kable(wg2_total_cultural_comparison_tables$c0_comparison)
-```
-
-### WG3
-Original, Cond1, Cond2
-```{r wg3_violin}
-knitr::include_graphics("wg3_violin_jitter.png")
-kable(wg3_total_cultural_comparison_tables$c0_comparison)
-```
-
-### WG4
-Original, Cond1, Cond2
-```{r wg4_violin}
-knitr::include_graphics("wg4_violin_jitter.png")
-kable(wg4_total_cultural_comparison_tables$c0_comparison)
-```
-
-### WG5
-Original, Cond1, Cond2
-```{r wg5_violin}
-knitr::include_graphics("wg5_violin_jitter.png")
-kable(wg5_total_cultural_comparison_tables$c0_comparison)
-```
-
-
-### EG1
-Original, Cond1, Cond2
-```{r eg1_violin}
-knitr::include_graphics("eg1_violin_jitter.png")
-kable(eg1_total_cultural_comparison_tables$c0_comparison)
-```
-
-### EG2
-Original, Cond1, Cond2
-```{r eg2_violin}
-knitr::include_graphics("eg2_violin_jitter.png")
-kable(eg2_total_cultural_comparison_tables$c0_comparison)
-```
-
-### EG3
-Original, Cond1, Cond2
-```{r eg3_violin}
-knitr::include_graphics("eg3_violin_jitter.png")
-kable(eg3_total_cultural_comparison_tables$c0_comparison)
-```
-
-### EG4
-Original, Cond1, Cond2
-```{r eg4_violin}
-knitr::include_graphics("eg4_violin_jitter.png")
-kable(eg4_total_cultural_comparison_tables$c0_comparison)
-```
-
-
-### Are these powers good enough?
-Quick spot check...
+### Experimental power
 ```{r power_check}
 get_effect_size <- function(vec1, vec2) {
   u1 <- mean(vec1)
@@ -1389,8 +1230,7 @@ calculate_power_for_condition <- function(gesture_data, metaphor, cond) {
   return(power)
 }
 ```
-
-Short Answer: yes because we grouped so n = 2n lol. Interestingly, only for the significant differences do we see powers > 0.8. I mean not *that* interestingly cause like that's how effect size works but still. Anyway, power is definitely high enough.
+Short Answer: yes, power is high enough
 
 Example usage:
 ```{r echo = TRUE}
@@ -1400,71 +1240,15 @@ Then you get a variable called `cond_power` you can use to see the actual power 
 In this case our power is `r cond_power$power`
 
 
-
-
 ### Analyzing with high/med/low
-```{r pie_buckets_indiv}
-wg1_bucket_scores <- wg1_total %>% 
-    mutate(score_bucket = ifelse(score %in% 5:7, "chigh", 
-                          ifelse(score %in% 3:4, "bmed",
-                          ifelse(score %in% 1:2, "alow", "NA"))))
+We're bucketing our results into high/medium/low to analyze the differences in interpretation, because either a high or low response essentially means the individual had an opinion or an interpretation of the gesture, whereas medium responses suggested no interpretation. 
 
-make_pie_bucket_scores <- function(dat, group1, group2, gesture_name, cond) {
-  blank_theme <- theme_minimal() +
-      theme(
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        panel.border = element_blank(),
-        panel.grid=element_blank(),
-        axis.ticks = element_blank(),
-        plot.title=element_text(size=7, face="bold")
-      )
-
-  pie <- ggplot(dat, aes(x="", y=value, fill=score_bucket))+
-    geom_bar(width = 1, stat = "identity") + 
-    coord_polar("y", start=0)+  blank_theme +
-    theme(axis.text.x=element_blank()) +
-    geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5)) +
-    ggtitle(paste("comp.", gesture_name, cond," -- ", group1, "//", group2))
-  return(pie)
-}
-
-```
-
-```{r old_dotplot}
-## 21/8/19 my god this is so quick and dirty I am deeply ashamed.
-## 22/8/19 also it doesn't work right now
-## 29/8/19 abandoned this line of analysis
-
-# t <- filter(wg1_bucket_scores, viewer_culture=="western", group=="conflict")
-
-# a <- sum(t$score_bucket == "ahigh") / nrow(t) 
-# b <- sum(t$score_bucket == "bmed") / nrow(t)
-# c <- sum(t$score_bucket == "clow") / nrow(t)
-# 
-# bucket <- c("high", "med", "low")
-# value <- c(a,b,c)
-# 
-# df <- data.frame(bucket, value)
-# 
-# wg1_bucket_scores$score_bucket <- as.factor(wg1_bucket_scores$score_bucket)
-# wg1_bucket_scores$condition <- as.factor(wg1_bucket_scores$condition)
-# 
-# ggplot(wg1_bucket_scores, aes(x=condition, y=score_bucket, fill=viewer_culture))+
-#     geom_dotplot(stackdir="center", dotsize=0.3, binwidth = 0.1)
-
-```
-
-
-
-## Now analyze high/med/low
-```{r shitshow_of_bucketing_cultural_data}
+```{r bucket_cultural_data}
 bucket_culture_scores <- function(dat) {
   d <- dat %>%
     mutate(score_bucket = ifelse(score >= 5, "ahigh", ifelse(score <= 3, "clow", "bmedium")))
   return(d)
 }
-
 
 get_bucket_values <- function(d) {
   # this is so hacky it's absoultely gross.
@@ -1485,11 +1269,6 @@ get_bucket_values <- function(d) {
   return(lmh_vals)
 }
 
-## there is a bug in this analysis
-# it currently calculates the y axis (bucket_percent) by calculating percentage of 
-# ALL groups, not just for the individual culture. It needs to be individual by culture
-# because the groups don't have the same number of participants so results will be 
-# skewed if it's not.
 get_bucketed_data <- function(dat) {
   groups = c("unity", "conflict", "openness", "control", "size", "certainty")
   cultures = c("western", "eastern") # have to do it by culture because otherwise 
@@ -1523,7 +1302,6 @@ get_bucketed_data <- function(dat) {
   return(full_dat)
 }
 
-
 create_bucketed_bar_chart <- function(dat, gest) {
   d <- get_bucketed_data(dat)
   test_comparisons <- list(c("ahigh_eastern","ahigh_western"),c("bmedium_eastern", "bmedium_western"),c("clow_eastern", "clow_western"))
@@ -1545,7 +1323,6 @@ create_bucketed_bar_chart <- function(dat, gest) {
   return(p)
 }
 
-
 wg1_comp <- create_bucketed_bar_chart(wg1_total, "WG1")
 wg2_comp <- create_bucketed_bar_chart(wg2_total, "WG2")
 wg3_comp <- create_bucketed_bar_chart(wg3_total, "WG3")
@@ -1558,7 +1335,7 @@ eg3_comp <- create_bucketed_bar_chart(eg3_total, "EG3")
 eg4_comp <- create_bucketed_bar_chart(eg4_total, "EG4")
 
 
-get_summary_stats <- function(dat) {?pwr.anova.test
+get_summary_stats <- function(dat) {
   t <- get_bucketed_data(dat) %>%
     select(group, condition, viewer_culture, score_bucket, count_bucket) %>%
     group_by(condition, group, viewer_culture) %>%
@@ -1586,12 +1363,10 @@ eg3_summary_stats <- get_summary_stats(eg3_total)
 eg4_summary_stats <- get_summary_stats(eg4_total)
 ```
 
-### Do some STATS on these puppies.
+### And now actually analyze the stats we've gathered
 1. Tell if proportion between groups are sig.
 ```{r calculate_bucket_stats, include=FALSE}
 test_bucketed_significance <- function(dat) {
-  #new_col_names <- c("condition", "group", "high_comp", "med_comp", "low_comp")
-  #names(newdf) <- new_col_names
   condition <- c()
   group <- c()
   high_comp <- c()
@@ -1686,7 +1461,7 @@ eg3_difference_table <- test_bucketed_significance(eg3_summary_stats)
 eg4_difference_table <- test_bucketed_significance(eg4_summary_stats)
 ```
 
-Display these bad puppies now
+And here are all of the results of the cultural comparison by buckets.
 ```{r display_cultural_bucket_bars}
 knitr::include_graphics("../gesture_imgs/wg1-0.png")
 knitr::include_graphics("../gesture_imgs/wg1-1.png")
@@ -1754,12 +1529,11 @@ kable(eg4_difference_table)
 ```
 
 
-### Questions from Stacy:
+### Additional questions:
 Q: How do we tell whether people HAD an interpretation, or if it was uniform confusion?
-A: Let's see a pie chart of things rated "high" maybe?
+A: Look instead of "low," and "high," the union of the two -- those who had interpretation. 
 ```{r strong_interpretation_buckets}
-
-get_strong_interpretation_graphs <- function(dat, gest="WG1") {
+get_strong_interpretation_graphs <- function(dat, gest) {
   d <- dat %>%
   mutate("strong_intp"= ahigh + clow) %>%
   gather("score_bucket", "interpretation", 4:6, 9) %>%
@@ -1768,14 +1542,6 @@ get_strong_interpretation_graphs <- function(dat, gest="WG1") {
 
   g <- ggplot(d,aes(x=condition,y=interpretation,fill=factor(culture_bucket)))+
     geom_bar(stat="identity",position="dodge")+
-    # uncomment this and change line 1888 to 
-    #   mutate("culture_bucket"=paste(viewer_culture, score_bucket, sep="_"))
-    # scale_fill_manual("legend", values=c("eastern_strong_intp" = "palevioletred2",
-    #                                    "eastern_bmedium" = "steelblue2",
-    #                                    "western_bmedium" = "steelblue4",
-    #                                    "western_strong_intp" = "palevioletred4")) + 
-    # uncomment this and change line 1888 to 
-    # mutate("culture_bucket"=paste(score_bucket, viewer_culture, sep="_"))
     scale_fill_manual("legend", values=c("strong_intp_eastern" = "palevioletred2",
                                        "bmedium_eastern" = "steelblue2",
                                        "bmedium_western" = "steelblue4",
@@ -1785,11 +1551,14 @@ get_strong_interpretation_graphs <- function(dat, gest="WG1") {
     facet_wrap("group")
   return(g)
 }
-t <- get_strong_interpretation_graphs(wg1_summary_stats)
+
+weak.strong.interp <- get_strong_interpretation_graphs(wg1_summary_stats, "WG1")
+weak.strong.interp
 ```
 
-The way to interpret this graph is the blues are the medium values, the pinks are the extreme (high+ low) values. The light is eastern, the dark is western. The blue being higher than the pinks indicate that there was NOT a strong interpretation -- that is, more people ranked it 3,4,5 than EITHER 1,2 or 6,7 -- that is to say, they chose a weaker rather than stronger interpretation. This is particularly clear in the case of the conflict condition for westerners in WG1 -- note that there is a very strong clear interpretation for westerners, but not at all for easterners. 
+The way to interpret this graph is the blues are the medium values, the pinks are the extreme (high+ \low) values. The light is eastern, the dark is western. The blue being higher than the pinks indicate that there was NOT a strong interpretation -- that is, more people ranked it 4 less than EITHER 1,2,3 or 5,6,7 -- that is to say, they chose an interpretation! This is particularly clear in the case of the conflict condition for westerners in WG1 -- note that there is a very strong clear interpretation for westerners, but not at all for easterners. 
 
+You can calculate and view all of them below: 
 ```{r display_strong_interpretation_buckets}
 wg1_strong_int_graph <- get_strong_interpretation_graphs(wg1_summary_stats, "WG1")
 wg2_strong_int_graph <- get_strong_interpretation_graphs(wg2_summary_stats, "WG2")
@@ -1802,75 +1571,6 @@ eg2_strong_int_graph <- get_strong_interpretation_graphs(eg2_summary_stats, "EG2
 eg3_strong_int_graph <- get_strong_interpretation_graphs(eg3_summary_stats, "EG3")
 eg4_strong_int_graph <- get_strong_interpretation_graphs(eg4_summary_stats, "EG4")
 ```
-
-
-Display these bad puppies now
-```{r display_cultural_bucket_bars_strong_interpret}
-knitr::include_graphics("../gesture_imgs/wg1-0.png")
-knitr::include_graphics("../gesture_imgs/wg1-1.png")
-knitr::include_graphics("../gesture_imgs/wg1-2.png")
-ggsave("wg1-barcomp.png", plot=wg1_comp)
-knitr::include_graphics("wg1-barcomp.png")
-kable(wg1_difference_table)
-
-knitr::include_graphics("../gesture_imgs/wg2-0.png")
-knitr::include_graphics("../gesture_imgs/wg2-1.png")
-knitr::include_graphics("../gesture_imgs/wg2-2.png")
-ggsave("wg2-barcomp.png", plot=wg2_comp)
-knitr::include_graphics("wg2-barcomp.png")
-kable(wg2_difference_table)
-
-knitr::include_graphics("../gesture_imgs/wg3-0.png")
-knitr::include_graphics("../gesture_imgs/wg3-1.png")
-knitr::include_graphics("../gesture_imgs/wg3-2.png")
-ggsave("wg3-barcomp.png", plot=wg3_comp)
-knitr::include_graphics("wg3-barcomp.png")
-kable(wg3_difference_table)
-
-knitr::include_graphics("../gesture_imgs/wg4-0.png")
-knitr::include_graphics("../gesture_imgs/wg4-1.png")
-knitr::include_graphics("../gesture_imgs/wg4-2.png")
-ggsave("wg4-barcomp.png", plot=wg4_comp)
-knitr::include_graphics("wg4-barcomp.png")
-kable(wg4_difference_table)
-
-knitr::include_graphics("../gesture_imgs/wg5-0.png")
-knitr::include_graphics("../gesture_imgs/wg5-1.png")
-knitr::include_graphics("../gesture_imgs/wg5-2.png")
-ggsave("wg5-barcomp.png", plot=wg5_comp)
-knitr::include_graphics("wg5-barcomp.png")
-kable(wg5_difference_table)
-
-## EAST
-knitr::include_graphics("../gesture_imgs/eg1-0.png")
-knitr::include_graphics("../gesture_imgs/eg1-1.png")
-knitr::include_graphics("../gesture_imgs/eg1-2.png")
-ggsave("eg1-barcomp.png", plot=eg1_comp)
-knitr::include_graphics("eg1-barcomp.png")
-kable(eg1_difference_table)
-
-knitr::include_graphics("../gesture_imgs/eg2-0.png")
-knitr::include_graphics("../gesture_imgs/eg2-1.png")
-knitr::include_graphics("../gesture_imgs/eg2-2.png")
-ggsave("eg2-barcomp.png", plot=eg2_comp)
-knitr::include_graphics("eg2-barcomp.png")
-kable(eg2_difference_table)
-
-knitr::include_graphics("../gesture_imgs/eg3-0.png")
-knitr::include_graphics("../gesture_imgs/eg3-1.png")
-knitr::include_graphics("../gesture_imgs/eg3-2.png")
-ggsave("eg3-barcomp.png", plot=eg3_comp)
-knitr::include_graphics("eg3-barcomp.png")
-kable(eg3_difference_table)
-
-knitr::include_graphics("../gesture_imgs/eg4-0.png")
-knitr::include_graphics("../gesture_imgs/eg4-1.png")
-knitr::include_graphics("../gesture_imgs/eg4-2.png")
-ggsave("eg4-barcomp.png", plot=eg4_comp)
-knitr::include_graphics("eg4-barcomp.png")
-kable(eg4_difference_table)
-```
-
 
 ### X-Culture Scale Corrections
 So for all of this, we are definitely using *parceling*, which is the process of combining individual scores to produce a new score (we combine two survey questions to form the category groups we analyze).
