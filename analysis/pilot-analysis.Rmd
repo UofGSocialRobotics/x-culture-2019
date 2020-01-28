@@ -1015,7 +1015,7 @@ p_wg1.2.e <- make_individual_pie_comparisons(wg1.2.e, "conflict", "unity", "unpo
 
 For example, we can visualize the difference between how individuals in western culture rated different response domains comapred to eastern cultures as below: 
 #### Comparing cultures 
-```{r}
+```{r display_cultural_comparisons}
 grid.arrange(p_wg1.0.w, p_wg1.0.e, 
              p_wg1.1.w, p_wg1.1.e,
              p_wg1.2.w, p_wg1.2.e, 
@@ -1029,7 +1029,7 @@ There is not a pattern in the responses in terms of one population rating "both"
 # Compare interpretations between cultures
 
 #### Reorganize data to have viewer_culture 
-```{r}
+```{r wrangle_viewer_cultures}
 wrangle_culture_groups <- function(d, cond="data", culture="western") {
   gathered <- gather_select(d)
   grouped <- add_groups(gathered)
@@ -1065,7 +1065,7 @@ eg4_total <- create_total_bicultural_tables(eg4.0.w, eg4.1.w, eg4.2.w, eg4.0.e, 
 ### Violin plot comparisons
 Can only plot by one thing at a time (i.e. for a single gesture condition then visualize across 
 metaphor measures, or for a single metaphor measure then visualize across conditions)
-```{r}
+```{r cross_cultural_violin_comparisons}
 median.quartile <- function(x){
   out <- quantile(x, probs = c(0.25,0.5,0.75))
   names(out) <- c("ymin","y","ymax")
@@ -1113,7 +1113,7 @@ Now the plots live in things like `wg1_violin_culture_comparisons$c0_violin_comp
 These visualizations are not very useful though, because they don't do a good job of emphasizing the differences between cultures. 
 
 ### Stats
-```{r echo = FALSE}
+```{r bi_cultural_tests, echo = FALSE}
 bi_culture_t_test <- function(g1, g2) {
   p <- t.test(g1, g2)[3]$p.value
   p <- round(p.adjust(p, method="bonferroni", n=12), digits=5)
@@ -1184,7 +1184,7 @@ eg4_total_cultural_comparison_tables <- do_t_culture_groups(eg4_total, "cond1", 
 Now all that data lives in things like `wg1_total_cultural_comparison_tables$c0_comparison`
 that look like this:
 WG1-0 (this name isn't here in the actual version, we just know from the naming scheme)
-```{r save everything, include=FALSE}
+```{r save_everything, include=FALSE}
 # Western
 ggsave("wg1_violin_jitter.png", plot=wg1_violin_culture_comparisons$c0_violin_comparison)
 #ggsave("wg2_violin_jitter.png", plot=wg2_violin_culture_comparisons$c0_violin_comparison)
@@ -1233,7 +1233,7 @@ calculate_power_for_condition <- function(gesture_data, metaphor, cond) {
 Short Answer: yes, power is high enough
 
 Example usage:
-```{r echo = TRUE}
+```{r get_cond_power, echo = TRUE}
 cond_power <- calculate_power_for_condition(wg2_total, "conflict", "original")
 ```
 Then you get a variable called `cond_power` you can use to see the actual power through `cond_power$power`. 
@@ -1580,7 +1580,7 @@ So for all of this, we are definitely using *parceling*, which is the process of
 Otherwise, we could try *GRS construction and correction*. 
 
 First let's measure the extent to which we're experiencing ARS/ERS. 
-```{r}
+```{r measure_response_styles}
 all_w_dat <- rbind(wg1_total, wg2_total, wg3_total, wg4_total, wg5_total)
 all_e_dat <- rbind(eg1_total, eg2_total, eg3_total, eg4_total)
 all_dat <- rbind(all_w_dat, all_e_dat)
@@ -1617,7 +1617,7 @@ However this still leaves open the possibility of within-subject correction... b
 
 ### More Questions
 #### Q: Are westerners more likely overall to interpret conflict? 
-```{r}
+```{r check_conflict_interpretation}
 w_group_avg <- all_w_viewer_dat %>%
   group_by(group) %>%
   summarise(avg=mean(score))
@@ -1628,8 +1628,9 @@ e_group_avg <- all_e_viewer_dat %>%
 ```
 A: No. Actually, western avg for conflict = 3.94, whereas eastern = 3.97.
 
+A continuation of that question...
 #### Q: In what categories did the differences occur? 
-```{r}
+```{r difference_categories}
 count_all_differences <- function(dat){
   diffs_only <- dat %>%
     group_by(group) %>%
@@ -1646,7 +1647,7 @@ all_diff_tables <- rbind(wg1_difference_table, wg2_difference_table, wg3_differe
 diff_counts <- count_all_differences(all_diff_tables)
 kable(diff_counts)
 ```
-A: `r diff_counts`
+A: So there is no particular category in which one culture was more apt to rate higher than the other. 
 
 #### Q: Did one cultural gesture result in more differences than the other?
 ```{r}
@@ -1691,12 +1692,10 @@ diffs_only <- n %>%
          nchar(as.character(adjusted_low_comp)) + 
          nchar(as.character(adjusted_med_comp))) != 0)
 
-c <- diffs_only %>%
-  group_by(group) %>%
-  summarise(w_high_culture=sum(higher=="western"), e_high_culture=sum(higher=="eastern"))
-
-# cert <- diffs_only %>%
-  filter(group=="certainty")
+## TODO change this just to add higher 
+#c <- diffs_only %>%
+#  group_by(group) %>%
+#  summarise(w_high_culture=sum(higher=="western"), e_high_culture=sum(higher=="eastern"))
 ```
 
 #### Q: What did our score distributions actually look like? 
